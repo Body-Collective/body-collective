@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Afbeelding omlaag verplaatsen - huidige positie {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Afbeelding omlaag verplaatsen, uitgeschakeld — laatste afbeelding",
   "ListingImage.screenreader.moveImageUp": "Afbeelding omhoog verplaatsen - huidige positie {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Afbeelding omhoog verplaatsen, uitgeschakeld — eerste afbeelding"
+  "ListingImage.screenreader.moveImageUpDisabled": "Afbeelding omhoog verplaatsen, uitgeschakeld — eerste afbeelding",
+  "ListingCard.priceFromPrefix": "vanaf",
+  "ListingCard.reviews": "{count} beoordelingen",
+  "ListingCard.saveListing": "Advertentie opslaan",
+  "EventCard.withAuthor": "met {authorName}",
+  "EventCard.photoPlaceholder": "{category} foto"
 }

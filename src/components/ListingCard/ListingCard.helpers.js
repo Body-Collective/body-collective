@@ -46,10 +46,20 @@ export const getListingCardTranslations = (listing, config, intl) => {
   const { title = '', price, publicData } = listing?.attributes || {};
 
   const authorDisplayName = listing?.author?.attributes?.profile?.displayName;
-  const authorName = intl.formatMessage(
-    { id: 'ListingCard.author' },
-    { authorName: authorDisplayName }
-  );
+  const authorName = authorDisplayName
+    ? intl.formatMessage({ id: 'ListingCard.author' }, { authorName: authorDisplayName })
+    : null;
+
+  const locationSource = publicData?.location;
+  const locationLabel =
+    typeof locationSource === 'string'
+      ? locationSource.trim() || null
+      : locationSource?.address
+      ? locationSource.address.split(',')[0].trim()
+      : publicData?.locationName || null;
+
+  const rating = publicData?.rating ?? publicData?.averageRating ?? null;
+  const reviewCount = publicData?.reviewCount ?? publicData?.reviewsCount ?? null;
 
   const validListingTypes = config.listing.listingTypes || [];
   const { listingType } = publicData || {};
@@ -57,6 +67,7 @@ export const getListingCardTranslations = (listing, config, intl) => {
 
   const showPrice = displayPrice(listingTypeConfig);
   const { formattedPrice, priceTooltip } = priceData(price, config.currency, intl);
+  const priceDisplay = formattedPrice || publicData?.priceDisplay;
 
   const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
   const hasMultiplePriceVariants = isPriceVariationsInUse && publicData?.priceVariants?.length > 1;
@@ -71,18 +82,18 @@ export const getListingCardTranslations = (listing, config, intl) => {
     : '';
 
   // Visible price block uses JSX spans for styling; aria-label needs a plain string.
-  const priceValue = <span className={css.priceValue}>{formattedPrice}</span>;
+  const priceValue = <span className={css.priceValue}>{priceDisplay}</span>;
   const pricePerUnit = isBookable ? <span className={css.perUnit}>{perUnitString}</span> : '';
   const priceMessage =
-    showPrice && formattedPrice != null
+    showPrice && priceDisplay != null
       ? intl.formatMessage({ id: priceMessageId }, { priceValue, pricePerUnit })
       : '';
 
   const priceMessagePlain =
-    showPrice && formattedPrice != null
+    showPrice && priceDisplay != null
       ? intl.formatMessage(
           { id: priceMessageId },
-          { priceValue: formattedPrice, pricePerUnit: perUnitString }
+          { priceValue: priceDisplay, pricePerUnit: perUnitString }
         )
       : '';
 
@@ -101,9 +112,13 @@ export const getListingCardTranslations = (listing, config, intl) => {
       longWordClass: css.longWord,
     }),
     authorName,
-    showPrice,
-    priceTooltip,
+    showPrice: showPrice && priceDisplay != null,
+    priceTooltip: priceTooltip || priceDisplay,
     priceMessage,
+    priceDisplay,
+    locationLabel,
+    rating,
+    reviewCount,
     cardAriaLabel,
   };
 };

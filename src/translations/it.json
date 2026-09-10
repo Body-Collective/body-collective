@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Sposta l'immagine in basso - posizione attuale {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Sposta l'immagine in basso, non disponibile — ultima immagine",
   "ListingImage.screenreader.moveImageUp": "Sposta l'immagine in alto - posizione attuale {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Sposta l'immagine in alto, non disponibile — prima immagine"
+  "ListingImage.screenreader.moveImageUpDisabled": "Sposta l'immagine in alto, non disponibile — prima immagine",
+  "ListingCard.priceFromPrefix": "da",
+  "ListingCard.reviews": "{count} recensioni",
+  "ListingCard.saveListing": "Salva annuncio",
+  "EventCard.withAuthor": "con {authorName}",
+  "EventCard.photoPlaceholder": "Foto {category}"
 }

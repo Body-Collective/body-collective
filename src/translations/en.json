@@ -1532,5 +1532,10 @@
   "UserNav.accountSettings": "Account settings",
   "UserNav.profileSettings": "Profile settings",
   "UserNav.screenreader.userNav": "User profile navigation",
-  "UserNav.yourListings": "Your listings"
+  "UserNav.yourListings": "Your listings",
+  "ListingCard.priceFromPrefix": "from",
+  "ListingCard.reviews": "{count} reviews",
+  "ListingCard.saveListing": "Save listing",
+  "EventCard.withAuthor": "with {authorName}",
+  "EventCard.photoPlaceholder": "{category} photo"
 }

@@ -55,7 +55,8 @@ const stripeErrorTranslation = (intl, stripeError) => {
 const stripeElementsOptions = {
   fonts: [
     {
-      cssSrc: 'https://fonts.googleapis.com/css?family=Inter',
+      cssSrc:
+        'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap',
     },
   ],
 };
@@ -66,7 +67,7 @@ const stripeElementsOptions = {
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 const cardStyles = {
   base: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Inter var", Helvetica, Arial, sans-serif',
+    fontFamily: 'Lora, Georgia, serif',
     fontSize: isMobile ? '14px' : '16px',
     fontSmoothing: 'antialiased',
     lineHeight: '24px',

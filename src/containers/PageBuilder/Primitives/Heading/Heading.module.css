@@ -10,7 +10,8 @@
   margin-top: 0;
   margin-bottom: 0;
   line-height: 1.33;
-  font-weight: bold;
+  font-family: var(--font-heading);
+  font-weight: var(--fontWeightRegular);
   color: var(--colorGrey900);
 
   /* fallback option */
@@ -25,7 +26,7 @@
   font-size: 40px;
   line-height: 1.2;
   letter-spacing: -0.5px;
-  font-weight: 800;
+  font-weight: var(--fontWeightRegular);
   /* Note: text-wrap is experimental CSS feature. Most browsers don't support it */
   text-wrap: balance;
 
@@ -53,6 +54,7 @@
 
 .h2 {
   font-size: 32px;
+  font-weight: var(--fontWeightSemiBold);
 
   /* If ´& + *´ if used, margin-top needs !important to overwrite */
   /* Handle margin-top of next adjacent element against this heading element */
@@ -74,10 +76,14 @@
 
 .h3 {
   font-size: 24px;
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
 }
 
 .h4 {
   font-size: 21px;
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
 }
 
 .h3,
@@ -100,4 +106,11 @@
   & + h6 {
     margin-top: 8px;
   }
+}
+
+.h6 {
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }

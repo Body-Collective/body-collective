@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Siirrä kuvaa alaspäin – nykyinen sijainti {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Siirrä kuvaa alaspäin, ei käytössä – viimeinen kuva",
   "ListingImage.screenreader.moveImageUp": "Siirrä kuvaa ylöspäin – nykyinen sijainti {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Siirrä kuvaa ylöspäin, ei käytössä – ensimmäinen kuva"
+  "ListingImage.screenreader.moveImageUpDisabled": "Siirrä kuvaa ylöspäin, ei käytössä – ensimmäinen kuva",
+  "ListingCard.priceFromPrefix": "alkaen",
+  "ListingCard.reviews": "{count} arvostelua",
+  "ListingCard.saveListing": "Tallenna ilmoitus",
+  "EventCard.withAuthor": "ohjaajana {authorName}",
+  "EventCard.photoPlaceholder": "{category}-kuva"
 }

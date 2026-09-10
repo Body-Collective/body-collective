@@ -32,6 +32,8 @@
   --colorAttentionSubtle: #fff7f0;
   --colorBannedLight: var(--marketplaceColorLight);
   --colorBannedDark: var(--marketplaceColor);
+  --color-neutral-800: #444141;
+  --color-text: #444141;
 
   /* B&W and Grey palette */
 
@@ -83,15 +85,21 @@
   --colorStatusFinalState: var(--colorGrey600);
 
   /* ================ Font ================ */
-  --fontFamily: -apple-system, BlinkMacSystemFont, 'Inter', Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  /**
+   * Cormorant Garamond — headings and display. Weights 400, 500, 600. Never 700+.
+   * Lora — body, buttons, labels, meta. Weights 400 and 600.
+   */
+  --font-heading: 'Cormorant Garamond', Garamond, serif;
+  --font-body: 'Lora', Georgia, serif;
+  --fontFamily: var(--font-body);
 
   --fontWeightRegular: 400;
   --fontWeightMedium: 500;
   --fontWeightSemiBold: 600;
-  --fontWeightBold: 700;
-  --fontWeightHeavy: 800;
-  --fontWeightBlack: 900;
+  /* Loaded faces stop at 600; heavier tokens map down to avoid faux-bold. */
+  --fontWeightBold: 600;
+  --fontWeightHeavy: 600;
+  --fontWeightBlack: 600;
 
   --fontWeightHighlightEmail: var(--fontWeightBold);
 
@@ -99,9 +107,9 @@
 
   /**
    * Note: changing --contentMaxWidth does not affect layouts with LayoutSideNavigation or search pages.
-   */
+   */ 
   --contentMaxWidth: 1056px;
-  --contentMaxWidthPages: 1120px; /* calc(Global width (1056px) + (Horizontal padding (32px) * 2) */
+  --contentMaxWidthPages: 1233px; /* calc(Global width (1056px) + (Horizontal padding (32px) * 2) */
 
   /* Multiples of mobile and desktop spacing units should be used with margins and paddings. */
   --spacingUnit: 6px;
@@ -212,7 +220,8 @@
  */
 
 body {
-  font-family: var(--fontFamily);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
 
   /* A non-standard feature: https://developer.mozilla.org/en-US/docs/Web/CSS/font-smooth */
   -webkit-font-smoothing: antialiased;
@@ -266,10 +275,23 @@ a:hover {
   cursor: pointer;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5 {
+  font-family: var(--font-heading);
+}
+
 h1 {
   font-size: 24px;
   line-height: 24px;
-  font-weight: var(--fontWeightBlack);
+  font-weight: var(--fontWeightRegular);
   padding: 3px 0 3px 0;
   /* margin-top + n * line-height + margin-bottom => x * 6px */
   margin-top: 18px;
@@ -288,7 +310,7 @@ h1 {
 h2 {
   font-size: 21px;
   line-height: 24px;
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightSemiBold);
 
   padding: 4px 0 2px 0;
   /* x * 6px */
@@ -306,7 +328,8 @@ h2 {
 }
 
 h3 {
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
   font-size: 18px;
   line-height: 24px;
   /* x * 6px */
@@ -324,7 +347,8 @@ h3 {
 }
 
 h4 {
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
   font-size: 16px;
   line-height: 30px;
   padding: 5px 0 1px 0;
@@ -361,10 +385,12 @@ h5 {
 }
 
 h6 {
-  font-weight: var(--fontWeightBold);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
   font-size: 12px;
   line-height: 18px;
   text-transform: uppercase;
+  letter-spacing: 0.12em;
   /* x * 6px */
   padding: 4px 0 2px 0;
   margin-top: 6px;
@@ -383,8 +409,8 @@ html,
 li,
 p,
 pre {
-  font-family: var(--fontFamily);
-  font-weight: var(--fontWeightMedium);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
 
   /* No margins for default font */
   font-size: 14px;
@@ -464,15 +490,15 @@ label {
 }
 
 button {
-  font-family: var(--fontFamily);
-  font-weight: var(--fontWeightSemiBold);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
 }
 
 /* marketplaceInputFontStyles */
 select,
 input,
 textarea {
-  font-family: var(--fontFamily);
+  font-family: var(--font-body);
   font-size: 16px;
 }
 
@@ -626,7 +652,7 @@ textarea {
 }
 
 .h1 {
-  font-weight: var(--fontWeightBlack);
+  font-weight: var(--fontWeightRegular);
   font-size: 24px;
   line-height: 24px;
 
@@ -646,7 +672,7 @@ textarea {
 }
 
 .h2 {
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightSemiBold);
   font-size: 21px;
   line-height: 24px;
 
@@ -666,7 +692,8 @@ textarea {
 }
 
 .h3 {
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
   font-size: 18px;
   line-height: 24px;
   /* x * 6px */
@@ -684,7 +711,8 @@ textarea {
 }
 
 .h4 {
-  font-weight: var(--fontWeightBold);
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.03em;
   font-size: 16px;
   line-height: 30px;
   padding: 5px 0 1px 0;
@@ -721,10 +749,12 @@ textarea {
 }
 
 .h6 {
-  font-weight: var(--fontWeightBold);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
   font-size: 12px;
   line-height: 18px;
   text-transform: uppercase;
+  letter-spacing: 0.12em;
   /* x * 6px */
   padding: 4px 0 2px 0;
   margin-top: 6px;
@@ -768,8 +798,8 @@ textarea {
 .marketplaceListingAttributeFontStyles,
 .marketplaceBodyFontStyles,
 .marketplaceDefaultFontStyles {
-  font-family: var(--fontFamily);
-  font-weight: var(--fontWeightMedium);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
 
   /* No margins for default font */
   font-size: 14px;
@@ -799,7 +829,7 @@ textarea {
 .textLarge {
   font-size: 20px;
   line-height: 30px;
-  font-weight: var(--fontWeightMedium);
+  font-weight: var(--fontWeightRegular);
 
   @media (--viewportMedium) {
     line-height: 32px;
@@ -809,7 +839,7 @@ textarea {
 .textSmall {
   font-size: 14px;
   line-height: 18px;
-  font-weight: var(--fontWeightMedium);
+  font-weight: var(--fontWeightRegular);
   letter-spacing: -0.1px;
 
   @media (--viewportMedium) {
@@ -820,7 +850,7 @@ textarea {
 .textXSmall {
   font-size: 13px;
   line-height: 18px;
-  font-weight: var(--fontWeightMedium);
+  font-weight: var(--fontWeightRegular);
 
   @media (--viewportMedium) {
     line-height: 16px;
@@ -830,7 +860,7 @@ textarea {
 /* ================ Other fonts ================ */
 
 .marketplaceSmallFontStyles {
-  font-weight: var(--fontWeightMedium);
+  font-weight: var(--fontWeightRegular);
   font-size: 14px;
   line-height: 24px;
 }
@@ -1257,9 +1287,13 @@ textarea {
   border-color: var(--colorGrey100);
 }
 
+.tabularNums {
+  font-variant-numeric: tabular-nums;
+}
+
 .buttonSmall {
-  font-family: var(--fontFamily);
-  font-weight: var(--fontWeightMedium);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
 
   font-size: 14px;
   line-height: 16px;

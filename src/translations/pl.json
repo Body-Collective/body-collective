@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Przesuń zdjęcie w dół – bieżąca pozycja {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Przesuń zdjęcie w dół, nieaktywne – ostatnie zdjęcie",
   "ListingImage.screenreader.moveImageUp": "Przesuń zdjęcie w górę – bieżąca pozycja {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Przesuń zdjęcie w górę, nieaktywne – pierwsze zdjęcie"
+  "ListingImage.screenreader.moveImageUpDisabled": "Przesuń zdjęcie w górę, nieaktywne – pierwsze zdjęcie",
+  "ListingCard.priceFromPrefix": "od",
+  "ListingCard.reviews": "{count} opinii",
+  "ListingCard.saveListing": "Zapisz ogłoszenie",
+  "EventCard.withAuthor": "z {authorName}",
+  "EventCard.photoPlaceholder": "Zdjęcie: {category}"
 }

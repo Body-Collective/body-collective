@@ -1,0 +1,114 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.item {
+  border-top: 1px solid var(--bc-divider, rgba(32, 31, 29, 0.12));
+}
+
+.item:last-child {
+  border-bottom: 1px solid var(--bc-divider, rgba(32, 31, 29, 0.12));
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 20px 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-text, #201f1d);
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 16.5px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.question::-webkit-details-marker,
+.question::marker {
+  display: none;
+}
+
+.question:focus {
+  outline: none;
+}
+
+.question:focus-visible {
+  outline: 2px solid var(--color-text, #201f1d);
+  outline-offset: 4px;
+}
+
+.questionText {
+  flex: 1;
+  min-width: 0;
+}
+
+.questionText h1,
+.questionText h2,
+.questionText h3,
+.questionText h4,
+.questionText h5,
+.questionText h6,
+.questionText p {
+  font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--color-text);
+    line-height: 1.35;
+  margin: 0;
+  padding: 0;
+  @media (max-width: 768px) {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-text);
+    line-height: 1.35;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.chevron {
+  fill: transparent;
+  flex-shrink: 0;
+  color: #000;
+  transition: transform var(--transitionStyle);
+}
+
+.item[open] .chevron {
+  transform: rotate(90deg);
+}
+
+.answer {
+  padding: 0 40px 24px 0;
+}
+
+.answer p,
+.answer li {
+  font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-neutral-700);
+    margin: 0px 0px 22px;
+    max-width: 760px;
+  margin: 0;
+  padding: 0;
+  @media (max-width: 768px) {
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-neutral-700);
+    margin: 0px 0px 16px;
+  }
+}
+
+.answer p + p {
+  margin-top: 12px;
+}

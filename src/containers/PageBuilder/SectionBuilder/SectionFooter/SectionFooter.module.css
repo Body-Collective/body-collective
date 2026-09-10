@@ -11,6 +11,15 @@
   gap: 32px;
   margin: 0 auto;
   padding: 24px 32px;
+
+  & h4 {
+    font-family: var(--font-body);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(168, 112, 90);
+    margin-bottom: 14px;
+  }
 }
 
 .footer ul {
@@ -45,7 +54,7 @@
   justify-content: center;
   align-content: start;
   grid-auto-rows: auto;
-  grid-gap: 32px;
+  grid-gap: 12px;
 }
 
 .gridCol1,
@@ -62,7 +71,14 @@
 .slogan {
   font-size: 16px;
   line-height: 24px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 15px;
+  color: rgb(168, 112, 90);
+  margin-top: 8px;
+  margin-bottom: 22px;
 }
+
 .sloganMobile {
   grid-area: details;
   padding-bottom: 24px;
@@ -71,6 +87,7 @@
     display: none;
   }
 }
+
 .sloganDesktop {
   display: none;
 
@@ -113,9 +130,11 @@
     text-decoration: none;
   }
 }
+
 .logoWrapper {
   max-width: 370px;
 }
+
 .logoImage {
   height: auto;
   width: auto;
@@ -129,6 +148,7 @@
 }
 
 @media (min-width: 350px) {
+
   .gridCol2,
   .gridCol3,
   .gridCol4 {
@@ -137,6 +157,7 @@
 }
 
 @media (min-width: 600px) {
+
   .gridCol3,
   .gridCol4 {
     grid-template-columns: repeat(3, 1fr);
@@ -163,6 +184,7 @@
       'details . grid'
       'details . grid';
   }
+
   .contentCol2 {
     /* 2/6 of space is for grid, and grid splits it to 2 columns */
     grid-template-columns: 2fr 2fr 2fr;
@@ -172,6 +194,7 @@
       'details . grid'
       'details . grid';
   }
+
   .contentCol3 {
     /* 3/6 of space is for grid, and grid splits it to 3 columns */
     grid-template-columns: 2fr 1fr 1fr 2fr;
@@ -181,6 +204,7 @@
       'details . grid grid'
       'details . grid grid';
   }
+
   .contentCol4 {
     /* 4/6 of space is for grid, and grid splits it to 4 columns */
     grid-template-columns: 2fr 2fr 2fr;

@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Descendre l'image - position actuelle {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Descendre l'image, désactivé — dernière image",
   "ListingImage.screenreader.moveImageUp": "Monter l'image - position actuelle {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Monter l'image, désactivé — première image"
+  "ListingImage.screenreader.moveImageUpDisabled": "Monter l'image, désactivé — première image",
+  "ListingCard.priceFromPrefix": "à partir de",
+  "ListingCard.reviews": "{count} avis",
+  "ListingCard.saveListing": "Enregistrer l'annonce",
+  "EventCard.withAuthor": "avec {authorName}",
+  "EventCard.photoPlaceholder": "Photo {category}"
 }

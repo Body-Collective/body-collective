@@ -10,12 +10,17 @@ import { ListingCard, IconSpinner, ErrorMessage, NamedLink } from '../../../../c
 
 import Field, { hasDataInFields } from '../../Field';
 import SectionContainer from '../SectionContainer';
+import EventCard from './EventCard';
 
 import css from './SectionListings.module.css';
 
 const KEY_ARROW_LEFT = 'ArrowLeft';
 const KEY_ARROW_RIGHT = 'ArrowRight';
 const MAX_MOBILE_SCREEN_WIDTH = 768;
+const SEMINARS_AND_EVENTS_SECTION_ID = 'seminars_and_events';
+const FEATURED_CARD_ASPECT_RATIO = '4/5';
+const FEATURED_CARD_ASPECT_WIDTH = 4;
+const FEATURED_CARD_ASPECT_HEIGHT = 5;
 
 // Configuration for supported column layouts
 // Only 3 and 4 columns are supported in this component
@@ -68,6 +73,8 @@ const isMobileViewport = () => {
  * @param {Object} config - Configuration object containing layout settings
  * @param {number} carouselWidth - Width of the carousel container
  * @param {boolean} isMobileBreakpoint - Whether the viewport is mobile
+ * @param {string?} listingImageAspectRatio - aspect ratio string like "4/5"
+ * @param {boolean?} isEventCard - seminars_and_events card uses a different info block
  * @returns {number} Calculated height in pixels
  */
 const calculateCarouselHeight = (
@@ -76,7 +83,9 @@ const calculateCarouselHeight = (
   carouselWidth,
   isMobileBreakpoint = false,
   error,
-  noListingsFound
+  noListingsFound,
+  listingImageAspectRatio,
+  isEventCard = false
 ) => {
   const errorMessageHeight = 250;
   const noListingsFoundHeight = 220;
@@ -89,22 +98,23 @@ const calculateCarouselHeight = (
     return noListingsFoundHeight;
   }
 
-  const thumbnailAspectRatio = config.layout.listingImage.aspectRatio;
+  const thumbnailAspectRatio = listingImageAspectRatio || config.layout.listingImage.aspectRatio;
   const paddingHorizontal = 2 * 32; // 2x32px
-  const titleHeightSingleLine = 16;
-  const titleHeightDoubleLine = titleHeightSingleLine * 2;
-  const cardInfoPadding = 14 + 2; // padding-top + padding-bottom
-  const priceHeight = 16 + 4; // height + margin-bottom
-  const authorInfoHeight = 24;
+  const titleHeightSingleLine = 21;
+  const cardInfoPadding = 16 + 8; // padding-top + padding-bottom
+  const priceHeight = 20 + 14 + 14; // line-height + margin-top + padding-top
+  const authorInfoHeight = 24 + 6; // line-height + margin-bottom
+  const metaHeight = 18;
   const contentMaxWidthPages = 1120;
   const containerPaddingTop = 32;
   const containerPaddingBottom = 24;
 
-  const priceHeightMobile = 18 + 4; // 18 + margin bottom
-  const authorInfoHeightMobile = 18 + 4 + 4; // 18 + padding top + padding bottom
-  const titleHeightSingleLineMobile = 18;
-  const cardInfoHeightMobile =
-    priceHeightMobile + authorInfoHeightMobile + titleHeightSingleLineMobile + cardInfoPadding;
+  const eventTitleHeight = 50;
+  const eventMetaHeight = 21 + 4 + 21;
+  const eventCardInfoHeight = cardInfoPadding + eventTitleHeight + 8 + eventMetaHeight;
+  const cardInfoHeightMobile = isEventCard
+    ? eventCardInfoHeight
+    : priceHeight + authorInfoHeight + titleHeightSingleLine + metaHeight + cardInfoPadding;
 
   const parsedAspectRatio = parseAspectRatio(thumbnailAspectRatio);
 
@@ -114,7 +124,9 @@ const calculateCarouselHeight = (
   const cardWidth =
     (mainColumnWidth - paddingHorizontal - gutters) / (isMobileBreakpoint ? 1 : numColumns);
   const cardImageHeight = cardWidth / parsedAspectRatio;
-  const cardInfoHeight = priceHeight + titleHeightSingleLine + authorInfoHeight + cardInfoPadding;
+  const cardInfoHeight = isEventCard
+    ? eventCardInfoHeight
+    : priceHeight + titleHeightSingleLine + authorInfoHeight + metaHeight + cardInfoPadding;
 
   const totalCardHeight =
     cardImageHeight + (isMobileBreakpoint ? cardInfoHeightMobile : cardInfoHeight);
@@ -150,6 +162,7 @@ const ListingCarouselComponent = props => {
     isInsideContainer,
   } = props;
 
+  const isSeminarsAndEvents = sectionId === SEMINARS_AND_EVENTS_SECTION_ID;
   const listingImageConfig = config.layout.listingImage;
 
   useEffect(() => {
@@ -190,14 +203,26 @@ const ListingCarouselComponent = props => {
     <ul className={getColumnCSS(numColumns, false)} ref={sliderRef} role="list">
       {listings.map(listing => (
         <li key={listing.id.uuid} className={css.listItem}>
-          <ListingCard
-            className={classNames(css.card, { [css.isInsideContainer]: isInsideContainer })}
-            aspectRatioClassName={css.carouselImageHoverEffect}
-            listing={listing}
-            darkMode={darkMode}
-            renderSizes={getResponsiveImageSizes(numColumns)}
-            lazyLoadImage={!isInsideContainer}
-          />
+          {isSeminarsAndEvents ? (
+            <EventCard
+              className={classNames(css.card, { [css.isInsideContainer]: isInsideContainer })}
+              listing={listing}
+              renderSizes={getResponsiveImageSizes(numColumns)}
+              aspectWidth={FEATURED_CARD_ASPECT_WIDTH}
+              aspectHeight={FEATURED_CARD_ASPECT_HEIGHT}
+            />
+          ) : (
+            <ListingCard
+              className={classNames(css.card, { [css.isInsideContainer]: isInsideContainer })}
+              aspectRatioClassName={css.carouselImageHoverEffect}
+              listing={listing}
+              darkMode={darkMode}
+              renderSizes={getResponsiveImageSizes(numColumns)}
+              lazyLoadImage={!isInsideContainer}
+              aspectWidth={FEATURED_CARD_ASPECT_WIDTH}
+              aspectHeight={FEATURED_CARD_ASPECT_HEIGHT}
+            />
+          )}
         </li>
       ))}
     </ul>
@@ -243,6 +268,7 @@ const SectionListings = props => {
     featuredListingData,
   } = featuredListings;
 
+  const isSeminarsAndEvents = sectionId === SEMINARS_AND_EVENTS_SECTION_ID;
   const listingIds = featuredListingData?.[sectionId]?.listingIds;
   const listingEntities = listingIds ? getListingEntitiesById(listingIds) : [];
 
@@ -327,7 +353,9 @@ const SectionListings = props => {
     carouselWidthConstant,
     isMobileBreakpoint,
     error,
-    noListingsFound
+    noListingsFound,
+    FEATURED_CARD_ASPECT_RATIO,
+    isSeminarsAndEvents
   );
 
   return (

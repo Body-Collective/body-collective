@@ -34,7 +34,7 @@
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: var(--topbarNavColor, var(--colorGrey700));
 
   display: inline;
   height: 100%;
@@ -42,10 +42,10 @@
   padding: 0 12px 0 12px;
 
   &:hover {
-    border-bottom: 4px solid var(--marketplaceColor);
+    border-bottom: 4px solid var(--topbarNavUnderline, var(--marketplaceColor));
     border-radius: 0;
     text-decoration: none;
-    color: var(--colorBlack);
+    color: var(--topbarNavHoverColor, var(--colorBlack));
   }
 
   &:active {
@@ -61,6 +61,8 @@
 
 .arrowIcon {
   margin-left: 8px;
+  fill: var(--topbarNavColor, var(--colorGrey700));
+  stroke: var(--topbarNavColor, var(--colorGrey700));
 }
 
 .linkMenuContent {

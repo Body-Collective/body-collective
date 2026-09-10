@@ -386,7 +386,7 @@ describe('SearchPage', () => {
       // Has listing with title
       expect(getByText('l2 title')).toBeInTheDocument();
       // 2 listings with the same price
-      expect(getAllByText('ListingCard.price')).toHaveLength(2);
+      expect(getAllByText('ListingCard.priceFromPrefix')).toHaveLength(2);
     });
 
     // Test category intercation: click "Fish"
@@ -476,7 +476,7 @@ describe('SearchPage', () => {
       // Has listing with title
       expect(getByText('l2 title')).toBeInTheDocument();
       // 2 listings with the same price
-      expect(getAllByText('ListingCard.price')).toHaveLength(2);
+      expect(getAllByText('ListingCard.priceFromPrefix')).toHaveLength(2);
     });
 
     // Test category intercation

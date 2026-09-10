@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Переместить изображение вниз. Текущая позиция: {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Переместить изображение вниз — недоступно, это последнее изображение",
   "ListingImage.screenreader.moveImageUp": "Переместить изображение вверх. Текущая позиция: {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Переместить изображение вверх — недоступно, это первое изображение"
+  "ListingImage.screenreader.moveImageUpDisabled": "Переместить изображение вверх — недоступно, это первое изображение",
+  "ListingCard.priceFromPrefix": "от",
+  "ListingCard.reviews": "{count} отзывов",
+  "ListingCard.saveListing": "Сохранить объявление",
+  "EventCard.withAuthor": "с {authorName}",
+  "EventCard.photoPlaceholder": "Фото: {category}"
 }

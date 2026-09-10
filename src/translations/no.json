@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Flytt bilde ned – nåværende posisjon {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Flytt bilde ned, deaktivert – siste bilde",
   "ListingImage.screenreader.moveImageUp": "Flytt bilde opp – nåværende posisjon {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Flytt bilde opp, deaktivert – første bilde"
+  "ListingImage.screenreader.moveImageUpDisabled": "Flytt bilde opp, deaktivert – første bilde",
+  "ListingCard.priceFromPrefix": "fra",
+  "ListingCard.reviews": "{count} anmeldelser",
+  "ListingCard.saveListing": "Lagre oppføring",
+  "EventCard.withAuthor": "med {authorName}",
+  "EventCard.photoPlaceholder": "{category}-bilde"
 }

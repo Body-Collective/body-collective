@@ -1532,5 +1532,10 @@
   "ListingImage.screenreader.moveImageDown": "Flytta bilden nedåt – nuvarande position {currentPosition}.",
   "ListingImage.screenreader.moveImageDownDisabled": "Flytta bilden nedåt, inaktiverat – sista bilden",
   "ListingImage.screenreader.moveImageUp": "Flytta bilden uppåt – nuvarande position {currentPosition}.",
-  "ListingImage.screenreader.moveImageUpDisabled": "Flytta bilden uppåt, inaktiverat – första bilden"
+  "ListingImage.screenreader.moveImageUpDisabled": "Flytta bilden uppåt, inaktiverat – första bilden",
+  "ListingCard.priceFromPrefix": "från",
+  "ListingCard.reviews": "{count} recensioner",
+  "ListingCard.saveListing": "Spara annons",
+  "EventCard.withAuthor": "med {authorName}",
+  "EventCard.photoPlaceholder": "{category}-foto"
 }
