@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
+import { showCreateListingLinkForUser } from '../../../../util/userHelpers';
 import {
   Avatar,
   InlineTextButton,
@@ -19,22 +20,18 @@ import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
 
 import css from './TopbarDesktop.module.css';
 
-const SignupLink = () => {
+const SignupLink = ({ className }) => {
   return (
-    <NamedLink id="signup-link" name="SignupPage" className={css.topbarLink}>
-      <span className={css.topbarLinkLabel}>
-        <FormattedMessage id="TopbarDesktop.signup" />
-      </span>
+    <NamedLink id="signup-link" name="SignupPage" className={className}>
+      <FormattedMessage id="TopbarDesktop.signup" />
     </NamedLink>
   );
 };
 
-const LoginLink = () => {
+const LoginLink = ({ className }) => {
   return (
-    <NamedLink id="login-link" name="LoginPage" className={css.topbarLink}>
-      <span className={css.topbarLinkLabel}>
-        <FormattedMessage id="TopbarDesktop.login" />
-      </span>
+    <NamedLink id="login-link" name="LoginPage" className={className}>
+      <FormattedMessage id="TopbarDesktop.login" />
     </NamedLink>
   );
 };
@@ -154,6 +151,7 @@ const TopbarDesktop = props => {
     inboxTab,
   } = props;
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -163,8 +161,33 @@ const TopbarDesktop = props => {
   const authenticatedOnClientSide = mounted && isAuthenticated;
   const isAuthenticatedOrJustHydrated = isAuthenticated || !mounted;
 
+  // Create-listing visibility depends on currentUser. Until mount, use the anonymous rule on
+  // both SSR and the first client render so PriorityLinks markup matches (avoids React #418/#425).
+  const showCreateListingsLinkHydrationSafe = mounted
+    ? showCreateListingsLink
+    : showCreateListingLinkForUser(config, null);
+
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
-  const classes = classNames(rootClassName || css.root, className);
+  const isLandingPage = currentPage === 'LandingPage';
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.landingPage]: isLandingPage,
+    [css.scrolled]: isLandingPage && isScrolled,
+  });
+
+  useEffect(() => {
+    if (!isLandingPage) {
+      setIsScrolled(false);
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLandingPage]);
 
   const inboxLinkMaybe = authenticatedOnClientSide ? (
     <InboxLink notificationCount={notificationCount} inboxTab={inboxTab} />
@@ -180,8 +203,12 @@ const TopbarDesktop = props => {
     />
   ) : null;
 
-  const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : <SignupLink />;
-  const loginLinkMaybe = isAuthenticatedOrJustHydrated ? null : <LoginLink />;
+  const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : (
+    <SignupLink className={css.signupButton} />
+  );
+  const loginLinkMaybe = isAuthenticatedOrJustHydrated ? null : (
+    <LoginLink className={css.loginButton} />
+  );
 
   const searchFormMaybe = showSearchForm ? (
     <TopbarSearchForm
@@ -218,13 +245,17 @@ const TopbarDesktop = props => {
         customLinks={customLinks}
         intl={intl}
         hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
-        showCreateListingsLink={showCreateListingsLink}
+        showCreateListingsLink={showCreateListingsLinkHydrationSafe}
       />
 
       {inboxLinkMaybe}
       {profileMenuMaybe}
-      {signupLinkMaybe}
-      {loginLinkMaybe}
+      {loginLinkMaybe || signupLinkMaybe ? (
+        <div className={css.authLinks}>
+          {loginLinkMaybe}
+          {signupLinkMaybe}
+        </div>
+      ) : null}
     </nav>
   );
 };

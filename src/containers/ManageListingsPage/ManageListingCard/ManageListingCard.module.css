@@ -41,7 +41,7 @@
 }
 
 .price {
-  composes: textSmall from global;
+  composes: textSmall tabularNums from global;
 
   /* Layout */
   flex-shrink: 0;

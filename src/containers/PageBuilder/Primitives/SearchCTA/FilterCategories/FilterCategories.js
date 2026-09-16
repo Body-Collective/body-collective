@@ -109,6 +109,8 @@ const CategoryDropdown = ({ input, className, rootClassName, categories, alignLe
             [css.placeholderOpened]: isOpen && !hasSelected,
           })}
         >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="9" cy="6" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+          &nbsp;
           <span className={css.dropdownItem}>{labelText}</span>
           <span className={classNames(css.chevron, isOpen && css.isOpen)} />
         </div>

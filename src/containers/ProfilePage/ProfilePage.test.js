@@ -166,7 +166,7 @@ describe('ProfilePage', () => {
 
     expect(screen.getByText('ProfilePage.listingsTitle')).toBeInTheDocument();
     expect(screen.getByText('l1 title')).toBeInTheDocument();
-    expect(screen.getByText('ListingCard.price')).toBeInTheDocument();
+    expect(screen.getByText('ListingCard.priceFromPrefix')).toBeInTheDocument();
   });
 
   it('Check that review information is shown correctly', async () => {

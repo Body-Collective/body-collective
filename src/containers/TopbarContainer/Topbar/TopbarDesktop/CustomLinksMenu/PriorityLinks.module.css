@@ -27,7 +27,7 @@
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: var(--topbarNavColor, var(--colorGrey700));
 
   flex-shrink: 0;
   height: 100%;
@@ -35,8 +35,8 @@
   margin: 0;
 
   &:hover {
-    color: var(--colorBlack);
-    border-bottom: 4px solid var(--marketplaceColor);
+    color: var(--topbarNavHoverColor, var(--colorBlack));
+    border-bottom: 4px solid var(--topbarNavUnderline, var(--marketplaceColor));
     border-radius: 0;
     text-decoration: none;
   }
@@ -48,9 +48,9 @@
 }
 
 .highlight {
-  color: var(--marketplaceColor);
+  color: var(--topbarNavHighlightColor, var(--marketplaceColor));
   &:hover {
-    color: var(--marketplaceColorDark);
+    color: var(--topbarNavHighlightHoverColor, var(--marketplaceColorDark));
   }
 }
 

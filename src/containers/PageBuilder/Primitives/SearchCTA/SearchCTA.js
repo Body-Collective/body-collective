@@ -14,7 +14,7 @@ import { isOriginInUse } from '../../../../util/search';
 import { stringifyDateToISO8601 } from '../../../../util/dates';
 
 // Shared components
-import { Form, PrimaryButton } from '../../../../components';
+import { Form, IconSearch, PrimaryButton } from '../../../../components';
 
 import FilterCategories from './FilterCategories/FilterCategories';
 import FilterDateRange from './FilterDateRange/FilterDateRange';
@@ -173,6 +173,7 @@ export const SearchCTA = React.forwardRef((props, ref) => {
               {addFilters(['categories', 'keywordSearch', 'locationSearch', 'dateRange'])}
 
               <PrimaryButton disabled={submitDisabled} className={css.submitButton} type="submit">
+                <IconSearch rootClassName={css.searchIcon} />
                 <FormattedMessage id="PageBuilder.SearchCTA.buttonLabel" />
               </PrimaryButton>
             </Form>

@@ -38,18 +38,28 @@ const priceData = (price, currency, intl) => {
  *   - titleFormatted: React nodes from richText(title) for display
  *   - showPrice: whether to show the price block
  *   - priceTooltip: string for the price element's title attribute (tooltip on hover)
- *   - priceMessage: string or null for the price block content (same translation as used in cardAriaLabel when shown)
- *   - cardAriaLabel: ready-to-use aria-label for the card link (listing title + price line when shown)
+ *   - priceMessage: React nodes for the price block content (styled amount + per-unit)
+ *   - cardAriaLabel: ready-to-use aria-label for the card link (listing title + plain price line when shown)
  *   - authorName: "ListingCard.author" string containing author's display name
  */
 export const getListingCardTranslations = (listing, config, intl) => {
   const { title = '', price, publicData } = listing?.attributes || {};
 
   const authorDisplayName = listing?.author?.attributes?.profile?.displayName;
-  const authorName = intl.formatMessage(
-    { id: 'ListingCard.author' },
-    { authorName: authorDisplayName }
-  );
+  const authorName = authorDisplayName
+    ? intl.formatMessage({ id: 'ListingCard.author' }, { authorName: authorDisplayName })
+    : null;
+
+  const locationSource = publicData?.location;
+  const locationLabel =
+    typeof locationSource === 'string'
+      ? locationSource.trim() || null
+      : locationSource?.address
+      ? locationSource.address.split(',')[0].trim()
+      : publicData?.locationName || null;
+
+  const rating = publicData?.rating ?? publicData?.averageRating ?? null;
+  const reviewCount = publicData?.reviewCount ?? publicData?.reviewsCount ?? null;
 
   const validListingTypes = config.listing.listingTypes || [];
   const { listingType } = publicData || {};
@@ -57,6 +67,7 @@ export const getListingCardTranslations = (listing, config, intl) => {
 
   const showPrice = displayPrice(listingTypeConfig);
   const { formattedPrice, priceTooltip } = priceData(price, config.currency, intl);
+  const priceDisplay = formattedPrice || publicData?.priceDisplay;
 
   const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
   const hasMultiplePriceVariants = isPriceVariationsInUse && publicData?.priceVariants?.length > 1;
@@ -70,19 +81,27 @@ export const getListingCardTranslations = (listing, config, intl) => {
     ? intl.formatMessage({ id: 'ListingCard.perUnit' }, { unitType: publicData?.unitType })
     : '';
 
-  // Single formatted price line (amount + per-unit if applicable); used for both card aria and price block
-  const priceValue = <span className={css.priceValue}>{formattedPrice}</span>;
+  // Visible price block uses JSX spans for styling; aria-label needs a plain string.
+  const priceValue = <span className={css.priceValue}>{priceDisplay}</span>;
   const pricePerUnit = isBookable ? <span className={css.perUnit}>{perUnitString}</span> : '';
   const priceMessage =
-    showPrice && formattedPrice != null
+    showPrice && priceDisplay != null
       ? intl.formatMessage({ id: priceMessageId }, { priceValue, pricePerUnit })
       : '';
 
+  const priceMessagePlain =
+    showPrice && priceDisplay != null
+      ? intl.formatMessage(
+          { id: priceMessageId },
+          { priceValue: priceDisplay, pricePerUnit: perUnitString }
+        )
+      : '';
+
   const cardAriaLabel =
-    priceMessage.length > 0
+    priceMessagePlain.length > 0
       ? intl.formatMessage(
           { id: 'ListingCard.screenreader.label' },
-          { listingTitle: title, formattedPrice: priceMessage }
+          { listingTitle: title, formattedPrice: priceMessagePlain }
         )
       : title;
 
@@ -93,9 +112,13 @@ export const getListingCardTranslations = (listing, config, intl) => {
       longWordClass: css.longWord,
     }),
     authorName,
-    showPrice,
-    priceTooltip,
+    showPrice: showPrice && priceDisplay != null,
+    priceTooltip: priceTooltip || priceDisplay,
     priceMessage,
+    priceDisplay,
+    locationLabel,
+    rating,
+    reviewCount,
     cardAriaLabel,
   };
 };
