@@ -51,6 +51,7 @@
 
   /* fill */
   background-color: var(--colorWhite);
+  --topbarLogoColor: #201f1d;
 
   /* shadows */
   box-shadow: var(--boxShadow);
@@ -62,6 +63,29 @@
   @media (--viewportLarge) {
     display: none;
   }
+}
+
+/* Home / LandingPage route: transparent until the page is scrolled */
+.landingPage {
+  background-color: transparent;
+  box-shadow: none;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.landingPage:not(.scrolled) {
+  --topbarLogoColor: #f6f3ee;
+
+  & .menuIcon {
+    fill: #f6f3ee;
+  }
+  & .searchMenuIcon {
+    stroke: #f6f3ee;
+  }
+}
+
+.scrolled {
+  background-color: var(--colorWhite);
+  box-shadow: var(--boxShadow);
 }
 
 .logoutButton {
@@ -116,6 +140,7 @@
 .menuIcon,
 .searchMenuIcon {
   margin: 9px 0;
+  transition: fill 0.2s ease, stroke 0.2s ease;
 }
 
 .notificationDot {

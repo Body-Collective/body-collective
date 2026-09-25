@@ -7,7 +7,6 @@ import { showCreateListingLinkForUser } from '../../../../util/userHelpers';
 import {
   Avatar,
   InlineTextButton,
-  LinkedLogo,
   Menu,
   MenuLabel,
   MenuContent,
@@ -16,6 +15,7 @@ import {
 } from '../../../../components';
 
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
+import TopbarLogo from '../TopbarLogo/TopbarLogo';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
 
 import css from './TopbarDesktop.module.css';
@@ -130,6 +130,7 @@ const ProfileMenu = ({ currentPage, currentUser, onLogout, showManageListingsLin
  * @param {boolean} props.showSearchForm
  * @param {boolean} props.showCreateListingsLink
  * @param {string} props.inboxTab
+ * @param {boolean} props.isScrolled whether the page has been scrolled past the top
  * @returns {JSX.Element} search icon
  */
 const TopbarDesktop = props => {
@@ -149,15 +150,14 @@ const TopbarDesktop = props => {
     showSearchForm,
     showCreateListingsLink,
     inboxTab,
+    isScrolled = false,
   } = props;
   const [mounted, setMounted] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const marketplaceName = config.marketplaceName;
   const authenticatedOnClientSide = mounted && isAuthenticated;
   const isAuthenticatedOrJustHydrated = isAuthenticated || !mounted;
 
@@ -173,21 +173,6 @@ const TopbarDesktop = props => {
     [css.landingPage]: isLandingPage,
     [css.scrolled]: isLandingPage && isScrolled,
   });
-
-  useEffect(() => {
-    if (!isLandingPage) {
-      setIsScrolled(false);
-      return;
-    }
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 8);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLandingPage]);
 
   const inboxLinkMaybe = authenticatedOnClientSide ? (
     <InboxLink notificationCount={notificationCount} inboxTab={inboxTab} />
@@ -231,11 +216,9 @@ const TopbarDesktop = props => {
       className={classes}
       aria-label={intl.formatMessage({ id: 'TopbarDesktop.screenreader.topbarNavigation' })}
     >
-      <LinkedLogo
+      <TopbarLogo
         id="logo-topbar-desktop"
         className={css.logoLink}
-        layout="desktop"
-        alt={intl.formatMessage({ id: 'TopbarDesktop.logo' }, { marketplaceName })}
         linkToExternalSite={config?.topbar?.logoLink}
       />
       {searchFormMaybe}

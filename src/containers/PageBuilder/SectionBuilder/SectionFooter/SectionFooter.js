@@ -1,11 +1,16 @@
 import React from 'react';
 import classNames from 'classnames';
-import { LinkedLogo } from '../../../../components';
+
+import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
+
+import { ExternalLink, NamedLink } from '../../../../components';
 
 import Field from '../../Field';
 import BlockBuilder from '../../BlockBuilder';
 
 import SectionContainer from '../SectionContainer';
+import NewsletterForm from './NewsletterForm';
+import { IconCheckCircle, IconLock, IconMail } from './FooterIcons';
 import css from './SectionFooter.module.css';
 
 // The number of columns (numberOfColumns) affects styling
@@ -16,8 +21,6 @@ const GRID_CONFIG = [
   { contentCss: css.contentCol3, gridCss: css.gridCol3 },
   { contentCss: css.contentCol4, gridCss: css.gridCol4 },
 ];
-const MAX_MOBILE_SCREEN_WIDTH = 1024;
-
 const getIndex = numberOfColumns => numberOfColumns - 1;
 
 const getContentCss = numberOfColumns => {
@@ -83,6 +86,8 @@ const SectionFooter = props => {
     options,
     linkLogoToExternalSite,
   } = props;
+  const intl = useIntl();
+  const contactEmail = intl.formatMessage({ id: 'SectionFooter.contactEmail' });
 
   // If external mapping has been included for fields
   // E.g. { h1: { component: MyAwesomeHeader } }
@@ -96,13 +101,23 @@ const SectionFooter = props => {
   });
 
   const showSocialMediaLinks = socialMediaLinks?.length > 0;
-  const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
-  const isMobileLayout = hasMatchMedia
-    ? window.matchMedia(`(max-width: ${MAX_MOBILE_SCREEN_WIDTH}px)`)?.matches
-    : true;
-  const logoLayout = isMobileLayout ? 'mobile' : 'desktop';
 
-  // use block builder instead of mapping blocks manually
+  const brandName = (
+    <span className={css.logoText}>
+      <FormattedMessage id="Topbar.brandName" />
+    </span>
+  );
+
+  // Note: href might come as an empty string (falsy), in which case we default to 'LandingPage'.
+  const logoLink = linkLogoToExternalSite?.href ? (
+    <ExternalLink className={css.logoLink} href={linkLogoToExternalSite.href} target="_self">
+      {brandName}
+    </ExternalLink>
+  ) : (
+    <NamedLink className={css.logoLink} name="LandingPage">
+      {brandName}
+    </NamedLink>
+  );
 
   return (
     <SectionContainer
@@ -115,32 +130,67 @@ const SectionFooter = props => {
     >
       <div className={css.footer}>
         <div className={classNames(css.content, getContentCss(numberOfColumns))}>
-          <div>
-            <LinkedLogo
-              rootClassName={css.logoLink}
-              logoClassName={css.logoWrapper}
-              logoImageClassName={css.logoImage}
-              linkToExternalSite={linkLogoToExternalSite}
-              layout={logoLayout}
-            />
-          </div>
-          <div className={css.sloganMobile}>
+          <div className={css.brand}>
+            {logoLink}
             <Field data={slogan} className={css.slogan} />
-          </div>
-          <div className={css.detailsInfo}>
-            <div className={css.sloganDesktop}>
-              <Field data={slogan} className={css.slogan} />
-            </div>
-            {showSocialMediaLinks ? (
-              <div className={css.icons}>
-                <BlockBuilder blocks={linksWithBlockId} sectionId={sectionId} options={options} />
-              </div>
-            ) : null}
-            <Field data={copyright} className={css.copyright} />
+            <NewsletterForm className={css.newsletter} formId={`${sectionId}-newsletter`} />
           </div>
           <div className={classNames(css.grid, getGridCss(numberOfColumns))}>
             <BlockBuilder blocks={blocks} sectionId={sectionId} options={options} />
           </div>
+        </div>
+
+        <div className={css.bottomBar}>
+          <div className={css.bottomRow}>
+            <ul className={css.trustBadges}>
+              <li className={css.trustBadge}>
+                <IconLock className={css.trustIcon} />
+                <FormattedMessage id="SectionFooter.securePayments" />
+              </li>
+              <li className={css.trustBadge}>
+                <IconCheckCircle className={css.trustIcon} />
+                <FormattedMessage id="SectionFooter.practitionersReviewed" />
+              </li>
+            </ul>
+
+            <div className={css.bottomActions}>
+              <div className={css.socialLinks}>
+                {showSocialMediaLinks ? (
+                  <BlockBuilder
+                    blocks={linksWithBlockId}
+                    sectionId={sectionId}
+                    options={options}
+                  />
+                ) : null}
+                <a
+                  className={css.mailLink}
+                  href={`mailto:${contactEmail}`}
+                  aria-label={intl.formatMessage({ id: 'SectionFooter.contactEmailLabel' })}
+                  title={intl.formatMessage({ id: 'SectionFooter.contactEmailLabel' })}
+                >
+                  <IconMail />
+                </a>
+              </div>
+
+              <div
+                className={css.languageSwitch}
+                role="group"
+                aria-label={intl.formatMessage({ id: 'SectionFooter.languageLabel' })}
+              >
+                <span className={css.language} lang="de">
+                  DE
+                </span>
+                <span className={css.languageDivider} aria-hidden="true">
+                  /
+                </span>
+                <span className={classNames(css.language, css.languageActive)} aria-current="true">
+                  EN
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <Field data={copyright} className={css.copyright} />
         </div>
       </div>
     </SectionContainer>

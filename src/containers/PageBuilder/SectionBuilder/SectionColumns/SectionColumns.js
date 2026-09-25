@@ -1,6 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { FormattedMessage } from '../../../../util/reactIntl';
+
+import { NamedLink } from '../../../../components';
+
 import Field, { hasDataInFields } from '../../Field';
 import BlockBuilder from '../../BlockBuilder';
 
@@ -122,6 +126,20 @@ const SectionColumns = props => {
             />
           )}
         </div>
+      ) : null}
+      {sectionId === 'journal_items' ? (
+        <footer className={css.journalItemsButtonWrapper}>
+          <NamedLink
+            name="CMSPage"
+            params={{ pageId: 'journal' }}
+            className={css.journalItemsButton}
+          >
+            <FormattedMessage id="SectionColumns.readTheJournal" />
+            <span className={css.journalItemsButtonArrow} aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+            </span>
+          </NamedLink>
+        </footer>
       ) : null}
     </SectionContainer>
   );

@@ -22,6 +22,7 @@
   --topbarNavHighlightColor: var(--marketplaceColor);
   --topbarNavHighlightHoverColor: var(--marketplaceColorDark);
   --topbarNavUnderline: var(--marketplaceColor);
+  --topbarLogoColor: #201f1d;
 
   /* shadows */
   box-shadow: var(--boxShadowLight);
@@ -44,6 +45,7 @@
   --topbarNavHighlightColor: var(--colorWhite);
   --topbarNavHighlightHoverColor: rgba(255, 255, 255, 0.82);
   --topbarNavUnderline: var(--colorWhite);
+  --topbarLogoColor: #f6f3ee;
 }
 
 .scrolled {

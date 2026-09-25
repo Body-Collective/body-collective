@@ -1537,5 +1537,19 @@
   "ListingCard.reviews": "{count} avis",
   "ListingCard.saveListing": "Enregistrer l'annonce",
   "EventCard.withAuthor": "avec {authorName}",
-  "EventCard.photoPlaceholder": "Photo {category}"
+  "EventCard.photoPlaceholder": "Photo {category}",
+  "SectionColumns.readTheJournal": "Lire le journal",
+  "SectionFooter.newsletterIntro": "Nouveaux praticiens, séminaires et articles du journal — uniquement quand il y a quelque chose qui vaut la peine d'être envoyé.",
+  "SectionFooter.newsletterEmailPlaceholder": "Ton e-mail",
+  "SectionFooter.newsletterEmailLabel": "Adresse e-mail",
+  "SectionFooter.newsletterSubmit": "S'abonner",
+  "SectionFooter.newsletterEmailRequired": "Merci de saisir ton adresse e-mail.",
+  "SectionFooter.newsletterEmailInvalid": "Merci de saisir une adresse e-mail valide.",
+  "SectionFooter.newsletterTitle": "Reste proche du collectif.",
+  "SectionFooter.securePayments": "Paiements sécurisés via Stripe",
+  "SectionFooter.practitionersReviewed": "Chaque praticien vérifié",
+  "SectionFooter.contactEmail": "hello@bodycollective.com",
+  "SectionFooter.contactEmailLabel": "Écris-nous",
+  "SectionFooter.languageLabel": "Langue",
+  "Topbar.brandName": "Body Collective"
 }

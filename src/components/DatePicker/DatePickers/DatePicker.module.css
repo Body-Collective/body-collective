@@ -281,12 +281,12 @@
 
 .dateInRange {
   & .renderedDay {
-    background-color: var(--datepickerSelectedBgColor);
+    background-color: #000;
     color: var(--datepickerSelectedFgColor);
   }
 
   &:hover .renderedDay {
-    background-color: var(--datepickerSelectedHoveredBgColor);
+    background-color: #000;
     color: var(--datepickerSelectedHoveredFgColor);
   }
 }

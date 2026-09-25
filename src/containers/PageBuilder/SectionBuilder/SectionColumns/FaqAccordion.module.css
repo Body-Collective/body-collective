@@ -20,7 +20,7 @@
   justify-content: space-between;
   gap: 16px;
   width: 100%;
-  padding: 20px 0;
+  padding: 18px 0;
   cursor: pointer;
   list-style: none;
   color: var(--color-text, #201f1d);
@@ -34,6 +34,12 @@
 .question::-webkit-details-marker,
 .question::marker {
   display: none;
+}
+
+@media (--viewportMedium) {
+  .question {
+    padding: 24px 0;
+  }
 }
 
 .question:focus {
@@ -58,20 +64,20 @@
 .questionText h6,
 .questionText p {
   font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 18px;
-    color: var(--color-text);
-    line-height: 1.35;
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+  color: #201f1d;
   margin: 0;
   padding: 0;
-  @media (max-width: 768px) {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--color-text);
-    line-height: 1.35;
-    margin: 0;
-    padding: 0;
+
+  @media (--viewportMedium) {
+    font-size: 22px;
+  }
+
+  @media (--viewportLarge) {
+    font-size: 24px;
   }
 }
 
@@ -87,28 +93,28 @@
 }
 
 .answer {
-  padding: 0 40px 24px 0;
+  padding: 0 36px 24px 0;
+
+  @media (--viewportMedium) {
+    padding: 0 48px 32px 0;
+  }
 }
 
 .answer p,
 .answer li {
   font-family: var(--font-body);
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--color-neutral-700);
-    margin: 0px 0px 22px;
-    max-width: 760px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--colorGrey600);
+  max-width: 680px;
   margin: 0;
   padding: 0;
-  @media (max-width: 768px) {
-    font-family: var(--font-body);
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--color-neutral-700);
-    margin: 0px 0px 16px;
+
+  @media (--viewportMedium) {
+    font-size: 15px;
   }
 }
 
-.answer p + p {
+.answer p+p {
   margin-top: 12px;
 }

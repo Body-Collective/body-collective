@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
@@ -14,7 +14,6 @@ import {
   Button,
   IconArrowHead,
   LimitedAccessBanner,
-  LinkedLogo,
   Modal,
   ModalMissingInformation,
 } from '../../../components';
@@ -25,6 +24,7 @@ import SearchIcon from './SearchIcon';
 import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
 import TopbarMobileMenu from './TopbarMobileMenu/TopbarMobileMenu';
 import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
+import TopbarLogo from './TopbarLogo/TopbarLogo';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
@@ -238,6 +238,25 @@ const TopbarComponent = props => {
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
 
+  // LandingPage header is transparent over the hero until the page is scrolled
+  const isLandingPage = resolvedCurrentPage === 'LandingPage';
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!isLandingPage) {
+      setIsScrolled(false);
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLandingPage]);
+
   const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
 
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
@@ -345,7 +364,12 @@ const TopbarComponent = props => {
         onLogout={handleLogout}
         currentPage={resolvedCurrentPage}
       />
-      <nav className={classNames(mobileRootClassName || css.container, mobileClassName)}>
+      <nav
+        className={classNames(mobileRootClassName || css.container, mobileClassName, {
+          [css.landingPage]: isLandingPage,
+          [css.scrolled]: isLandingPage && isScrolled,
+        })}
+      >
         <Button
           id={MOBILE_MENU_BUTTON_ID}
           rootClassName={css.menu}
@@ -358,12 +382,7 @@ const TopbarComponent = props => {
           />
           {notificationDot}
         </Button>
-        <LinkedLogo
-          id="logo-topbar-mobile"
-          layout={'mobile'}
-          alt={intl.formatMessage({ id: 'Topbar.logoIcon' })}
-          linkToExternalSite={config?.topbar?.logoLink}
-        />
+        <TopbarLogo id="logo-topbar-mobile" linkToExternalSite={config?.topbar?.logoLink} />
         {mobileSearchButtonMaybe}
       </nav>
       <div className={css.desktop}>
@@ -383,6 +402,7 @@ const TopbarComponent = props => {
           showSearchForm={showSearchForm}
           showCreateListingsLink={showCreateListingsLink}
           inboxTab={topbarInboxTab}
+          isScrolled={isScrolled}
         />
       </div>
       <Modal
