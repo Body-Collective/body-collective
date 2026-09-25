@@ -273,7 +273,7 @@ right: 0;
   }
   & > div:nth-child(2){
    @media (max-width: 768px) {
-    padding: 48px 0;
+    padding: 68px 0;
    }
   }
   & h2 {
