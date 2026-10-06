@@ -67,19 +67,37 @@ export const ManageSubscriptionPageComponent = props => {
 
   const [manageBillingInProgress, setManageBillingInProgress] = useState(false);
   const [manageBillingError, setManageBillingError] = useState(false);
+  const [returnedAlreadyActive, setReturnedAlreadyActive] = useState(false);
 
-  // Confirm the checkout Stripe redirected back from, once, as soon as the user is known
+  const subscription = getSubscription(currentUser);
+  const isProfessional = subscription.plan === PLAN_PROFESSIONAL;
+
+  // Stripe redirects back here with ?session_id=... after the payment link checkout. That is a full
+  // page load, so the current user was just fetched. If the webhook has already saved the
+  // subscription, there is nothing to confirm. Otherwise save it now, without waiting for the
+  // webhook (which also isn't reachable when developing locally).
   const sessionId = new URLSearchParams(location.search).get('session_id');
-  const confirmedSessionId = useRef(null);
+  const handledSessionId = useRef(null);
   useEffect(() => {
-    if (sessionId && currentUser?.id && confirmedSessionId.current !== sessionId) {
-      confirmedSessionId.current = sessionId;
-      onConfirmCheckout(sessionId)
-        .then(() => history.replace(pathByRouteName('ManageSubscriptionPage', routeConfiguration)))
-        .catch(() => {
-          // The error is shown from the store. The webhook may still save the subscription.
-        });
+    if (!sessionId || !currentUser?.id || handledSessionId.current === sessionId) {
+      return;
     }
+    handledSessionId.current = sessionId;
+
+    const dropSessionIdFromUrl = () =>
+      history.replace(pathByRouteName('ManageSubscriptionPage', routeConfiguration));
+
+    if (isProfessional) {
+      setReturnedAlreadyActive(true);
+      dropSessionIdFromUrl();
+      return;
+    }
+
+    onConfirmCheckout(sessionId)
+      .then(dropSessionIdFromUrl)
+      .catch(() => {
+        // The error is shown from the store. The webhook may still save the subscription.
+      });
   }, [sessionId, currentUser?.id]);
 
   const handleManageBilling = () => {
@@ -97,9 +115,6 @@ export const ManageSubscriptionPageComponent = props => {
         setManageBillingError(true);
       });
   };
-
-  const subscription = getSubscription(currentUser);
-  const isProfessional = subscription.plan === PLAN_PROFESSIONAL;
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
@@ -126,7 +141,7 @@ export const ManageSubscriptionPageComponent = props => {
         </p>
       );
     }
-    if (checkoutConfirmed && isProfessional) {
+    if ((checkoutConfirmed || returnedAlreadyActive) && isProfessional) {
       return (
         <p className={css.notice} role="status">
           <FormattedMessage id="ManageSubscriptionPage.confirmed" />

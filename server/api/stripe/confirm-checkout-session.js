@@ -6,9 +6,9 @@ const { syncSubscription } = require('./subscriptionSync');
  * Write the plan bought through the payment link to the logged-in user's profile right away,
  * instead of waiting for the webhook (POST /api/stripe/confirm-checkout-session).
  *
- * The payment link redirects to /account/manage-subscription?session_id={CHECKOUT_SESSION_ID},
- * and that page posts { sessionId }. Running this and the webhook both is safe: the sync re-reads
- * the subscription from Stripe.
+ * The payment link redirects to /account/manage-subscription?session_id={CHECKOUT_SESSION_ID}.
+ * That page posts { sessionId } only when the webhook hasn't saved the subscription by then.
+ * Running this and the webhook both is safe: the sync re-reads the subscription from Stripe.
  *
  * Responds with { subscriptionPlan, subscriptionStatus } as written to the profile, or { ok: true }
  * when the sync left the profile unchanged (e.g. the subscription was replaced by a newer one).
