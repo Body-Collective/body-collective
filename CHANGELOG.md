@@ -14,10 +14,64 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
-- [add] Add new translations and update existing ones. [#924](https://github.com/sharetribe/web-template/pull/924)
-- [fix] Updates to transaction processes. [#923](https://github.com/sharetribe/web-template/pull/923)
+- [change] ListingCard: lazy load images so that they are reacting to scroll interactions instead of
+  loadAfterInitialRendering config. [#947](https://github.com/sharetribe/web-template/pull/947)
+- [change] ListingImageGallery: lazy load thumbnails.
+  [#946](https://github.com/sharetribe/web-template/pull/946)
+- [add] Add currently available translations.
+  [#943](https://github.com/sharetribe/web-template/pull/943)
+- [change] PageBuilder: lazy-load FieldImage and section background images. (IntersectionObserver
+  with a ~1 viewport prefetch margin). First two sections still server-side render with images
+  mounted. [#941](https://github.com/sharetribe/web-template/pull/941)
+- [change] Improve image loading on ListingPage (lazy load carousel images on both variants).
+  [#940](https://github.com/sharetribe/web-template/pull/940)
+- [change] Update browserlist db [#939](https://github.com/sharetribe/web-template/pull/939)
+- [change] Update Sentry (@sentry/browser and @sentry/node) 10.43.0 > 11.0.0. Load the browser SDK
+  asynchronously via a tree-shakeable wrapper so it is not bundled into the main chunk. Pin
+  `@babel/helper-compilation-targets/lru-cache` to 5.1.1 so CI does not resolve a newer lru-cache
+  and fail with `_lruCache is not a constructor` (safe to remove once Babel no longer depends on
+  lru-cache@^5). [#938](https://github.com/sharetribe/web-template/pull/938)
+- [fix] EditListingPricingAndStockPanel: guard against missing listingTypeConfig.
+  [#937](https://github.com/sharetribe/web-template/pull/937)
+- [fix] data.js: limitListingsSections fails and sends Sentry error when a Pages asset has no
+  sections yet. [#936](https://github.com/sharetribe/web-template/pull/936)
+- [fix] sitemap.js: sitemapPages was not detecting empty sitemap correctly.
+  [#935](https://github.com/sharetribe/web-template/pull/935)
+- [fix] ListingPage: fix layout shift caused by carousel images and add fetch priority to the first
+  image. [#934](https://github.com/sharetribe/web-template/pull/934)
+- [fix] CheckoutPage: fix a bug with speculation made against an inquiry process.
+  [#933](https://github.com/sharetribe/web-template/pull/933)
+- [fix] PriorityLinks: measuring link widths while TopbarDesktop is hidden (mobile layout) caused a
+  maximum update depth warning; remasure when the viewport grows to desktop.
+  [#932](https://github.com/sharetribe/web-template/pull/932)
+- [fix] user.duck: The clearCurrentUser thunk resets hasOrders.
+  [#931](https://github.com/sharetribe/web-template/pull/931)
+- [fix] user.duck: after Redux toolkit change, currentUser is not populated yet to store.
+
+  - fetchCurrentUserHasListings: don't read the currentUser out of the store.
+  - fetchCurrentUserHasOrders: don't read the currentUser out of the store.
+
+  [#930](https://github.com/sharetribe/web-template/pull/930)
+
+- [fix] Restore comments to transaction process.
+  [#927](https://github.com/sharetribe/web-template/pull/927)
+- [fix] user.duck / fetchCurrentUser: Don't treat login-as token expiration as a bug. In addition,
+  fetchFeaturedListings was also sending unnecessary Sentry errors.
+  [#926](https://github.com/sharetribe/web-template/pull/926)
+- [fix] Harden user.duck:
+
+  - Safe counts for saleNotificationsCount and orderNotificationsCount
+  - No unhandled rejection when fetching notifications, hasOrders and hasListings info.
+
+  [#925](https://github.com/sharetribe/web-template/pull/925)
+
+- [add] Add new translations and update existing ones.
+  [#924](https://github.com/sharetribe/web-template/pull/924)
+- [fix] Updates to transaction processes.
+  [#923](https://github.com/sharetribe/web-template/pull/923)
 - [fix] Fix to transaction process. [#922](https://github.com/sharetribe/web-template/pull/922)
-- [fix] Fixes to Marketplace and Email texts. [#921](https://github.com/sharetribe/web-template/pull/921)
+- [fix] Fixes to Marketplace and Email texts.
+  [#921](https://github.com/sharetribe/web-template/pull/921)
 
 ## [v12.3.0] 2026-08-31
 

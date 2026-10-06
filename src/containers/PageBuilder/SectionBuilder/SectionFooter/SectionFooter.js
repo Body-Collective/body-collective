@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 
 import { ExternalLink, NamedLink } from '../../../../components';
+import { pickFieldOptions } from '../../PageBuilder.helpers';
 
 import Field from '../../Field';
 import BlockBuilder from '../../BlockBuilder';
@@ -91,8 +92,7 @@ const SectionFooter = props => {
 
   // If external mapping has been included for fields
   // E.g. { h1: { component: MyAwesomeHeader } }
-  const fieldComponents = options?.fieldComponents;
-  const fieldOptions = { fieldComponents };
+  const fieldOptions = pickFieldOptions(options);
   const linksWithBlockId = socialMediaLinks?.map(sml => {
     return {
       ...sml,
@@ -156,11 +156,7 @@ const SectionFooter = props => {
             <div className={css.bottomActions}>
               <div className={css.socialLinks}>
                 {showSocialMediaLinks ? (
-                  <BlockBuilder
-                    blocks={linksWithBlockId}
-                    sectionId={sectionId}
-                    options={options}
-                  />
+                  <BlockBuilder blocks={linksWithBlockId} sectionId={sectionId} options={options} />
                 ) : null}
                 <a
                   className={css.mailLink}
