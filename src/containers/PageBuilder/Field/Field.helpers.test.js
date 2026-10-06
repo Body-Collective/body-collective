@@ -1,6 +1,7 @@
 import {
   hasContent,
   exposeContentAsChildren,
+  exposeHeadingContent,
   exposeContentString,
   exposeLinkProps,
   exposeImageProps,
@@ -19,6 +20,29 @@ describe('Field helpers', () => {
     it('should return false if "content" is not included or if it is empty string', () => {
       expect(hasContent({ foo: 'bar' })).toEqual(false);
       expect(hasContent({ content: '' })).toEqual(false);
+    });
+  });
+
+  describe('exposeHeadingContent(data)', () => {
+    it('should return plain content as children when nothing is emphasised', () => {
+      expect(exposeHeadingContent({ content: 'Hello world!' })).toEqual({
+        children: 'Hello world!',
+      });
+    });
+
+    it('should wrap *words* in <em> elements', () => {
+      const { children } = exposeHeadingContent({ content: 'Ready to join the *collective*?' });
+      expect(children).toHaveLength(3);
+      expect(children[0]).toEqual('Ready to join the ');
+      expect(children[1].type).toEqual('em');
+      expect(children[1].props.children).toEqual('collective');
+      expect(children[2]).toEqual('?');
+    });
+
+    it('should return empty object if content is missing or not a string', () => {
+      expect(exposeHeadingContent({})).toEqual({});
+      expect(exposeHeadingContent({ content: '' })).toEqual({});
+      expect(exposeHeadingContent({ content: ['Hello world!'] })).toEqual({});
     });
   });
 

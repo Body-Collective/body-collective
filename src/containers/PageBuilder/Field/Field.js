@@ -20,6 +20,7 @@ import renderMarkdown from '../markdownProcessor';
 import {
   hasContent,
   exposeContentAsChildren,
+  exposeHeadingContent,
   exposeContentString,
   exposeLinkProps,
   exposeCustomAppearanceProps,
@@ -67,12 +68,12 @@ const defaultFieldComponents = defaultLink => {
   };
 
   return {
-    heading1: { component: H1, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
-    heading2: { component: H2, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
-    heading3: { component: H3, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
-    heading4: { component: H4, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
-    heading5: { component: H5, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
-    heading6: { component: H6, pickValidProps: exposeContentAsChildren, omitInvalidPropsWarning },
+    heading1: { component: H1, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
+    heading2: { component: H2, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
+    heading3: { component: H3, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
+    heading4: { component: H4, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
+    heading5: { component: H5, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
+    heading6: { component: H6, pickValidProps: exposeHeadingContent, omitInvalidPropsWarning },
     paragraph: {
       // By default, page asset schema uses 'paragraph' field type only in the context of
       // lead paragraph aka ingress

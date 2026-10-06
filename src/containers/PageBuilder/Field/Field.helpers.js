@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { sanitizeUrl } from '../../../util/sanitize';
 import { supportedPlatforms } from '../Primitives/Link/SocialMediaLink';
 
@@ -15,6 +17,27 @@ export const hasContent = data => typeof data?.content === 'string' && data?.con
  */
 export const exposeContentAsChildren = data => {
   return hasContent(data) ? { children: data.content } : {};
+};
+
+/**
+ * Like exposeContentAsChildren, but turns *word* into <em>word</em>. This lets an operator
+ * emphasise a word in a title from Console, e.g. "Ready to join the *collective*?".
+ *
+ * @param {Object} data E.g. "{ fieldType: 'heading2', content: 'Ready to join the *collective*?' }"
+ * @returns object containing children: a string, or an array of strings and <em> elements.
+ */
+export const exposeHeadingContent = data => {
+  if (!hasContent(data)) {
+    return {};
+  }
+  // Splitting on a capturing group puts the emphasised words at the odd indexes
+  const parts = data.content.split(/\*([^*]+)\*/g);
+  if (parts.length === 1) {
+    return { children: data.content };
+  }
+  return {
+    children: parts.map((part, i) => (i % 2 === 1 ? <em key={i}>{part}</em> : part)),
+  };
 };
 
 /**

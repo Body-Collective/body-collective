@@ -768,8 +768,13 @@ right: 0;
 :global(#pricing),
 :global(#pricing-note),
 :global(#apply-steps) {
-  /* Same side padding and max width as the landing page sections and footer, so edges line up */
-  --apply-pad: 32px;
+  /* Phones follow the prototype (20px). From tablet up it is the same side padding and max
+     width as the landing page sections and footer, so edges line up. */
+  --apply-pad: 20px;
+
+  @media (min-width: 768px) {
+    --apply-pad: 32px;
+  }
   min-width: 0;
 
   & [class*="SectionContainer_sectionContent"] {
@@ -789,10 +794,11 @@ right: 0;
       font-weight: 600;
       font-size: clamp(24px, 3vw, 30px);
       line-height: 1.2;
-      letter-spacing: -0.015em;
-      color: var(--color-text);
+      letter-spacing: normal;
+      color: #201f1d;
       max-width: none;
       margin: 0;
+      padding: 0;
       text-align: left;
       justify-self: start;
     }
@@ -806,8 +812,9 @@ right: 0;
     font-family: var(--font-body);
     font-size: 16.5px;
     line-height: 1.75;
-    color: var(--color-neutral-800);
+    color: #444141;
     margin: 0;
+    padding: 0;
   }
 }
 
@@ -821,7 +828,12 @@ right: 0;
 
 /* Hero */
 :global(#apply-hero) {
-  --apply-pad: 32px;
+  --apply-pad: 20px;
+
+  @media (min-width: 768px) {
+    --apply-pad: 32px;
+  }
+
   align-items: flex-end;
   min-width: 0;
   min-height: 600px;
@@ -836,7 +848,7 @@ right: 0;
     pointer-events: none;
   }
 
-  @media (--viewportMedium) {
+  @media (min-width: 768px) {
     margin-top: calc(-1 * var(--topbarHeightDesktop));
   }
 
@@ -854,10 +866,18 @@ right: 0;
       & h1 {
         font-family: var(--font-heading);
         font-weight: 400;
-        font-size: clamp(32px, 5vw, 52px);
-        line-height: 1.08;
-        letter-spacing: -0.015em;
+        font-size: 33px;
+        line-height: 1.1;
+        letter-spacing: normal;
+        color: #f6f3ee;
+        margin: 0;
+        padding: 0;
         max-width: 12em;
+
+        @media (min-width: 768px) {
+          font-size: 54px;
+        }
+
         text-wrap: balance;
         text-align: left;
         justify-self: start;
@@ -865,14 +885,21 @@ right: 0;
 
       & p {
         font-family: var(--font-body);
-        font-size: 17px;
+        font-size: 13px;
         line-height: 1.6;
-        opacity: 0.92;
-        max-width: 600px;
-        margin: 18px 0 28px;
+        color: #f6f3ee;
+        opacity: 0.9;
+        max-width: 560px;
+        margin: 10px 0 20px;
+        padding: 0;
         text-align: left;
         justify-self: start;
         text-wrap: auto;
+
+        @media (min-width: 768px) {
+          font-size: 17.5px;
+          margin: 18px 0 28px;
+        }
       }
     }
   }
@@ -884,13 +911,19 @@ right: 0;
     border-radius: 999px;
     box-shadow: none;
     font-weight: 400;
-    padding: 14px 30px;
+    margin: 0;
+    padding: 11px 22px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.2;
+    font-size: 14px;
+    line-height: normal;
+
+    @media (min-width: 768px) {
+      padding: 14px 30px;
+      font-size: 16px;
+    }
     white-space: nowrap;
     text-align: left;
     justify-self: start;
@@ -934,6 +967,10 @@ right: 0;
 
   & header {
     margin-bottom: 40px;
+
+    & h2 {
+      line-height: 1.55;
+    }
   }
 
   & header ~ div {
@@ -951,8 +988,10 @@ right: 0;
       font-weight: 600;
       font-size: 18.5px;
       line-height: 1.3;
-      color: var(--color-text);
+      letter-spacing: normal;
+      color: #201f1d;
       margin: 0 0 8px;
+      padding: 0;
     }
 
     & p {
@@ -1004,7 +1043,7 @@ right: 0;
     & p {
       font-size: 15px;
       line-height: 1.6;
-      color: var(--color-neutral-700);
+      color: #605d5d;
       max-width: 560px;
       margin: 0 auto;
       text-align: center;
@@ -1037,9 +1076,10 @@ right: 0;
       font-weight: 600;
       font-size: clamp(19px, 2.3vw, 24px);
       line-height: 1.25;
-      letter-spacing: -0.015em;
-      color: var(--color-text);
+      letter-spacing: normal;
+      color: #201f1d;
       margin: 0 0 10px;
+      padding: 0;
     }
 
     & p {
@@ -1053,18 +1093,20 @@ right: 0;
       margin-bottom: 18px;
 
       /* Keep the price lines level when the cards sit side by side */
-      @media (--viewportMedium) {
+      @media (min-width: 768px) {
         min-height: calc(2 * 1.7em);
       }
     }
 
     /* Price line: the bold figure is the price */
     & p:nth-of-type(2) {
+      line-height: 1.55;
+
       & strong {
         font-weight: 600;
         font-size: clamp(17px, 1.8vw, 20px);
         line-height: 1;
-        color: var(--color-text);
+        color: #201f1d;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
         margin-right: 5px;
@@ -1084,10 +1126,11 @@ right: 0;
         position: relative;
         padding: 0 0 0 24px;
         margin: 0 0 11px;
+        min-height: 27.25px;
         font-family: var(--font-body);
         font-size: 14px;
         line-height: 1.7;
-        color: var(--color-neutral-800);
+        color: #444141;
         max-width: 320px;
 
         &:before {
@@ -1104,10 +1147,16 @@ right: 0;
       }
     }
 
+    /* Gaps sit between list items only, so the note and button spacing is the same with or
+       without the italic note */
+    & ul li:last-child {
+      margin-bottom: 0;
+    }
+
     /* Optional italic note under the list */
     & p:nth-of-type(3) {
       font-style: italic;
-      margin-top: 7px;
+      margin-top: 18px;
     }
 
     & a {
@@ -1125,7 +1174,7 @@ right: 0;
       gap: 8px;
       font-family: var(--font-body);
       font-size: 15px;
-      line-height: 1.2;
+      line-height: normal;
       text-align: left;
       justify-self: start;
       align-self: flex-start;
@@ -1158,7 +1207,7 @@ right: 0;
   & p {
     font-size: 13.5px;
     line-height: 1.7;
-    color: var(--color-neutral-700);
+    color: #605d5d;
     text-align: center;
     max-width: 620px;
     margin: 0 auto;
@@ -1173,6 +1222,15 @@ right: 0;
 
   & header {
     margin-bottom: 40px;
+
+    & h2 {
+      line-height: 1.55;
+    }
+  }
+
+  & header ~ div {
+    gap: 0;
+    row-gap: 0;
   }
 
   & [id^="apply-steps-block-"] {
@@ -1196,9 +1254,9 @@ right: 0;
       font-family: var(--font-heading);
       font-weight: 600;
       font-size: 19px;
-      line-height: 1.3;
-      letter-spacing: 0;
-      color: var(--color-text);
+      line-height: 1.55;
+      letter-spacing: normal;
+      color: #201f1d;
       margin: 0 0 6px;
       padding: 0;
     }
@@ -1232,38 +1290,91 @@ right: 0;
     padding: clamp(64px, 10vw, 110px) clamp(20px, 4vw, 48px);
   }
 
+  & h2 {
+    font-weight: 400;
+    font-size: clamp(28px, 3.8vw, 42px);
+    line-height: 1.15;
+    letter-spacing: normal;
+    margin: 0 0 18px;
+    padding: 0;
+
+    & em {
+      font-style: italic;
+    }
+  }
+
+  & p {
+    font-size: 17px;
+    line-height: 1.65;
+    color: rgba(246, 243, 238, 0.84);
+    max-width: 520px;
+    margin: 0 auto 30px;
+    padding: 0;
+  }
+
   & a {
     box-shadow: none;
     font-weight: 400;
+    font-size: 16.5px;
+    line-height: normal;
+    padding: 15px 34px;
   }
 }
 
 /* FAQ on the apply page: smaller questions and a centered header.
    The landing page keeps its own FAQ look; "#apply-hero ~ #faq" only matches on this page. */
 :global(#apply-hero ~ #faq) {
+  --apply-pad: 20px;
+
+  @media (min-width: 768px) {
+    --apply-pad: 32px;
+  }
+
+  & [class*="SectionContainer_sectionContent"] {
+    padding: 36px 0;
+
+    @media (min-width: 768px) {
+      padding: clamp(48px, 8vw, 80px) 0;
+    }
+  }
+
   & header {
     justify-content: center;
     text-align: center;
+    padding: 0 var(--apply-pad);
 
     & h2 {
       text-align: center;
       justify-self: center;
       margin-bottom: 8px;
+      padding: 0;
+      line-height: 1.2;
+      color: #201f1d;
     }
 
     & p {
-      font-size: 15px;
+      font-size: 13.5px;
       line-height: 1.6;
-      color: var(--color-neutral-700);
+      color: #605d5d;
       max-width: 560px;
       margin: 0 auto;
       text-align: center;
       justify-self: center;
+
+      @media (min-width: 768px) {
+        font-size: 15px;
+      }
     }
 
     & ~ div {
+      padding-left: var(--apply-pad);
+      padding-right: var(--apply-pad);
       padding-top: clamp(24px, 4vw, 40px);
     }
+  }
+
+  & [class*="FaqAccordion_item__"] {
+    border-color: color-mix(in srgb, #201f1d 16%, transparent);
   }
 
   & [class*="FaqAccordion_question__"] {
@@ -1271,10 +1382,20 @@ right: 0;
     gap: clamp(14px, 2vw, 24px);
   }
 
+  & [class*="FaqAccordion_chevron__"] {
+    color: #201f1d;
+    width: 15px;
+    height: 15px;
+  }
+
   & [class*="FaqAccordion_questionText__"] h3 {
-    font-size: clamp(16px, 1.7vw, 18px);
+    font-size: 15.5px;
     line-height: 1.35;
     letter-spacing: 0;
+
+    @media (min-width: 768px) {
+      font-size: clamp(16px, 1.7vw, 18px);
+    }
   }
 
   & [class*="FaqAccordion_answer__"] {
@@ -1282,10 +1403,14 @@ right: 0;
 
     & p,
     & li {
-      font-size: 15px;
+      font-size: 13.5px;
       line-height: 1.75;
-      color: var(--color-neutral-800);
+      color: #444141;
       max-width: 760px;
+
+      @media (min-width: 768px) {
+        font-size: 15px;
+      }
     }
   }
 }
