@@ -42,12 +42,15 @@
   /* Size */
   width: 100%;
   height: var(--topbarHeight);
+  padding: 0 16px;
+  box-sizing: border-box;
 
   /* Layout for child components */
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 
   /* fill */
   background-color: var(--colorWhite);
@@ -58,11 +61,67 @@
 
   @media (--viewportMedium) {
     height: var(--topbarHeightDesktop);
+    padding: 0 24px;
   }
 
   @media (--viewportLarge) {
     display: none;
   }
+}
+
+.mobileLogo {
+  padding: 0;
+  min-width: 0;
+}
+
+.mobileRight {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.loginButton,
+.signupButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-weight: var(--fontWeightRegular);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.loginButton {
+  background-color: transparent;
+  border-color: var(--bc-divider, rgba(32, 31, 29, 0.2));
+  color: var(--bc-ink, #161513);
+}
+
+.loginButton:hover {
+  text-decoration: none;
+  background-color: rgba(32, 31, 29, 0.04);
+}
+
+.signupButton {
+  background-color: var(--bc-ink, #161513);
+  border-color: var(--bc-ink, #161513);
+  color: var(--bc-on-dark, #f6f3ee);
+}
+
+.signupButton:hover {
+  text-decoration: none;
+  opacity: 0.88;
 }
 
 /* Home / LandingPage route: transparent until the page is scrolled */
@@ -80,6 +139,22 @@
   }
   & .searchMenuIcon {
     stroke: #f6f3ee;
+  }
+  & .loginButton {
+    border-color: var(--colorWhite);
+    color: var(--colorWhite);
+    background-color: transparent;
+  }
+  & .loginButton:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+  & .signupButton {
+    background-color: var(--bc-on-dark, #f6f3ee);
+    border-color: var(--bc-on-dark, #f6f3ee);
+    color: var(--bc-ink, #161513);
+  }
+  & .signupButton:hover {
+    opacity: 0.92;
   }
 }
 
@@ -122,11 +197,12 @@
 }
 
 .menu {
-  padding: 15px 24px;
+  width: auto;
+  padding: 8px;
   position: relative;
 
   @media (--viewportMedium) {
-    padding: 21px 24px;
+    padding: 8px;
   }
 }
 .searchMenu {
@@ -139,20 +215,20 @@
 
 .menuIcon,
 .searchMenuIcon {
-  margin: 9px 0;
+  margin: 0;
   transition: fill 0.2s ease, stroke 0.2s ease;
 }
 
 .notificationDot {
   /* Dimensions */
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 
   /* Position */
   position: absolute;
-  top: 17px;
-  right: 17px;
+  top: 4px;
+  right: 4px;
 
   /* Style: red dot with white border */
   background-color: var(--colorFail);
@@ -166,10 +242,6 @@
   animation-timing-function: ease-in;
   opacity: 0;
   transform: scale(0);
-
-  @media (--viewportMedium) {
-    top: 23px;
-  }
 }
 
 @keyframes notificationPop {

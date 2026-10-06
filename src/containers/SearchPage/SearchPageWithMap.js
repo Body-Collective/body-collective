@@ -316,6 +316,7 @@ export class SearchPageComponent extends Component {
     // For some reason, stickyness doesn't work on Safari, if the element is <button>
     return (
       <Page
+        className={css.page}
         scrollingDisabled={scrollingDisabled}
         description={description}
         title={title}

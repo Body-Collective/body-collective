@@ -1551,5 +1551,10 @@
   "SectionFooter.contactEmail": "hello@bodycollective.com",
   "SectionFooter.contactEmailLabel": "Écris-nous",
   "SectionFooter.languageLabel": "Langue",
-  "Topbar.brandName": "Body Collective"
+  "Topbar.brandName": "Body Collective",
+  "TopbarBottomNav.bookings": "Réservations",
+  "TopbarBottomNav.explore": "Explorer",
+  "TopbarBottomNav.home": "Accueil",
+  "TopbarBottomNav.profile": "Profil",
+  "TopbarBottomNav.screenreader.navigation": "Navigation inférieure"
 }

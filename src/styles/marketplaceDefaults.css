@@ -155,6 +155,8 @@
 
   --topbarHeight: 72px;
   --topbarHeightDesktop: 72px;
+  --bottomNavHeight: 56px;
+  --bottomNavOffset: calc(var(--bottomNavHeight) + env(safe-area-inset-bottom, 0px));
 
   --TopbarMobileMenu_topMargin: 96px;
 
@@ -209,6 +211,12 @@
   /* ================ PageBuilder ================ */
   /* --carouselWidth will be updated dynamically through JS */
   --carouselWidth: 100vw;
+}
+
+@media (--viewportLarge) {
+  :root {
+    --bottomNavOffset: 0px;
+  }
 }
 
 /* ================ Global element styles ================ */
