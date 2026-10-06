@@ -25,6 +25,7 @@ import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
 import TopbarMobileMenu from './TopbarMobileMenu/TopbarMobileMenu';
 import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
 import TopbarLogo from './TopbarLogo/TopbarLogo';
+import { isTransparentHeaderPage } from './transparentHeaderPages';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
@@ -238,8 +239,8 @@ const TopbarComponent = props => {
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
 
-  // LandingPage header is transparent over the hero until the page is scrolled
-  const isLandingPage = resolvedCurrentPage === 'LandingPage';
+  // LandingPage (and the apply page) header is transparent over the hero until the page is scrolled
+  const isLandingPage = isTransparentHeaderPage(resolvedCurrentPage);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -310,7 +311,7 @@ const TopbarComponent = props => {
     searchFormDisplay === SEARCH_DISPLAY_ONLY_SEARCH_PAGE &&
     ['SearchPage', 'SearchPageWithListingType'].includes(resolvedCurrentPage);
   const showSearchNotOnLandingPage =
-    searchFormDisplay === SEARCH_DISPLAY_NOT_LANDING_PAGE && resolvedCurrentPage !== 'LandingPage';
+    searchFormDisplay === SEARCH_DISPLAY_NOT_LANDING_PAGE && !isLandingPage;
 
   const showSearchForm =
     showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage;

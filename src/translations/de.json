@@ -1551,5 +1551,6 @@
   "SectionFooter.contactEmail": "hello@bodycollective.com",
   "SectionFooter.contactEmailLabel": "Schreib uns",
   "SectionFooter.languageLabel": "Sprache",
-  "Topbar.brandName": "Body Collective"
+  "Topbar.brandName": "Body Collective",
+  "TopbarDesktop.applyNow": "Jetzt bewerben"
 }

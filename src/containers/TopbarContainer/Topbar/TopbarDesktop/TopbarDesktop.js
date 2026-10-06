@@ -6,6 +6,7 @@ import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { showCreateListingLinkForUser } from '../../../../util/userHelpers';
 import {
   Avatar,
+  ExternalLink,
   InlineTextButton,
   Menu,
   MenuLabel,
@@ -17,6 +18,7 @@ import {
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import TopbarLogo from '../TopbarLogo/TopbarLogo';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
+import { APPLY_FORM_URL, isApplyPage, isTransparentHeaderPage } from '../transparentHeaderPages';
 
 import css from './TopbarDesktop.module.css';
 
@@ -25,6 +27,14 @@ const SignupLink = ({ className }) => {
     <NamedLink id="signup-link" name="SignupPage" className={className}>
       <FormattedMessage id="TopbarDesktop.signup" />
     </NamedLink>
+  );
+};
+
+const ApplyLink = ({ className }) => {
+  return (
+    <ExternalLink id="apply-link" href={APPLY_FORM_URL} className={className}>
+      <FormattedMessage id="TopbarDesktop.applyNow" />
+    </ExternalLink>
   );
 };
 
@@ -168,7 +178,7 @@ const TopbarDesktop = props => {
     : showCreateListingLinkForUser(config, null);
 
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
-  const isLandingPage = currentPage === 'LandingPage';
+  const isLandingPage = isTransparentHeaderPage(currentPage);
   const classes = classNames(rootClassName || css.root, className, {
     [css.landingPage]: isLandingPage,
     [css.scrolled]: isLandingPage && isScrolled,
@@ -188,7 +198,10 @@ const TopbarDesktop = props => {
     />
   ) : null;
 
-  const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : (
+  // On the apply page the primary button leads to the application form instead of sign up
+  const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : isApplyPage(currentPage) ? (
+    <ApplyLink className={css.signupButton} />
+  ) : (
     <SignupLink className={css.signupButton} />
   );
   const loginLinkMaybe = isAuthenticatedOrJustHydrated ? null : (
