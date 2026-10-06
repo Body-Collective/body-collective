@@ -7,6 +7,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser, ensureStripeCustomer, ensurePaymentMethodCard } from '../../util/data';
 import { propTypes } from '../../util/types';
 import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers.js';
+import { showManageSubscriptionForUser } from '../../util/subscription';
 import { savePaymentMethod, deletePaymentMethod } from '../../ducks/paymentMethods.duck';
 import { handleCardSetup } from '../../ducks/stripe.duck';
 import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck';
@@ -168,6 +169,7 @@ const PaymentMethodsPageComponent = props => {
     currentPage: 'PaymentMethodsPage',
     showPaymentMethods,
     showPayoutDetails,
+    showManageSubscription: showManageSubscriptionForUser(currentUser),
   };
 
   return (

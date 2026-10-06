@@ -64,6 +64,7 @@ const scrollToTab = (currentPage, scrollLeft, setScrollLeft) => {
  * @param {string?} props.accountSettingsNavProps.currentPage
  * @param {boolean?} props.accountSettingsNavProps.showPaymentMethods
  * @param {boolean?} props.accountSettingsNavProps.showPayoutDetails
+ * @param {boolean?} props.accountSettingsNavProps.showManageSubscription
  * @returns {JSX.Element} Side nav with navigation to different account settings
  */
 const LayoutWrapperAccountSettingsSideNav = props => {
@@ -90,7 +91,12 @@ const LayoutWrapperAccountSettingsSideNav = props => {
     }
   }, [mounted]);
 
-  const { currentPage, showPaymentMethods, showPayoutDetails } = accountSettingsNavProps;
+  const {
+    currentPage,
+    showPaymentMethods,
+    showPayoutDetails,
+    showManageSubscription,
+  } = accountSettingsNavProps;
   const payoutDetailsMaybe = showPayoutDetails
     ? [
         {
@@ -119,6 +125,21 @@ const LayoutWrapperAccountSettingsSideNav = props => {
       ]
     : [];
 
+  const manageSubscriptionMaybe = showManageSubscription
+    ? [
+        {
+          text: (
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.manageSubscriptionTabTitle" />
+          ),
+          selected: currentPage === 'ManageSubscriptionPage',
+          id: 'ManageSubscriptionPageTab',
+          linkProps: {
+            name: 'ManageSubscriptionPage',
+          },
+        },
+      ]
+    : [];
+
   const tabs = [
     {
       text: <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.contactDetailsTabTitle" />,
@@ -138,6 +159,7 @@ const LayoutWrapperAccountSettingsSideNav = props => {
     },
     ...payoutDetailsMaybe,
     ...paymentMethodsMaybe,
+    ...manageSubscriptionMaybe,
     {
       text: <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.manageAccountTabTitle" />,
       selected: currentPage === 'ManageAccountPage',

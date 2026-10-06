@@ -7,6 +7,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import { showManageSubscriptionForUser } from '../../util/subscription';
 
 import { Page, UserNav, H3, LayoutSideNavigation } from '../../components';
 
@@ -73,6 +74,7 @@ export const PasswordChangePageComponent = props => {
     currentPage: 'PasswordChangePage',
     showPaymentMethods,
     showPayoutDetails,
+    showManageSubscription: showManageSubscriptionForUser(currentUser),
   };
 
   return (

@@ -151,3 +151,16 @@ export const createUserWithIdp = body => {
 export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
+
+// Open the Stripe customer portal for the logged-in user's subscription. Resolves with { url } to
+// redirect the user to. See `server/api/stripe/create-billing-portal-session.js`.
+export const createBillingPortalSession = () => {
+  return post('/api/stripe/create-billing-portal-session');
+};
+
+// Save the subscription bought through the Stripe payment link to the user's profile, using the
+// session id Stripe adds to the redirect URL. Resolves with { subscriptionPlan, subscriptionStatus }
+// or { ok: true }. See `server/api/stripe/confirm-checkout-session.js`.
+export const confirmCheckoutSession = body => {
+  return post('/api/stripe/confirm-checkout-session', body);
+};

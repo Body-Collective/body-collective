@@ -1,0 +1,172 @@
+@import '../../styles/customMediaQueries.css';
+
+/* A copy of the pricing section styles on the apply page (see PageBuilder.module.css, #pricing).
+   Colors and sizes are the "Become a Practitioner" design's. */
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 20px;
+
+  @media (--viewportMedium) {
+    gap: 28px;
+  }
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 28px;
+  background: #f2e5d8;
+  border-radius: 20px;
+  text-align: left;
+
+  @media (--viewportMedium) {
+    padding: 38px;
+  }
+}
+
+.planActive {
+  box-shadow: inset 0 0 0 1px rgba(32, 31, 29, 0.55);
+}
+
+/* Reserves the space of the badge so both cards line up whichever is active */
+.badgeRow {
+  min-height: 30px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: #161513;
+  color: #f6f3ee;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.planName {
+  margin: 0 0 10px;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(19px, 2.3vw, 24px);
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: #201f1d;
+}
+
+.planFor,
+.planPrice,
+.note {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444141;
+}
+
+.planFor {
+  max-width: 300px;
+  margin-bottom: 18px;
+
+  @media (--viewportMedium) {
+    min-height: calc(2 * 1.7em);
+  }
+}
+
+.planPrice {
+  line-height: 1.55;
+}
+
+.planPriceFigure {
+  margin-right: 5px;
+  font-weight: 600;
+  font-size: clamp(17px, 1.8vw, 20px);
+  line-height: 1;
+  color: #201f1d;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.features {
+  flex: 1;
+  width: 100%;
+  margin: 24px 0 0;
+  padding: 24px 0 0;
+  list-style: none;
+  border-top: 1px solid rgba(32, 31, 29, 0.16);
+}
+
+.feature {
+  position: relative;
+  max-width: 320px;
+  min-height: 27.25px;
+  margin: 0 0 11px;
+  padding: 0 0 0 24px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444141;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  & .check {
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    color: #4a4540;
+  }
+}
+
+.note {
+  margin-top: 18px;
+  font-style: italic;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 26px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #161513;
+  color: #f6f3ee;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: normal;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+
+  &:hover,
+  &:focus-visible {
+    background: #2d2b29;
+    color: #f6f3ee;
+    text-decoration: none;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  stroke: #f6f3ee;
+}

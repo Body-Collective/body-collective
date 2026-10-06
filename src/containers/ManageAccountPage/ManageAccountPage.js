@@ -14,6 +14,7 @@ import {
   initialValuesForUserFields,
   pickUserFieldsData,
 } from '../../util/userHelpers';
+import { showManageSubscriptionForUser } from '../../util/subscription';
 import { pathByRouteName } from '../../util/routes';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -114,6 +115,7 @@ export const ManageAccountPageComponent = props => {
     currentPage: 'ManageAccountPage',
     showPaymentMethods,
     showPayoutDetails,
+    showManageSubscription: showManageSubscriptionForUser(currentUser),
   };
 
   return (

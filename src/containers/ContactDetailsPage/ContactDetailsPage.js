@@ -8,6 +8,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
 import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import { showManageSubscriptionForUser } from '../../util/subscription';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -111,6 +112,7 @@ export const ContactDetailsPageComponent = props => {
     currentPage: 'ContactDetailsPage',
     showPaymentMethods,
     showPayoutDetails,
+    showManageSubscription: showManageSubscriptionForUser(currentUser),
   };
 
   return (

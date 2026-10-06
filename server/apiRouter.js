@@ -16,6 +16,9 @@ const transactionLineItems = require('./api/transaction-line-items');
 const initiatePrivileged = require('./api/initiate-privileged');
 const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
+const stripeWebhooks = require('./api/stripe/webhooks');
+const createBillingPortalSession = require('./api/stripe/create-billing-portal-session');
+const confirmCheckoutSession = require('./api/stripe/confirm-checkout-session');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -50,12 +53,21 @@ router.use((req, res, next) => {
 
 // ================ API router endpoints: ================ //
 
+// Stripe webhooks need the raw request body for signature verification, so this route has its own
+// raw parser. (When CSP is enabled, server/index.js has already parsed the body and kept
+// req.rawBody for it.)
+router.post('/stripe/webhooks', express.raw({ type: 'application/json' }), stripeWebhooks);
+
 router.get('/initiate-login-as', initiateLoginAs);
 router.get('/login-as', loginAs);
 router.post('/transaction-line-items', transactionLineItems);
 router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
+
+// Stripe subscriptions
+router.post('/stripe/create-billing-portal-session', createBillingPortalSession);
+router.post('/stripe/confirm-checkout-session', confirmCheckoutSession);
 
 // Create user with identity provider (e.g. Facebook or Google)
 // This endpoint is called to create a new user after user has confirmed
