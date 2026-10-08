@@ -1,6 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { useIntl } from '../../../../util/reactIntl';
+
+import { resolveFooterFieldKeys } from '../../PageBuilder.helpers';
 import Field, { hasDataInFields } from '../../Field';
 import BlockContainer from '../BlockContainer';
 
@@ -24,13 +27,16 @@ import css from './BlockFooter.module.css';
  * @param {string?} props.rootClassName overwrite components own css.root
  * @param {string?} props.className add more styles in addition to components own css.root
  * @param {string?} props.textClassName add styles for the block's attached text field
- * @param {Object?} props.text content config for the block (can be markdown)
+ * @param {Object?} props.text content config for the block (can be markdown, and have translation keys)
  * @param {Object} props.options extra options for the block component (e.g. custom fieldComponents)
  * @param {Object<string,FieldComponentConfig>?} props.options.fieldComponents Custom fieldComponents
  * @returns {JSX.Element} component that renders block type: 'footerBlock'
  */
 const BlockFooter = props => {
-  const { blockId, className, rootClassName, textClassName, text, options } = props;
+  const { blockId, className, rootClassName, textClassName, text: textInConsole, options } = props;
+  const intl = useIntl();
+  // The text can have translation keys, e.g. "[Footer.aboutUs](/p/about)"
+  const text = resolveFooterFieldKeys(textInConsole, intl.messages);
   const classes = classNames(rootClassName || css.root, className);
   const hasTextComponentFields = hasDataInFields([text], options);
 

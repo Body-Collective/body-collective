@@ -382,3 +382,77 @@ describe('SignupForm', () => {
     });
   });
 });
+
+describe('SignupForm language field', () => {
+  // The language of a user is a user field in Console (single select, shown in the signup form)
+  const languageUserField = {
+    key: 'language',
+    scope: 'public',
+    schemaType: 'enum',
+    enumOptions: [{ option: 'en', label: 'English' }, { option: 'de', label: 'Deutsch' }],
+    saveConfig: { label: 'Preferred language', displayInSignUp: true, isRequired: true },
+    userTypeConfig: { limitToUserTypeIds: false },
+  };
+
+  const termsAndConditions = (
+    <TermsAndConditions onOpenTermsOfService={noop} onOpenPrivacyPolicy={noop} intl={fakeIntl} />
+  );
+
+  const renderForm = ({ onSubmit = noop } = {}) =>
+    render(
+      <SignupForm
+        intl={fakeIntl}
+        termsAndConditions={termsAndConditions}
+        userTypes={userTypes}
+        userFields={[languageUserField]}
+        preselectedUserType="a"
+        onSubmit={onSubmit}
+      />
+    );
+
+  const fillOtherFields = async user => {
+    await user.type(
+      screen.getByRole('textbox', { name: 'SignupForm.emailLabel' }),
+      'joe@example.com'
+    );
+    await user.type(screen.getByRole('textbox', { name: 'SignupForm.firstNameLabel' }), 'Joe');
+    await user.type(screen.getByRole('textbox', { name: 'SignupForm.lastNameLabel' }), 'Dunphy');
+    await user.type(screen.getByLabelText('SignupForm.passwordLabel'), 'secret-password');
+    await user.click(screen.getByLabelText(/AuthenticationPage.termsAndConditionsAcceptText/i));
+  };
+
+  it('asks the language with the user field of Console, and the user chooses it', () => {
+    renderForm();
+
+    const select = screen.getByLabelText('Preferred language');
+    expect(select).toBeInTheDocument();
+    // Nothing is chosen for the user
+    expect(select).toHaveValue('');
+    expect(screen.getByRole('option', { name: 'English' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Deutsch' })).toBeInTheDocument();
+  });
+
+  it('does not allow signing up before a language has been chosen', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await fillOtherFields(user);
+    expect(screen.getByRole('button', { name: 'SignupForm.signUp' })).toBeDisabled();
+
+    await user.selectOptions(screen.getByLabelText('Preferred language'), 'de');
+    expect(screen.getByRole('button', { name: 'SignupForm.signUp' })).toBeEnabled();
+  });
+
+  it('sends the language that the user has chosen with the other values', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn();
+    renderForm({ onSubmit });
+
+    await fillOtherFields(user);
+    await user.selectOptions(screen.getByLabelText('Preferred language'), 'de');
+    await user.click(screen.getByRole('button', { name: 'SignupForm.signUp' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0][0]).toEqual(expect.objectContaining({ pub_language: 'de' }));
+  });
+});

@@ -278,7 +278,16 @@ app.get('/{*splat}', async (req, res) => {
       res.locals.timestampAfterLoadData = Date.now();
       const cspNonce = cspEnabled ? res.locals.cspNonce : null;
 
-      return renderer.render(req.url, context, data, renderApp, webExtractor, cspNonce);
+      // The cookie of the request tells the language of the visitor, the page is rendered in it
+      return renderer.render(
+        req.url,
+        context,
+        data,
+        renderApp,
+        webExtractor,
+        cspNonce,
+        req.headers.cookie
+      );
     })
     .then(html => {
       res.locals.timestampAfterRender = Date.now();

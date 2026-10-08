@@ -152,3 +152,21 @@ Practitioners are listings of the type `daily_booking` and events listings of th
 The other sections of the page (about text, call to action) are styled by their ids in
 `PageBuilder.module.css`. Code: `util/regionAreas.js`, `RegionAreaContext.js`,
 `SectionColumns/RegionAreaPills.js`, `SectionListings/RegionSectionListings.js`.
+
+## Languages (English and German)
+
+Each section of a page exists once per language in Console. The anchor link ID of a section ends
+with the language: `landing-hero-en` and `landing-hero-de`. Keep the German copy right below the
+English one, and name them e.g. "Hero (EN)" and "Hero (DE)" so they are easy to find.
+
+- `SectionBuilder` shows the version of the language in use (`useLanguage()`); if a section has no
+  version in that language, the English one is shown. Sections without a language ending are shown
+  in every language.
+- The ending is removed from the id, so the DOM ids, anchors (`#faq`) and the CSS rules keyed to
+  section ids stay the same in both languages.
+- Each copy has its own uploaded images. Links (hrefs, search queries, block ids) stay in English.
+- The footer is one asset for all languages: its texts are translation keys like `Footer.discover`,
+  which are replaced by the texts in `src/translations` (`resolveFooterKeys`).
+
+Code: `util/language.js` (`selectSectionsForLanguage`), `context/languageContext.js`,
+`containers/LanguageSync`.

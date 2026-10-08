@@ -39,6 +39,13 @@ describe('signupSteps', () => {
       expect(firstStep.map(props => props.key)).toEqual(['company', 'website', 'instagram']);
     });
 
+    it('asks the language of the user in the first step', () => {
+      const withLanguage = [...userFieldProps, fieldProps('language')];
+      const { firstStep, secondStep } = splitUserFieldsBetweenSteps(withLanguage);
+      expect(firstStep.map(props => props.key)).toContain('language');
+      expect(secondStep.map(props => props.key)).not.toContain('language');
+    });
+
     it('puts the other fields in the second step in the same order', () => {
       const { secondStep } = splitUserFieldsBetweenSteps(userFieldProps);
       expect(secondStep.map(props => props.key)).toEqual(['about_practice', 'years_experience']);

@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+
+import { useLanguage } from '../../../context/languageContext';
+import { selectSectionsForLanguage } from '../../../util/language';
 
 import { isLazyImagesSection } from '../PageBuilder.helpers';
 import { RegionAreaProvider } from '../RegionAreaContext';
@@ -77,6 +80,10 @@ const defaultSectionComponents = {
 /**
  * Build section elements from given section config array.
  *
+ * Each section of a content page has a copy for each language, and the anchor id of a section ends
+ * with the language: "hero-en", "hero-de". The sections of the current language are built, see
+ * util/language.js. A section without a language in its id is built in all languages.
+ *
  * @component
  * @param {Object} props
  * @param {Array<SectionConfig>} props.sections
@@ -88,8 +95,16 @@ const defaultSectionComponents = {
  * @returns {JSX.Element} element containing array of sections according from given config array.
  */
 const SectionBuilder = props => {
-  const { sections = [], options } = props;
+  const { sections: sectionsOfAllLanguages = [], options } = props;
   const { sectionComponents = {}, isInsideContainer, ...otherOption } = options || {};
+  const { language } = useLanguage();
+
+  // The sections of the current language. This is done before the ids are resolved, so that the
+  // ids are the ones without the language, and only one section is left for each of them.
+  const sections = useMemo(() => selectSectionsForLanguage(sectionsOfAllLanguages, language), [
+    sectionsOfAllLanguages,
+    language,
+  ]);
 
   // If there's no sections, we can't render the correct section component
   if (!sections || sections.length === 0) {

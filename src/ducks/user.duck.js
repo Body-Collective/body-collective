@@ -445,6 +445,34 @@ export const {
   closeApplicationUnderReviewModal,
 } = userSlice.actions;
 
+// ================ Language ================ //
+
+/**
+ * Saves the language to the profile of the current user (publicData.language). The saved language
+ * is used on all the devices of the user, see containers/LanguageSync.
+ *
+ * Failing is not an error that the user needs to hear about: the language is in use in the browser
+ * anyway. The error is logged.
+ *
+ * @param {string} language e.g. "de"
+ * @returns {Promise<Object|null>} the updated currentUser, or null when saving failed
+ */
+export const saveCurrentUserLanguage = language => (dispatch, getState, sdk) => {
+  return sdk.currentUser
+    .updateProfile({ publicData: { language } }, { expand: true })
+    .then(response => {
+      const [currentUser] = denormalisedResponseEntities(response);
+      if (currentUser) {
+        dispatch(setCurrentUser(currentUser));
+      }
+      return currentUser || null;
+    })
+    .catch(e => {
+      log.error(e, 'save-user-language-failed');
+      return null;
+    });
+};
+
 // ================ Selectors ================ //
 
 export const hasCurrentUserErrors = state => {

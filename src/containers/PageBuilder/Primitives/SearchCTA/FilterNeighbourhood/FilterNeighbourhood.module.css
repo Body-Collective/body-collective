@@ -66,6 +66,11 @@
   }
 }
 
+/* Two classes, so that the white text of a dark section (".darkTheme li") does not reach the list */
+.dropdownContent .option {
+  color: #201f1d;
+}
+
 .option {
   padding: 9px 10px;
   border-radius: 10px;

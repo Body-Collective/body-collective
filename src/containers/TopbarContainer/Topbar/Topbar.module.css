@@ -42,7 +42,7 @@
   /* Size */
   width: 100%;
   height: var(--topbarHeight);
-  padding: 0 16px;
+  padding: 0 12px;
   box-sizing: border-box;
 
   /* Layout for child components */
@@ -50,7 +50,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 
   /* fill */
   background-color: var(--colorWhite);
@@ -58,6 +58,12 @@
 
   /* shadows */
   box-shadow: var(--boxShadow);
+
+  /* The language switch and the log in buttons need more room on a phone */
+  @media (--viewportSmall) {
+    padding: 0 16px;
+    gap: 12px;
+  }
 
   @media (--viewportMedium) {
     height: var(--topbarHeightDesktop);
@@ -78,7 +84,24 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+
+  @media (--viewportSmall) {
+    gap: 8px;
+  }
+}
+
+.mobileLanguageSwitch {
+  gap: 6px;
+  font-size: 12px;
+  --languageSwitchColor: rgba(32, 31, 29, 0.55);
+  --languageSwitchActiveColor: var(--bc-ink, #161513);
+
+  @media (--viewportSmall) {
+    gap: 10px;
+    margin-right: 4px;
+    font-size: 13px;
+  }
 }
 
 .loginButton,
@@ -88,18 +111,23 @@
   justify-content: center;
   flex-shrink: 0;
   height: 32px;
-  padding: 0 14px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid transparent;
   font-family: var(--font-body);
   font-weight: var(--fontWeightRegular);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
   letter-spacing: 0;
   white-space: nowrap;
   text-decoration: none;
   box-sizing: border-box;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+  @media (--viewportSmall) {
+    padding: 0 14px;
+    font-size: 13px;
+  }
 }
 
 .loginButton {
@@ -139,6 +167,10 @@
   }
   & .searchMenuIcon {
     stroke: #f6f3ee;
+  }
+  & .mobileLanguageSwitch {
+    --languageSwitchColor: rgba(255, 255, 255, 0.7);
+    --languageSwitchActiveColor: var(--colorWhite);
   }
   & .loginButton {
     border-color: var(--colorWhite);

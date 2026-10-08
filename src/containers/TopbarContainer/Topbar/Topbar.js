@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
 import { useConfiguration } from '../../../context/configurationContext';
+import { useLanguage } from '../../../context/languageContext';
 import { useRouteConfiguration } from '../../../context/routeConfigurationContext';
 
 import { pickBy } from '../../../util/common';
@@ -13,6 +14,7 @@ import { createResourceLocatorString, matchPathname, pathByRouteName } from '../
 import {
   Button,
   IconArrowHead,
+  LanguageSwitch,
   LimitedAccessBanner,
   Modal,
   ModalApplicationUnderReview,
@@ -20,6 +22,7 @@ import {
   NamedLink,
 } from '../../../components';
 import { getSearchPageResourceLocatorStringParams } from '../../SearchPage/SearchPage.shared';
+import useChangeLanguage from '../../LanguageSync/useChangeLanguage';
 
 import MenuIcon from './MenuIcon';
 import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
@@ -178,6 +181,9 @@ const TopbarComponent = props => {
     config,
     routeConfiguration,
   } = props;
+
+  const { language, languages } = useLanguage();
+  const onChangeLanguage = useChangeLanguage();
 
   const handleSubmit = values => {
     const { currentSearchParams, history, location, config, routeConfiguration } = props;
@@ -405,6 +411,13 @@ const TopbarComponent = props => {
           linkToExternalSite={config?.topbar?.logoLink}
         />
         <div className={css.mobileRight}>
+          <LanguageSwitch
+            className={css.mobileLanguageSwitch}
+            language={language}
+            languages={languages}
+            onChange={onChangeLanguage}
+            ariaLabel={intl.formatMessage({ id: 'Topbar.languageSwitchLabel' })}
+          />
           {loginLinkMaybe}
           {signupLinkMaybe}
           {mobileMenuButtonMaybe}

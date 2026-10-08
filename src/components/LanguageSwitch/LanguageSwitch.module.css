@@ -1,0 +1,42 @@
+/* The colors can be changed by the parent with --languageSwitchColor and --languageSwitchActiveColor */
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--languageSwitchColor, var(--colorGrey600));
+}
+
+/* The buttons look like text */
+.language {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--languageSwitchColor, var(--colorGrey600));
+  cursor: pointer;
+
+  &:hover {
+    color: var(--languageSwitchActiveColor, #201f1d);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+}
+
+.languageActive {
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--languageSwitchActiveColor, #201f1d);
+  cursor: default;
+}
+
+.divider {
+  color: var(--languageSwitchColor, var(--colorGrey600));
+}

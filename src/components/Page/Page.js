@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
+import { useLanguage } from '../../context/languageContext';
 import { getCustomCSSPropertiesFromConfig } from '../../util/style';
 import { useIntl, intlShape } from '../../util/reactIntl';
 import { metaTagProps } from '../../util/seo';
@@ -101,6 +102,7 @@ class PageComponent extends Component {
       children,
       location,
       intl,
+      language,
       scrollingDisabled,
       referrer,
       author,
@@ -248,7 +250,8 @@ class PageComponent extends Component {
       <div id="page" className={classes} style={styles}>
         <Helmet
           htmlAttributes={{
-            lang: intl.locale,
+            // The language of the texts of the page. (intl.locale is the one of the number and date formats.)
+            lang: language || intl.locale,
           }}
         >
           <title>{pageTitle}</title>
@@ -274,7 +277,7 @@ class PageComponent extends Component {
           <link rel="manifest" href={webmanifestURL(marketplaceRootURL)} />
 
           <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
-          <meta httpEquiv="Content-Language" content={intl.locale} />
+          <meta httpEquiv="Content-Language" content={language || intl.locale} />
           {metaToHead.map((metaProps, i) => (
             <meta key={i} {...metaProps} />
           ))}
@@ -337,6 +340,7 @@ const Page = props => {
   const routeConfiguration = useRouteConfiguration();
   const location = useLocation();
   const intl = useIntl();
+  const { language } = useLanguage();
 
   return (
     <PageComponent
@@ -344,6 +348,7 @@ const Page = props => {
       routeConfiguration={routeConfiguration}
       location={location}
       intl={intl}
+      language={language}
       {...props}
     />
   );

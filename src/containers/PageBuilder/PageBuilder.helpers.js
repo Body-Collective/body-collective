@@ -138,3 +138,35 @@ export const useLazyLoad = (options = {}) => {
 
   return [shellRef, !lazy || shouldLoad];
 };
+
+// A translation key of the footer: "Footer.discover"
+const FOOTER_TRANSLATION_KEY = /\bFooter\.[A-Za-z0-9]+/g;
+
+/**
+ * Replaces the translation keys of the footer in a text of the footer asset (Console) with the
+ * texts in the current language. A key is written like "Footer.discover" and the texts are in the
+ * translation files of the code. The footer can't have a copy per language like the sections of a
+ * page, so its texts are translated this way.
+ *
+ * A key that has no text is left as it is.
+ *
+ * @param {string?} text e.g. "[Footer.aboutUs](/p/about)"
+ * @param {Object} messages the messages of react-intl, e.g. intl.messages
+ * @returns {string?} e.g. "[Über uns](/p/about)"
+ */
+export const resolveFooterKeys = (text, messages = {}) =>
+  typeof text === 'string'
+    ? text.replace(FOOTER_TRANSLATION_KEY, key => messages[key] || key)
+    : text;
+
+/**
+ * Field data (e.g. slogan) of the footer, with its translation keys replaced by the texts.
+ *
+ * @param {Object?} fieldData e.g. { fieldType: 'text', content: 'Footer.slogan' }
+ * @param {Object} messages the messages of react-intl, e.g. intl.messages
+ * @returns {Object?}
+ */
+export const resolveFooterFieldKeys = (fieldData, messages) =>
+  fieldData?.content
+    ? { ...fieldData, content: resolveFooterKeys(fieldData.content, messages) }
+    : fieldData;

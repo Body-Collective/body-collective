@@ -174,30 +174,6 @@
   fill: none;
 }
 
-.languageSwitch {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  color: var(--colorGrey600);
-}
-
-.language {
-  color: var(--colorGrey600);
-}
-
-.languageActive {
-  font-weight: var(--fontWeightSemiBold);
-  color: #201f1d;
-}
-
-.languageDivider {
-  color: var(--colorGrey600);
-}
-
 .copyright {
   display: block;
   font-family: var(--font-body);

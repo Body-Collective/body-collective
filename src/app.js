@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, StaticRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -11,9 +11,17 @@ import configureStore from './store';
 // utils
 import { RouteConfigurationProvider } from './context/routeConfigurationContext';
 import { ConfigurationProvider } from './context/configurationContext';
+import { LanguageProvider, useLanguage } from './context/languageContext';
 import { parse } from './util/urlHelpers';
 import { difference, isEmpty } from './util/common';
 import { mergeConfig } from './util/configHelpers';
+import {
+  DEFAULT_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+  getCookieLanguage,
+  getLanguageFromCookieString,
+  getStoredLanguage,
+} from './util/language';
 import { IntlProvider } from './util/reactIntl';
 import {
   clearReferralDataIfExpired,
@@ -24,6 +32,7 @@ import { includeCSSProperties } from './util/style';
 import { IncludeScripts } from './util/includeScripts';
 
 import { MaintenanceMode } from './components';
+import LanguageSync from './containers/LanguageSync/LanguageSync';
 
 // routing
 import routeConfiguration from './routing/routeConfiguration';
@@ -31,6 +40,7 @@ import Routes from './routing/Routes';
 
 // Sharetribe Web Template uses English translations as default translations.
 import defaultMessages from './translations/en.json';
+import germanMessages from './translations/de.json';
 
 // If you want to change the language of default (fallback) translations,
 // change the imports to match the wanted locale:
@@ -45,21 +55,16 @@ import defaultMessages from './translations/en.json';
 // This used to collect billing address in StripePaymentAddress on CheckoutPage
 
 // Step 2:
-// The "./translations/en.json" has generic English translations
-// that should work as a default translation if some translation keys are missing
-// from the hosted translation.json (which can be edited in Console).
+// The texts of the app come from the translation files in the code, in the language that the
+// visitor has chosen (see util/language.js and context/languageContext.js). The texts that are
+// edited in Console (the hosted translations) are not used for now: see LocalizedIntlProvider.
 //
-// If you are using a non-english locale, point `messagesInLocale` to correct <lang>.json file.
-// That way the priority order would be:
-//   1. hosted translation.json
-//   2. <lang>.json
-//   3. en.json
-//
-// I.e. remove "const messagesInLocale" and add import for the correct locale:
-// import messagesInLocale from './translations/fr.json';
-const messagesInLocale = {};
+// That way the priority order is:
+//   1. <language>.json (e.g. de.json)
+//   2. en.json
+const messagesInLanguage = { en: {}, de: germanMessages };
 
-// If translation key is missing from `messagesInLocale` (e.g. fr.json),
+// If translation key is missing from the messages of a language (e.g. de.json),
 // corresponding key will be added to messages from `defaultMessages` (en.json)
 // to prevent missing translation key errors.
 const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) => {
@@ -86,9 +91,37 @@ const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) 
 //       messages with the key as the value of each message and discard the value.
 //       { 'My.translationKey1': 'My.translationKey1', 'My.translationKey2': 'My.translationKey2' }
 const isTestEnv = process.env.NODE_ENV === 'test';
-const localeMessages = isTestEnv
-  ? Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]))
-  : addMissingTranslations(defaultMessages, messagesInLocale);
+const localeMessagesByLanguage = Object.fromEntries(
+  SUPPORTED_LANGUAGES.map(language => [
+    language,
+    isTestEnv
+      ? Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]))
+      : addMissingTranslations(defaultMessages, messagesInLanguage[language] || {}),
+  ])
+);
+const getLocaleMessages = language =>
+  localeMessagesByLanguage[language] || localeMessagesByLanguage[DEFAULT_LANGUAGE];
+
+// Provides the texts in the language that is chosen. The language can change without reloading.
+const LocalizedIntlProvider = props => {
+  const { locale, hostedTranslations, children } = props;
+  const { language } = useLanguage();
+
+  return (
+    <IntlProvider
+      locale={locale}
+      messages={{
+        ...getLocaleMessages(language),
+        // The hosted translations (Console > Marketplace texts) are skipped for now. Only the
+        // translations in the code are used. Take this back into use to show them again:
+        // ...hostedTranslations,
+      }}
+      textComponent="span"
+    >
+      {children}
+    </IntlProvider>
+  );
+};
 
 const Configurations = props => {
   const { appConfig, children } = props;
@@ -149,6 +182,16 @@ const EnvironmentVariableWarning = props => {
   );
 };
 
+// The language of the first render of the client. If the page has been rendered on the server, it
+// has to be the language that the server used (the cookie), otherwise the page can't be hydrated.
+// Without server rendering the language that is saved in the browser is used.
+const getInitialClientLanguage = () => {
+  const cookieLanguage = getCookieLanguage();
+  const isRenderedOnServer = !!window.__PRELOADED_STATE__;
+  const language = isRenderedOnServer ? cookieLanguage : getStoredLanguage() || cookieLanguage;
+  return language || DEFAULT_LANGUAGE;
+};
+
 /**
  * Client App
  * @param {Object} props
@@ -160,6 +203,7 @@ const EnvironmentVariableWarning = props => {
 export const ClientApp = props => {
   const { store, hostedTranslations = {}, hostedConfig = {} } = props;
   const appConfig = mergeConfig(hostedConfig, defaultConfig);
+  const [initialLanguage] = useState(getInitialClientLanguage);
 
   useEffect(() => {
     // Clear referral data from session storage the expiration time has passed
@@ -198,7 +242,7 @@ export const ClientApp = props => {
     return (
       <MaintenanceModeError
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={{ ...getLocaleMessages(initialLanguage) /*, ...hostedTranslations */ }}
       />
     );
   }
@@ -214,22 +258,24 @@ export const ClientApp = props => {
   const logLoadDataCalls = appSettings?.env !== 'test';
 
   return (
-    <Configurations appConfig={appConfig}>
-      <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
-        textComponent="span"
-      >
-        <Provider store={store}>
-          <HelmetProvider>
-            <IncludeScripts config={appConfig} initialPathname={window.location.pathname} />
-            <BrowserRouter>
-              <Routes logLoadDataCalls={logLoadDataCalls} />
-            </BrowserRouter>
-          </HelmetProvider>
-        </Provider>
-      </IntlProvider>
-    </Configurations>
+    <LanguageProvider initialLanguage={initialLanguage}>
+      <Configurations appConfig={appConfig}>
+        <LocalizedIntlProvider
+          locale={appConfig.localization.locale}
+          hostedTranslations={hostedTranslations}
+        >
+          <Provider store={store}>
+            <LanguageSync />
+            <HelmetProvider>
+              <IncludeScripts config={appConfig} initialPathname={window.location.pathname} />
+              <BrowserRouter>
+                <Routes logLoadDataCalls={logLoadDataCalls} />
+              </BrowserRouter>
+            </HelmetProvider>
+          </Provider>
+        </LocalizedIntlProvider>
+      </Configurations>
+    </LanguageProvider>
   );
 };
 
@@ -242,10 +288,19 @@ export const ClientApp = props => {
  * @param {Object} props.store
  * @param {Object} props.hostedTranslations
  * @param {Object} props.hostedConfig
+ * @param {string?} props.language the language of the visitor, from the cookie of the request
  * @returns {JSX.Element}
  */
 export const ServerApp = props => {
-  const { url, context, helmetContext, store, hostedTranslations = {}, hostedConfig = {} } = props;
+  const {
+    url,
+    context,
+    helmetContext,
+    store,
+    hostedTranslations = {},
+    hostedConfig = {},
+    language = DEFAULT_LANGUAGE,
+  } = props;
   const appConfig = mergeConfig(hostedConfig, defaultConfig);
   HelmetProvider.canUseDOM = false;
 
@@ -254,7 +309,7 @@ export const ServerApp = props => {
     return (
       <MaintenanceModeError
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={{ ...getLocaleMessages(language) /*, ...hostedTranslations */ }}
         helmetContext={helmetContext}
       />
     );
@@ -262,22 +317,23 @@ export const ServerApp = props => {
   const initialPathname = new URL(url, 'http://example.com')?.pathname;
 
   return (
-    <Configurations appConfig={appConfig}>
-      <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
-        textComponent="span"
-      >
-        <Provider store={store}>
-          <HelmetProvider context={helmetContext}>
-            <IncludeScripts config={appConfig} initialPathname={initialPathname} />
-            <StaticRouter location={url} context={context}>
-              <Routes />
-            </StaticRouter>
-          </HelmetProvider>
-        </Provider>
-      </IntlProvider>
-    </Configurations>
+    <LanguageProvider initialLanguage={language}>
+      <Configurations appConfig={appConfig}>
+        <LocalizedIntlProvider
+          locale={appConfig.localization.locale}
+          hostedTranslations={hostedTranslations}
+        >
+          <Provider store={store}>
+            <HelmetProvider context={helmetContext}>
+              <IncludeScripts config={appConfig} initialPathname={initialPathname} />
+              <StaticRouter location={url} context={context}>
+                <Routes />
+              </StaticRouter>
+            </HelmetProvider>
+          </Provider>
+        </LocalizedIntlProvider>
+      </Configurations>
+    </LanguageProvider>
   );
 };
 
@@ -286,6 +342,11 @@ export const ServerApp = props => {
  *
  * @param {String} url Path to render
  * @param {Object} serverContext Server rendering context from react-router
+ * @param {Object} preloadedState State of the store, with the data that has been loaded
+ * @param {Object} hostedTranslations Translations of Console (not used for now)
+ * @param {Object} hostedConfig Configurations of Console
+ * @param {Function} collectChunks Collects the chunks that the page needs
+ * @param {String} cookieHeader The Cookie header of the request: it tells the language of the visitor
  *
  * @returns {Object} Object with keys:
  *  - {String} body: Rendered application body of the given route
@@ -297,7 +358,8 @@ export const renderApp = (
   preloadedState,
   hostedTranslations,
   hostedConfig,
-  collectChunks
+  collectChunks,
+  cookieHeader
 ) => {
   // Don't pass an SDK instance since we're only rendering the
   // component tree with the preloaded store state and components
@@ -317,6 +379,7 @@ export const renderApp = (
       store={store}
       hostedTranslations={hostedTranslations}
       hostedConfig={hostedConfig}
+      language={getLanguageFromCookieString(cookieHeader) || DEFAULT_LANGUAGE}
     />
   );
 

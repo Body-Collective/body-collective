@@ -1,3 +1,5 @@
+import { LANGUAGE_USER_FIELD_KEY } from '../../../util/language';
+
 /**
  * Practitioners apply to join in two steps: who they are and how to reach them first, then
  * questions about their practice. Other user types sign up in one step.
@@ -23,7 +25,12 @@ export const DEFAULT_USER_FIELD_NAMES = [
 
 // Custom user fields (the keys of the user fields in Console) that are in the first step too.
 // The other custom user fields are in the second step, so a new field is asked there.
-export const FIRST_STEP_USER_FIELD_KEYS = ['company', 'website', 'instagram'];
+export const FIRST_STEP_USER_FIELD_KEYS = [
+  'company',
+  'website',
+  'instagram',
+  LANGUAGE_USER_FIELD_KEY,
+];
 
 /**
  * @param {string?} userType id of the user type

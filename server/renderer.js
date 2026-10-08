@@ -91,7 +91,7 @@ const replacer = (key = null, value) => {
   return types.replacer(key, cleanedValue);
 };
 
-exports.render = function(requestUrl, context, data, renderApp, webExtractor, nonce) {
+exports.render = function(requestUrl, context, data, renderApp, webExtractor, nonce, cookieHeader) {
   const { preloadedState, translations, hostedConfig } = data;
 
   // Bind webExtractor as "this" for collectChunks call.
@@ -109,7 +109,8 @@ exports.render = function(requestUrl, context, data, renderApp, webExtractor, no
           preloadedState,
           translations,
           hostedConfig,
-          collectWebChunks
+          collectWebChunks,
+          cookieHeader
         );
   // Render the app with given route, preloaded state, hosted translations.
   return getHeadAndBody().then(({ head, body }) => {

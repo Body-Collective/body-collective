@@ -1,10 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { useLanguage } from '../../../../context/languageContext';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 
-import { ExternalLink, NamedLink } from '../../../../components';
-import { pickFieldOptions } from '../../PageBuilder.helpers';
+import { ExternalLink, LanguageSwitch, NamedLink } from '../../../../components';
+import useChangeLanguage from '../../../LanguageSync/useChangeLanguage';
+import { pickFieldOptions, resolveFooterFieldKeys } from '../../PageBuilder.helpers';
 
 import Field from '../../Field';
 import BlockBuilder from '../../BlockBuilder';
@@ -88,7 +90,13 @@ const SectionFooter = props => {
     linkLogoToExternalSite,
   } = props;
   const intl = useIntl();
+  const { language, languages } = useLanguage();
+  const onChangeLanguage = useChangeLanguage();
   const contactEmail = intl.formatMessage({ id: 'SectionFooter.contactEmail' });
+
+  // The slogan and the copyright can have translation keys, e.g. "Footer.slogan"
+  const sloganInLanguage = resolveFooterFieldKeys(slogan, intl.messages);
+  const copyrightInLanguage = resolveFooterFieldKeys(copyright, intl.messages);
 
   // If external mapping has been included for fields
   // E.g. { h1: { component: MyAwesomeHeader } }
@@ -132,7 +140,7 @@ const SectionFooter = props => {
         <div className={classNames(css.content, getContentCss(numberOfColumns))}>
           <div className={css.brand}>
             {logoLink}
-            <Field data={slogan} className={css.slogan} />
+            <Field data={sloganInLanguage} className={css.slogan} />
             <NewsletterForm className={css.newsletter} formId={`${sectionId}-newsletter`} />
           </div>
           <div className={classNames(css.grid, getGridCss(numberOfColumns))}>
@@ -168,25 +176,16 @@ const SectionFooter = props => {
                 </a>
               </div>
 
-              <div
-                className={css.languageSwitch}
-                role="group"
-                aria-label={intl.formatMessage({ id: 'SectionFooter.languageLabel' })}
-              >
-                <span className={css.language} lang="de">
-                  DE
-                </span>
-                <span className={css.languageDivider} aria-hidden="true">
-                  /
-                </span>
-                <span className={classNames(css.language, css.languageActive)} aria-current="true">
-                  EN
-                </span>
-              </div>
+              <LanguageSwitch
+                language={language}
+                languages={languages}
+                onChange={onChangeLanguage}
+                ariaLabel={intl.formatMessage({ id: 'SectionFooter.languageLabel' })}
+              />
             </div>
           </div>
 
-          <Field data={copyright} className={css.copyright} />
+          <Field data={copyrightInLanguage} className={css.copyright} />
         </div>
       </div>
     </SectionContainer>
