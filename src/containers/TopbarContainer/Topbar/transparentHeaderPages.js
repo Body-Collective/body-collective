@@ -14,8 +14,9 @@ export const isTransparentHeaderPage = currentPage =>
 // The apply page replaces the topbar "Sign up" button with an "Apply now" button.
 const APPLY_PAGE = 'CMSPage:apply_now';
 
-// Application form. Keep in sync with the "Apply now" buttons in content/pages/apply_now (Console).
-export const APPLY_FORM_URL = 'https://tally.so/r/ODg8OR';
+// The topbar "Apply now" button opens the signup form of this user type. The "Apply now" buttons in
+// content/pages/apply_now (Console) lead to the same form: /signup/practitioner.
+export const APPLY_USER_TYPE = 'practitioner';
 
 /**
  * Is the current page the "become a practitioner" apply page?

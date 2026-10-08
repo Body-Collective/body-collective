@@ -6,7 +6,6 @@ import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { showCreateListingLinkForUser } from '../../../../util/userHelpers';
 import {
   Avatar,
-  ExternalLink,
   InlineTextButton,
   Menu,
   MenuLabel,
@@ -18,7 +17,7 @@ import {
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import TopbarLogo from '../TopbarLogo/TopbarLogo';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
-import { APPLY_FORM_URL, isApplyPage, isTransparentHeaderPage } from '../transparentHeaderPages';
+import { APPLY_USER_TYPE, isApplyPage, isTransparentHeaderPage } from '../transparentHeaderPages';
 
 import css from './TopbarDesktop.module.css';
 
@@ -32,9 +31,14 @@ const SignupLink = ({ className }) => {
 
 const ApplyLink = ({ className }) => {
   return (
-    <ExternalLink id="apply-link" href={APPLY_FORM_URL} className={className}>
+    <NamedLink
+      id="apply-link"
+      name="SignupForUserTypePage"
+      params={{ userType: APPLY_USER_TYPE }}
+      className={className}
+    >
       <FormattedMessage id="TopbarDesktop.applyNow" />
-    </ExternalLink>
+    </NamedLink>
   );
 };
 
@@ -198,7 +202,7 @@ const TopbarDesktop = props => {
     />
   ) : null;
 
-  // On the apply page the primary button leads to the application form instead of sign up
+  // On the apply page the primary button leads to the practitioner application instead of sign up
   const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : isApplyPage(currentPage) ? (
     <ApplyLink className={css.signupButton} />
   ) : (
