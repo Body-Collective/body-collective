@@ -152,11 +152,11 @@ export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
 
-// Approve the logged in customer who has just signed up, so that they can use the marketplace at
-// once. The server reads the user from the session and approves only customers who are waiting
-// for approval. See `server/api/approve-customer.js`.
-export const approveCustomer = () => {
-  return post('/api/approve-customer');
+// Approve a customer who has just signed up, so that they can use the marketplace at once. Called
+// after the signup and before the login, with the email of the new user ({ email }). The server
+// approves only customers who are waiting for approval. See `server/api/approve-customer.js`.
+export const approveCustomer = body => {
+  return post('/api/approve-customer', body);
 };
 
 // Open the Stripe customer portal for the logged-in user's subscription. Resolves with { url } to

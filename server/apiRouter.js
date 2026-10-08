@@ -9,7 +9,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { deserialize } = require('./api-util/sdk');
-const middleware = require('./middleware');
 
 const initiateLoginAs = require('./api/initiate-login-as');
 const loginAs = require('./api/login-as');
@@ -67,8 +66,8 @@ router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
 
-// New customers are approved during the signup, right after the login. Practitioners are not.
-router.post('/approve-customer', middleware.auth, approveCustomer);
+// New customers are approved after the signup and before the login. Practitioners are not.
+router.post('/approve-customer', approveCustomer);
 
 // Stripe subscriptions
 router.post('/stripe/create-billing-portal-session', createBillingPortalSession);

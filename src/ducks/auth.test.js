@@ -573,12 +573,12 @@ describe('auth duck', () => {
       approveCustomer.mockClear();
     });
 
-    it('approves a customer after the login and before the current user is fetched', () => {
+    it('approves a customer by email after the signup and before the login', () => {
       const { calls, sdk, store } = setup();
       return signup(paramsOf('customer'))(store.dispatch, store.getState, sdk).then(() => {
-        expect(approveCustomer).toHaveBeenCalledTimes(1);
-        // the current user is fetched once, after the approval
-        expect(calls).toEqual(['create', 'login', 'approve', 'show']);
+        expect(approveCustomer).toHaveBeenCalledWith({ email: 'pekka@example.com' });
+        // the current user is fetched once, by the login
+        expect(calls).toEqual(['create', 'approve', 'login', 'show']);
       });
     });
 
