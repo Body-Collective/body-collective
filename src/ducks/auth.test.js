@@ -535,7 +535,10 @@ describe('auth duck', () => {
             calls.push('create');
             return Promise.resolve({ data: { data: { id: { uuid: 'new-user-id' } } } });
           }),
-          show: jest.fn(() => Promise.resolve({ data: { data: fakeCurrentUser, include: [] } })),
+          show: jest.fn(() => {
+            calls.push('show');
+            return Promise.resolve({ data: { data: fakeCurrentUser, include: [] } });
+          }),
         },
         login: jest.fn(() => {
           calls.push('login');
@@ -570,13 +573,12 @@ describe('auth duck', () => {
       approveCustomer.mockClear();
     });
 
-    it('approves a customer after the signup and the login, then fetches the user again', () => {
+    it('approves a customer after the login and before the current user is fetched', () => {
       const { calls, sdk, store } = setup();
       return signup(paramsOf('customer'))(store.dispatch, store.getState, sdk).then(() => {
         expect(approveCustomer).toHaveBeenCalledTimes(1);
-        expect(calls).toEqual(['create', 'login', 'approve']);
-        // once by the login and once after the approval
-        expect(sdk.currentUser.show).toHaveBeenCalledTimes(2);
+        // the current user is fetched once, after the approval
+        expect(calls).toEqual(['create', 'login', 'approve', 'show']);
       });
     });
 
@@ -584,7 +586,7 @@ describe('auth duck', () => {
       const { calls, sdk, store } = setup();
       return signup(paramsOf('practitioner'))(store.dispatch, store.getState, sdk).then(() => {
         expect(approveCustomer).not.toHaveBeenCalled();
-        expect(calls).toEqual(['create', 'login']);
+        expect(calls).toEqual(['create', 'login', 'show']);
       });
     });
 

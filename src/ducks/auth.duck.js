@@ -57,13 +57,22 @@ const authInfoThunk = createAsyncThunk('auth/authInfo', (_, thunkAPI) => {
   });
 });
 
+// Customers join without a review. A new customer is approved right after the login has created
+// the session (the API reads the user from it) and before the current user is fetched, so the
+// app gets the approved user at once. If the approval fails, the user keeps waiting for approval.
+const approveNewCustomer = email =>
+  approveCustomer().catch(e => {
+    log.error(e, 'approve-customer-failed', { email });
+  });
+
 const loginThunk = createAsyncThunk(
   'auth/login',
-  ({ username, password }, thunkAPI) => {
+  ({ username, password, approveAsCustomer = false }, thunkAPI) => {
     const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
 
     return sdk
       .login({ username, password })
+      .then(() => (approveAsCustomer ? approveNewCustomer(username) : null))
       .then(() => {
         return dispatch(fetchCurrentUser({ afterLogin: true }));
       })
@@ -104,21 +113,6 @@ const logoutThunk = createAsyncThunk(
   }
 );
 
-// Customers join without a review: they are approved right after the signup and the login.
-// The current user is fetched again, so the app sees the account as active. Practitioners wait
-// for the approval. If the approval fails, the signup still goes on and the user keeps waiting.
-const approveNewCustomer = (params, dispatch) => {
-  const isCustomer = params?.publicData?.userType === CUSTOMER_USER_TYPE;
-  if (!isCustomer) {
-    return Promise.resolve();
-  }
-  return approveCustomer()
-    .then(() => dispatch(fetchCurrentUser({ afterLogin: true, enforce: true })))
-    .catch(e => {
-      log.error(e, 'approve-customer-failed', { email: params.email });
-    });
-};
-
 const signupThunk = createAsyncThunk(
   'auth/signup',
   (params, thunkAPI) => {
@@ -126,10 +120,11 @@ const signupThunk = createAsyncThunk(
 
     return sdk.currentUser
       .create(params)
-      .then(() =>
-        dispatch(loginThunk({ username: params.email, password: params.password })).unwrap()
-      )
-      .then(() => approveNewCustomer(params, dispatch))
+      .then(() => {
+        const approveAsCustomer = params?.publicData?.userType === CUSTOMER_USER_TYPE;
+        const { email: username, password } = params;
+        return dispatch(loginThunk({ username, password, approveAsCustomer })).unwrap();
+      })
       .then(() => {
         // Clear potential referral data from session storage
         clearStoredReferralData();

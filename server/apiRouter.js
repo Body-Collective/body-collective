@@ -67,7 +67,7 @@ router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
 
-// Customers are approved right after the signup and the login. Practitioners are not.
+// New customers are approved during the signup, right after the login. Practitioners are not.
 router.post('/approve-customer', middleware.auth, approveCustomer);
 
 // Stripe subscriptions
