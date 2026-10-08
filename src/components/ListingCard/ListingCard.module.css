@@ -40,33 +40,6 @@
   display: none;
 }
 
-.favoriteButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--bc-accent-deep, #7f4a5c);
-  cursor: pointer;
-}
-
-.favoriteButton:hover,
-.favoriteButton:focus {
-  outline: none;
-  color: var(--bc-accent-deep, #7f4a5c);
-}
-
-.favoriteIcon {
-  display: block;
-}
-
 .title.lightText,
 .authorName.lightText {
   color: var(--colorWhite);

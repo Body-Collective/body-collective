@@ -55,10 +55,6 @@
   border-radius: 4px;
 }
 
-.card [class*='ListingCard_favoriteButton__'] {
-  display: none;
-}
-
 .card [class*='ListingCard_info__'] {
   padding: 14px 16px 16px;
 }

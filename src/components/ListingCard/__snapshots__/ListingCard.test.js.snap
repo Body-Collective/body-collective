@@ -25,28 +25,6 @@ exports[`ListingCard matches snapshot 1`] = `
         </div>
       </div>
     </div>
-    <button
-      aria-label="ListingCard.saveListing"
-      class="favoriteButton"
-      type="button"
-    >
-      <svg
-        aria-hidden="true"
-        class="favoriteIcon"
-        fill="none"
-        height="20"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.6"
-        viewBox="0 0 24 24"
-        width="20"
-      >
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-        />
-      </svg>
-    </button>
   </div>
   <div
     class="info"
@@ -109,28 +87,6 @@ exports[`ListingCard matches snapshot without price 1`] = `
         </div>
       </div>
     </div>
-    <button
-      aria-label="ListingCard.saveListing"
-      class="favoriteButton"
-      type="button"
-    >
-      <svg
-        aria-hidden="true"
-        class="favoriteIcon"
-        fill="none"
-        height="20"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.6"
-        viewBox="0 0 24 24"
-        width="20"
-      >
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-        />
-      </svg>
-    </button>
   </div>
   <div
     class="info"
