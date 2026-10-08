@@ -22,7 +22,7 @@ import EventCard from './EventCard';
 
 import css from './RegionSectionListings.module.css';
 
-// A region page shows all the listings of a neighbourhood at once (up to this many), in a grid
+// A region page shows all the listings of an area at once (up to this many), in a grid
 const REGION_LISTING_COUNT = 24;
 // The card images are portrait. The image variants are cropped to this ratio.
 const CARD_ASPECT_WIDTH = 2;
@@ -35,8 +35,8 @@ const STATIC_RATING = { rating: 5, reviewCount: 41 };
 
 /**
  * Listings section of a region page (e.g. /p/berlin): a grid of the listings of the section's
- * query (Console: "listing selection" is a search query). When a neighbourhood is chosen with the
- * pills of the page, the listings of that neighbourhood are shown instead.
+ * query (Console: "listing selection" is a search query). When an area (a neighbourhood, an
+ * island...) is chosen with the pills of the page, the listings of that area are shown instead.
  *
  * Section ids: "region-practitioners" shows a count of the listings above the grid,
  * "region-events" shows event cards and is left out when there is nothing to show.
@@ -92,7 +92,7 @@ const RegionSectionListings = props => {
   const listings = listingIds ? getListingEntitiesById(listingIds) : [];
 
   useEffect(() => {
-    // Load the listings, and load them again when another neighbourhood is chosen
+    // Load the listings, and load them again when another area is chosen
     const isUpToDate = loadedAreaSlug === areaSlug && (fetched || inProgress);
     if (!isUpToDate) {
       const listingImageConfig = {
@@ -119,6 +119,12 @@ const RegionSectionListings = props => {
   const searchQuery = getAreaListingSearchQuery(section?.listingSearchQuery, selectedArea);
   const hasMore = fetched && !inProgress && totalItems > listings.length;
 
+  // Where an area is: the text of its block in Console ("across the city", "on Mallorca"), or
+  // "in Mitte" when the block has no text
+  const getScope = area =>
+    area.description ||
+    intl.formatMessage({ id: 'RegionSectionListings.inArea' }, { area: area.name });
+
   // "8 practitioners across the city" or "3 practitioners in Mitte"
   const wholeRegion = areas.find(area => area.isDefault);
   const count = totalItems ?? listings.length;
@@ -126,15 +132,9 @@ const RegionSectionListings = props => {
     if (!showCount || !fetched || inProgress || error || !wholeRegion) {
       return null;
     }
-    if (!selectedArea && wholeRegion.description) {
-      return intl.formatMessage(
-        { id: 'RegionSectionListings.countInRegion' },
-        { count, scope: wholeRegion.description }
-      );
-    }
     return intl.formatMessage(
-      { id: 'RegionSectionListings.countInArea' },
-      { count, area: (selectedArea || wholeRegion).name }
+      { id: 'RegionSectionListings.count' },
+      { count, scope: getScope(selectedArea || wholeRegion) }
     );
   };
   const countLabel = getCountLabel();
@@ -162,7 +162,7 @@ const RegionSectionListings = props => {
           {selectedArea ? (
             <FormattedMessage
               id="RegionSectionListings.emptyInArea"
-              values={{ area: selectedArea.name }}
+              values={{ scope: getScope(selectedArea) }}
             />
           ) : (
             <FormattedMessage id="RegionSectionListings.emptyInRegion" />

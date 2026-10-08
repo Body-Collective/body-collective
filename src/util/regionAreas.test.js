@@ -1,6 +1,7 @@
 import {
   getAreaListingSearchQuery,
   getAreaSearchParams,
+  getRegionAreaLabel,
   getRegionAreas,
   getSelectedArea,
   parseSearchQuery,
@@ -75,6 +76,44 @@ describe('regionAreas', () => {
         { sectionId: 'region-areas', blocks: [{ blockId: 'x' }, block('Mitte', '/s?address=M')] },
       ];
       expect(getRegionAreas(withEmpty).map(a => a.name)).toEqual(['Mitte']);
+    });
+  });
+
+  describe('getRegionAreaLabel', () => {
+    it('is the description of the region-areas section', () => {
+      const withLabel = [
+        { sectionId: 'region-areas', description: { fieldType: 'paragraph', content: ' Island ' } },
+      ];
+      expect(getRegionAreaLabel(withLabel)).toEqual('Island');
+    });
+
+    it('is empty when the section has no description or the page has no such section', () => {
+      expect(getRegionAreaLabel(sections)).toEqual('');
+      expect(
+        getRegionAreaLabel([{ sectionId: 'region-areas', description: { fieldType: 'paragraph' } }])
+      ).toEqual('');
+      expect(getRegionAreaLabel([{ sectionId: 'other' }])).toEqual('');
+      expect(getRegionAreaLabel(undefined)).toEqual('');
+    });
+  });
+
+  describe('getRegionAreas descriptions', () => {
+    it('reads the text of the blocks as the description of the areas', () => {
+      const withText = [
+        {
+          sectionId: 'region-areas',
+          blocks: [
+            { ...block('All islands', '/s?address=A'), text: { content: 'across the islands' } },
+            { ...block('Mallorca', '/s?address=M'), text: { content: ' on Mallorca ' } },
+            block('Ibiza', '/s?address=I'),
+          ],
+        },
+      ];
+      expect(getRegionAreas(withText).map(a => a.description)).toEqual([
+        'across the islands',
+        'on Mallorca',
+        '',
+      ]);
     });
   });
 

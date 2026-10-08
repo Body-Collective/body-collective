@@ -8,13 +8,13 @@ import { useRegionArea } from '../../RegionAreaContext';
 import css from './RegionAreaPills.module.css';
 
 /**
- * The neighbourhoods of a region page (e.g. /p/berlin) as a row of pills. The first one is the
- * whole region. Choosing a pill filters the listing sections of the page by that neighbourhood.
+ * The areas of a region page (neighbourhoods, islands...) as a row of pills. The first one is the
+ * whole region. Choosing a pill filters the listing sections of the page by that area.
  *
  * @component
  * @param {Object} props
  * @param {string?} props.className add more style rules in addition to components own css.root
- * @returns {JSX.Element|null} list of pills, or null when the page has no neighbourhoods
+ * @returns {JSX.Element|null} list of pills, or null when the page has no areas
  */
 const RegionAreaPills = props => {
   const { className } = props;
@@ -25,12 +25,12 @@ const RegionAreaPills = props => {
     return null;
   }
 
-  const { areas, selectedArea, selectArea } = regionArea;
+  const { areas, areaLabel, selectedArea, selectArea } = regionArea;
 
   return (
     <ul
       className={classNames(css.root, className)}
-      aria-label={intl.formatMessage({ id: 'RegionAreaPills.ariaLabel' })}
+      aria-label={intl.formatMessage({ id: 'RegionAreaPills.ariaLabel' }, { label: areaLabel })}
     >
       {areas.map(area => {
         const isActive = selectedArea ? selectedArea.slug === area.slug : area.isDefault;

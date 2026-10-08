@@ -1588,13 +1588,10 @@
   "TopbarBottomNav.profile": "Profile",
   "TopbarBottomNav.screenreader.navigation": "Bottom navigation",
   "SectionHero.regionKicker": "Body Collective · Region",
-  "RegionAreaPills.ariaLabel": "Neighbourhoods",
-  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Neighbourhood",
-  "RegionSectionListings.countInRegion": "{count, plural, one {# practitioner} other {# practitioners}} {scope}",
-  "RegionSectionListings.countInArea": "{count, plural, one {# practitioner} other {# practitioners}} in {area}",
+  "RegionAreaPills.ariaLabel": "Filter by {label}",
   "RegionSectionListings.emptyInRegion": "No practitioners here yet.",
-  "RegionSectionListings.emptyInArea": "No practitioners in {area} yet.",
-  "RegionSectionListings.emptyHint": "Try another neighbourhood, or look further afield on the search page.",
+  "RegionSectionListings.emptyInArea": "No practitioners {scope} yet.",
+  "RegionSectionListings.emptyHint": "Try another area, or look further afield on the search page.",
   "RegionSectionListings.viewAll": "View all {count} results",
   "SignupForm.stepLabel": "Step {current} of {total}",
   "SignupForm.stepOneTitle": "Your details",
@@ -1607,5 +1604,8 @@
   "ModalApplicationUnderReview.title": "Thank you!",
   "ModalApplicationUnderReview.message": "Your details have been submitted and your profile is under review.",
   "ModalApplicationUnderReview.note": "Our team will take a look and be in touch as soon as the review is done.",
-  "ModalApplicationUnderReview.close": "Got it"
+  "ModalApplicationUnderReview.close": "Got it",
+  "RegionAreaContext.defaultAreaLabel": "Neighbourhood",
+  "RegionSectionListings.count": "{count, plural, one {# practitioner} other {# practitioners}} {scope}",
+  "RegionSectionListings.inArea": "in {area}"
 }

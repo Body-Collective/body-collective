@@ -89,11 +89,13 @@ const SectionColumns = props => {
   // E.g. { h1: { component: MyAwesomeHeader } }
   const fieldOptions = pickFieldOptions(options);
 
-  const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
   const hasBlocks = blocks?.length > 0;
   const isFaqSection = sectionId === 'faq';
-  // The blocks of the neighbourhoods section of a region page are shown as pills
+  // The blocks of the areas section of a region page are shown as pills. Its description is not
+  // text of the page, it names the kind of area, e.g. "Island" (see util/regionAreas.js).
   const isRegionAreasSection = sectionId === REGION_AREAS_SECTION_ID;
+  const shownDescription = isRegionAreasSection ? null : description;
+  const hasHeaderFields = hasDataInFields([title, shownDescription, callToAction], fieldOptions);
 
   return (
     <SectionContainer
@@ -106,7 +108,11 @@ const SectionColumns = props => {
       {hasHeaderFields ? (
         <header className={defaultClasses.sectionDetails}>
           <Field data={title} className={defaultClasses.title} options={fieldOptions} />
-          <Field data={description} className={defaultClasses.description} options={fieldOptions} />
+          <Field
+            data={shownDescription}
+            className={defaultClasses.description}
+            options={fieldOptions}
+          />
           <Field data={callToAction} className={defaultClasses.ctaButton} options={fieldOptions} />
         </header>
       ) : null}

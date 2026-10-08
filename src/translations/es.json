@@ -1588,13 +1588,10 @@
   "TopbarBottomNav.profile": "Perfil",
   "TopbarBottomNav.screenreader.navigation": "Navegación inferior",
   "SectionHero.regionKicker": "Body Collective · Región",
-  "RegionAreaPills.ariaLabel": "Barrios",
-  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Barrio",
-  "RegionSectionListings.countInRegion": "{count, plural, one {# profesional} other {# profesionales}} {scope}",
-  "RegionSectionListings.countInArea": "{count, plural, one {# profesional} other {# profesionales}} en {area}",
+  "RegionAreaPills.ariaLabel": "Filtrar por {label}",
   "RegionSectionListings.emptyInRegion": "Todavía no hay profesionales aquí.",
-  "RegionSectionListings.emptyInArea": "Todavía no hay profesionales en {area}.",
-  "RegionSectionListings.emptyHint": "Prueba con otro barrio o busca más lejos en la página de búsqueda.",
+  "RegionSectionListings.emptyInArea": "Todavía no hay profesionales {scope}.",
+  "RegionSectionListings.emptyHint": "Prueba con otra zona o busca más lejos en la página de búsqueda.",
   "RegionSectionListings.viewAll": "Ver los {count} resultados",
   "SignupForm.stepLabel": "Paso {current} de {total}",
   "SignupForm.stepOneTitle": "Tus datos",
@@ -1607,5 +1604,8 @@
   "ModalApplicationUnderReview.title": "¡Gracias!",
   "ModalApplicationUnderReview.message": "Tus datos se han enviado y tu perfil está en revisión.",
   "ModalApplicationUnderReview.note": "Nuestro equipo le echará un vistazo y se pondrá en contacto contigo en cuanto termine la revisión.",
-  "ModalApplicationUnderReview.close": "Entendido"
+  "ModalApplicationUnderReview.close": "Entendido",
+  "RegionAreaContext.defaultAreaLabel": "Barrio",
+  "RegionSectionListings.count": "{count, plural, one {# profesional} other {# profesionales}} {scope}",
+  "RegionSectionListings.inArea": "en {area}"
 }

@@ -1588,13 +1588,10 @@
   "TopbarBottomNav.profile": "Profil",
   "TopbarBottomNav.screenreader.navigation": "Navigation inférieure",
   "SectionHero.regionKicker": "Body Collective · Région",
-  "RegionAreaPills.ariaLabel": "Quartiers",
-  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Quartier",
-  "RegionSectionListings.countInRegion": "{count, plural, one {# praticien} other {# praticiens}} {scope}",
-  "RegionSectionListings.countInArea": "{count, plural, one {# praticien} other {# praticiens}} à {area}",
+  "RegionAreaPills.ariaLabel": "Filtrer par {label}",
   "RegionSectionListings.emptyInRegion": "Pas encore de praticiens ici.",
-  "RegionSectionListings.emptyInArea": "Pas encore de praticiens à {area}.",
-  "RegionSectionListings.emptyHint": "Essayez un autre quartier ou élargissez la recherche sur la page de recherche.",
+  "RegionSectionListings.emptyInArea": "Pas encore de praticiens {scope}.",
+  "RegionSectionListings.emptyHint": "Essayez une autre zone ou élargissez la recherche sur la page de recherche.",
   "RegionSectionListings.viewAll": "Voir les {count} résultats",
   "SignupForm.stepLabel": "Étape {current} sur {total}",
   "SignupForm.stepOneTitle": "Vos informations",
@@ -1607,5 +1604,8 @@
   "ModalApplicationUnderReview.title": "Merci !",
   "ModalApplicationUnderReview.message": "Vos informations ont été envoyées et votre profil est en cours de vérification.",
   "ModalApplicationUnderReview.note": "Notre équipe va l'examiner et vous contactera dès que la vérification sera terminée.",
-  "ModalApplicationUnderReview.close": "Compris"
+  "ModalApplicationUnderReview.close": "Compris",
+  "RegionAreaContext.defaultAreaLabel": "Quartier",
+  "RegionSectionListings.count": "{count, plural, one {# praticien} other {# praticiens}} {scope}",
+  "RegionSectionListings.inArea": "à {area}"
 }

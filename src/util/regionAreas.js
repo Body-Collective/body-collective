@@ -1,15 +1,19 @@
 /**
- * Region pages (e.g. /p/berlin) show a region's neighbourhoods as pills, and filter the page's
- * listing sections by the selected one.
+ * Region pages (e.g. /p/berlin or /p/balearic-island) show a region's areas (neighbourhoods,
+ * islands...) as pills, and filter the page's listing sections by the selected one.
  *
- * The neighbourhoods are the blocks of the "region-areas" section in Console:
+ * The areas are the blocks of the "region-areas" section in Console:
  * - block title: the label of the pill
- * - block text: of the first block only: how the whole region is put in a sentence, e.g. "across
- *   the city" in "8 practitioners across the city"
+ * - block text: how the area is put in a sentence, e.g. "across the city" for the whole region in
+ *   "8 practitioners across the city", or "on Mallorca" in "3 practitioners on Mallorca". Without
+ *   text an area is "in {title}"
  * - block link address: a search page URL, e.g. "/s?address=Mitte,+Berlin&bounds=52.5,13.4,52.4,13.3".
- *   Search for the neighbourhood on the search page and copy the URL
+ *   Search for the area on the search page and copy the URL
  * - block anchor id: the value of ?area= in the page URL (the title is used when it's empty)
  * The first block is the whole region. It's what the page shows by default.
+ *
+ * The description of the section is not shown on the page. It names the kind of area, in the
+ * singular, e.g. "Island". That is the name of the hero search field ("Neighbourhood" without it).
  */
 
 // Section ids (the "Anchor link ID" of a section in Console) that make a page a region page
@@ -80,6 +84,18 @@ export const getRegionAreas = allSections => {
       slug: area.slug || slugify(area.name),
       isDefault: index === 0,
     }));
+};
+
+/**
+ * The name of the kind of area on a page, e.g. "Island": the description of the "region-areas"
+ * section.
+ *
+ * @param {Array<Object>?} allSections sections of the page asset
+ * @returns {string} the name, or an empty string when the page doesn't have one
+ */
+export const getRegionAreaLabel = allSections => {
+  const section = (allSections || []).find(s => s.sectionId === REGION_AREAS_SECTION_ID);
+  return (section?.description?.content || '').trim();
 };
 
 /**

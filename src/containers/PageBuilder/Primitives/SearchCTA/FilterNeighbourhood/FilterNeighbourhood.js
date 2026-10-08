@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Field } from 'react-final-form';
 import classNames from 'classnames';
 
-import { useIntl } from '../../../../../util/reactIntl';
-
 import { IconLocation, OutsideClickHandler } from '../../../../../components';
 
 import { useRegionArea } from '../../../RegionAreaContext';
@@ -13,8 +11,7 @@ import css from './FilterNeighbourhood.module.css';
 const LISTBOX_ID = 'neighbourhood-listbox';
 
 const NeighbourhoodDropdown = props => {
-  const { input, areas, className, rootClassName, alignLeft } = props;
-  const intl = useIntl();
+  const { input, areas, areaLabel, className, rootClassName, alignLeft } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
@@ -59,9 +56,7 @@ const NeighbourhoodDropdown = props => {
     }
   };
 
-  const placeholder = intl.formatMessage({
-    id: 'PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder',
-  });
+  const placeholder = areaLabel;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
@@ -111,16 +106,16 @@ const NeighbourhoodDropdown = props => {
 
 /**
  * Search field of a region page hero (e.g. /p/berlin) that replaces the location field. It lists
- * the neighbourhoods of the page. Like the other fields of the hero search, it only takes part in
- * the search that opens the search page: it doesn't filter the listings of the region page itself
- * (the neighbourhood pills do that).
+ * the areas of the page (neighbourhoods, islands...), and is named after them. Like the other
+ * fields of the hero search, it only takes part in the search that opens the search page: it
+ * doesn't filter the listings of the region page itself (the pills do that).
  *
  * @component
  * @param {Object} props
  * @param {string?} props.className add more style rules in addition to components own css.root
  * @param {string?} props.rootClassName overwrite components own css.root
  * @param {boolean?} props.alignLeft align the list of neighbourhoods to the left edge of the field
- * @returns {JSX.Element|null} the field, or null when the page has no neighbourhoods
+ * @returns {JSX.Element|null} the field, or null when the page has no areas
  */
 const FilterNeighbourhood = props => {
   const regionArea = useRegionArea();
@@ -134,6 +129,7 @@ const FilterNeighbourhood = props => {
       name="neighbourhood"
       component={NeighbourhoodDropdown}
       areas={regionArea.areas}
+      areaLabel={regionArea.areaLabel}
       {...props}
     />
   );

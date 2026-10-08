@@ -66,9 +66,38 @@ const LocationProbe = () => {
   );
 };
 
+// A region page of islands. The description of the areas section names the kind of area, and the
+// blocks have text to tell where they are ("on Mallorca")
+const islandSections = [
+  sections[0],
+  {
+    sectionType: 'columns',
+    sectionId: 'region-areas',
+    numColumns: 1,
+    description: { fieldType: 'paragraph', content: 'Island' },
+    blocks: [
+      areaBlock(
+        'All islands',
+        'all-islands',
+        's?address=Balearic+Islands&bounds=40.08%2C4.31%2C38.64%2C1.21',
+        'across the islands'
+      ),
+      areaBlock(
+        'Mallorca',
+        'mallorca',
+        's?address=Mallorca&bounds=39.97%2C3.49%2C39.26%2C2.32',
+        'on Mallorca'
+      ),
+      areaBlock('Ibiza', 'ibiza', 's?address=Ibiza&bounds=39.12%2C1.65%2C38.80%2C1.15'),
+    ],
+  },
+  sections[2],
+];
+
 const renderRegionPage = ({
   featuredListingData = {},
   onFetchFeaturedListings = jest.fn(),
+  pageSections = sections,
 } = {}) => {
   const featuredListings = {
     featuredListingData,
@@ -79,7 +108,7 @@ const renderRegionPage = ({
   // The tests show the message keys as texts by default. Here the English texts are shown instead.
   const result = render(
     <>
-      <SectionBuilder sections={sections} options={{ featuredListings }} />
+      <SectionBuilder sections={pageSections} options={{ featuredListings }} />
       <LocationProbe />
     </>,
     { messages: enMessages }
@@ -165,5 +194,77 @@ describe('Region page', () => {
       expect(getByTestId('location')).toHaveTextContent('/s?address=Neuk');
     });
     expect(getByTestId('location')).toHaveTextContent('bounds=52.49%2C13.47%2C52.45%2C13.40');
+  });
+  describe('with islands', () => {
+    const renderIslands = options => renderRegionPage({ pageSections: islandSections, ...options });
+
+    it('names the hero field and the pills after the kind of area, without showing it as text', () => {
+      const { getByRole, queryByText } = renderIslands();
+
+      expect(getByRole('combobox', { name: 'Island' })).toBeInTheDocument();
+      expect(getByRole('list', { name: 'Filter by Island' })).toBeInTheDocument();
+      // The description of the areas section is a name for the field, not a text of the page
+      expect(queryByText('Island', { selector: 'p' })).not.toBeInTheDocument();
+    });
+
+    it('names the hero field a neighbourhood when the page does not say otherwise', () => {
+      const { getByRole } = renderRegionPage();
+
+      expect(getByRole('combobox', { name: 'Neighbourhood' })).toBeInTheDocument();
+      expect(getByRole('list', { name: 'Filter by Neighbourhood' })).toBeInTheDocument();
+    });
+
+    it('tells where the listings are in the words of the block of the area', async () => {
+      const wholeRegion = {
+        'region-practitioners': { fetched: true, listingIds: [], totalItems: 8, areaSlug: null },
+      };
+      const { getByText } = renderIslands({ featuredListingData: wholeRegion });
+      expect(getByText('8 practitioners across the islands')).toBeInTheDocument();
+    });
+
+    it('counts the listings of an island with the text of its block', async () => {
+      const mallorca = {
+        'region-practitioners': {
+          fetched: true,
+          listingIds: [],
+          totalItems: 3,
+          areaSlug: 'mallorca',
+        },
+      };
+      const { getByRole, getByText, queryByText } = renderIslands({
+        featuredListingData: mallorca,
+      });
+
+      await userEvent.click(getByRole('button', { name: 'Mallorca' }));
+      expect(getByText('3 practitioners on Mallorca')).toBeInTheDocument();
+      expect(queryByText(/in Mallorca/)).not.toBeInTheDocument();
+    });
+
+    it('says in an area when its block has no text', async () => {
+      const featuredListingData = {
+        'region-practitioners': { fetched: true, listingIds: [], totalItems: 0, areaSlug: 'ibiza' },
+      };
+      const { getByRole, getByText } = renderIslands({ featuredListingData });
+
+      await userEvent.click(getByRole('button', { name: 'Ibiza' }));
+      expect(getByText('0 practitioners in Ibiza')).toBeInTheDocument();
+      expect(getByText('No practitioners in Ibiza yet.')).toBeInTheDocument();
+    });
+
+    it('says on the island in the empty message when the block has text', async () => {
+      const featuredListingData = {
+        'region-practitioners': {
+          fetched: true,
+          listingIds: [],
+          totalItems: 0,
+          areaSlug: 'mallorca',
+        },
+      };
+      const { getByRole, getByText } = renderIslands({ featuredListingData });
+
+      await userEvent.click(getByRole('button', { name: 'Mallorca' }));
+      expect(getByText('0 practitioners on Mallorca')).toBeInTheDocument();
+      expect(getByText('No practitioners on Mallorca yet.')).toBeInTheDocument();
+    });
   });
 });

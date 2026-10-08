@@ -1588,13 +1588,10 @@
   "TopbarBottomNav.profile": "Profil",
   "TopbarBottomNav.screenreader.navigation": "Untere Navigation",
   "SectionHero.regionKicker": "Body Collective · Region",
-  "RegionAreaPills.ariaLabel": "Stadtteile",
-  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Stadtteil",
-  "RegionSectionListings.countInRegion": "{count, plural, one {# Praktiker} other {# Praktiker}} {scope}",
-  "RegionSectionListings.countInArea": "{count, plural, one {# Praktiker} other {# Praktiker}} in {area}",
+  "RegionAreaPills.ariaLabel": "Nach {label} filtern",
   "RegionSectionListings.emptyInRegion": "Hier gibt es noch keine Praktiker.",
-  "RegionSectionListings.emptyInArea": "In {area} gibt es noch keine Praktiker.",
-  "RegionSectionListings.emptyHint": "Probiere einen anderen Stadtteil oder suche weiter auf der Suchseite.",
+  "RegionSectionListings.emptyInArea": "Noch keine Praktiker {scope}.",
+  "RegionSectionListings.emptyHint": "Probiere ein anderes Gebiet oder suche weiter auf der Suchseite.",
   "RegionSectionListings.viewAll": "Alle {count} Ergebnisse ansehen",
   "SignupForm.stepLabel": "Schritt {current} von {total}",
   "SignupForm.stepOneTitle": "Deine Angaben",
@@ -1607,5 +1604,8 @@
   "ModalApplicationUnderReview.title": "Vielen Dank!",
   "ModalApplicationUnderReview.message": "Deine Angaben wurden übermittelt und dein Profil wird geprüft.",
   "ModalApplicationUnderReview.note": "Unser Team sieht es sich an und meldet sich, sobald die Prüfung abgeschlossen ist.",
-  "ModalApplicationUnderReview.close": "Verstanden"
+  "ModalApplicationUnderReview.close": "Verstanden",
+  "RegionAreaContext.defaultAreaLabel": "Stadtteil",
+  "RegionSectionListings.count": "{count, plural, one {# Praktiker} other {# Praktiker}} {scope}",
+  "RegionSectionListings.inArea": "in {area}"
 }
