@@ -114,3 +114,31 @@ don't get content through the Asset Delivery API.
   }}
 />
 ```
+
+## Region pages
+
+A region page (e.g. `/p/berlin`) shows the practitioners and events of a region, which can be
+narrowed down to a neighbourhood. It is a normal content page made in Console, and it is recognised
+by the **Anchor link ID** of its sections:
+
+| Section ID             | Template | What it does                                                                               |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `region-hero`          | Hero     | Gets a "Body Collective · Region" label above the title. The search field "Location" is replaced by a list of the neighbourhoods. The search opens the search page and does not filter the region page. |
+| `region-areas`         | Columns  | The neighbourhoods, as pills. One block per neighbourhood. The page keeps the chosen one in the URL (`?area=mitte`). |
+| `region-practitioners` | Listings | A grid of listings, with a count above it. "Listing selection" is a search query.          |
+| `region-events`        | Listings | A grid of event cards. The section is left out when there are none.                        |
+
+Blocks of `region-areas`:
+
+- **Block title:** the text of the pill.
+- **Anchor link ID:** the value of `?area=` (the title is used when it is empty).
+- **Call to action, link address:** the search page URL of the neighbourhood, e.g.
+  `/s?address=Mitte%2C+Berlin&bounds=52.54%2C13.42%2C52.50%2C13.36`. Search for the neighbourhood on the
+  search page and copy the URL. The listing sections swap the `address` and `bounds` of their query
+  for these ones.
+- **The first block is the whole region.** It is what the page shows by default. Its **block text**
+  finishes the sentence of the count: "8 practitioners *across the city*".
+
+The other sections of the page (about text, call to action) are styled by their ids in
+`PageBuilder.module.css`. Code: `util/regionAreas.js`, `RegionAreaContext.js`,
+`SectionColumns/RegionAreaPills.js`, `SectionListings/RegionSectionListings.js`.

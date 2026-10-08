@@ -1586,5 +1586,14 @@
   "TopbarBottomNav.explore": "Explore",
   "TopbarBottomNav.home": "Home",
   "TopbarBottomNav.profile": "Profile",
-  "TopbarBottomNav.screenreader.navigation": "Bottom navigation"
+  "TopbarBottomNav.screenreader.navigation": "Bottom navigation",
+  "SectionHero.regionKicker": "Body Collective · Region",
+  "RegionAreaPills.ariaLabel": "Neighbourhoods",
+  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Neighbourhood",
+  "RegionSectionListings.countInRegion": "{count, plural, one {# practitioner} other {# practitioners}} {scope}",
+  "RegionSectionListings.countInArea": "{count, plural, one {# practitioner} other {# practitioners}} in {area}",
+  "RegionSectionListings.emptyInRegion": "No practitioners here yet.",
+  "RegionSectionListings.emptyInArea": "No practitioners in {area} yet.",
+  "RegionSectionListings.emptyHint": "Try another neighbourhood, or look further afield on the search page.",
+  "RegionSectionListings.viewAll": "View all {count} results"
 }

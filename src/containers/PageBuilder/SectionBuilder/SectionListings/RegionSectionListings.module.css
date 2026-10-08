@@ -1,0 +1,216 @@
+/* "8 practitioners across the city": sits between the neighbourhood pills and the grid */
+.count {
+  margin: 0 0 20px;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #605d5d;
+
+  @media (min-width: 768px) {
+    margin-bottom: 24px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.15s ease;
+
+  @media (min-width: 768px) {
+    gap: 20px;
+  }
+}
+
+/* The listings of the previous neighbourhood stay until the new ones have loaded */
+.dimmed {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.item {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  height: 100%;
+}
+
+/* Listing cards: photo of a fixed height, with the text inset below it */
+.cardImage {
+  height: 420px;
+  background: var(--colorGrey100);
+  border-radius: 4px;
+}
+
+.card [class*='ListingCard_media__'] {
+  border-radius: 4px;
+}
+
+.card [class*='ListingCard_favoriteButton__'] {
+  display: none;
+}
+
+.card [class*='ListingCard_info__'] {
+  padding: 14px 16px 16px;
+}
+
+.card [class*='ListingCard_authorRow__'] {
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+
+.card [class*='ListingCard_authorName__'] {
+  font-size: 17px;
+  line-height: 1.55;
+  color: #201f1d;
+}
+
+.card [class*='ListingCard_rating__'] {
+  gap: 3px;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.card [class*='ListingCard_ratingStar__'] {
+  width: 12px;
+  height: 12px;
+}
+
+.card [class*='ListingCard_title__'] {
+  margin: 4px 0 2px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #605d5d;
+}
+
+.card [class*='ListingCard_meta__'] {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #7d7979;
+}
+
+.card [class*='ListingCard_price__'] {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top-color: rgba(32, 31, 29, 0.16);
+  font-size: 14px;
+  line-height: 1.55;
+  color: #201f1d;
+}
+
+/* Loading, empty and error states */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+}
+
+.message {
+  max-width: 520px;
+  padding: 32px 0 8px;
+  font-family: var(--font-body);
+}
+
+.messageTitle {
+  margin: 0 0 8px;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #201f1d;
+}
+
+.messageText {
+  margin: 0 0 20px;
+  padding: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #605d5d;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 22px;
+  border-radius: 999px;
+  background: #161513;
+  color: #f6f3ee;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.2;
+
+  &:hover {
+    background: #000;
+    color: #f6f3ee;
+    text-decoration: none;
+  }
+}
+
+/* Event cards: tall photo with a frosted tag, the text inset below it */
+.card [class*='EventCard_frame__'] {
+  height: 420px;
+  border: 0;
+  border-radius: 4px;
+  aspect-ratio: auto;
+}
+
+.card [class*='EventCard_badge__'] {
+  top: 12px;
+  left: 12px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.card [class*='EventCard_info__'] {
+  padding: 14px 16px 16px;
+}
+
+.card [class*='EventCard_titleRow__'] {
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.card [class*='EventCard_title__'] {
+  font-size: 17px;
+  line-height: 1.3;
+  color: #201f1d;
+}
+
+.card [class*='EventCard_titleRow__'] + [class*='EventCard_meta__'] {
+  margin-top: 5px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #605d5d;
+}
+
+.card [class*='EventCard_meta__'] + [class*='EventCard_meta__'] {
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #7d7979;
+}

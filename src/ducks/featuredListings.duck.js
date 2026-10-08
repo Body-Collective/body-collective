@@ -3,6 +3,7 @@ import * as log from '../util/log';
 import { isForbiddenError, storableError } from '../util/errors';
 import { addMarketplaceEntities } from './marketplaceData.duck';
 import { createImageVariantConfig } from '../util/sdkLoader';
+import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
 
 const MAX_LISTING_COUNT = 10;
 
@@ -13,6 +14,20 @@ const getSectionBySectionId = (sections, sectionId) =>
   sections.find(section => section.sectionId === sectionId);
 
 const isListingsSection = section => section.sectionType === 'listings';
+
+// The query string of a section. On a region page (e.g. /p/berlin) a neighbourhood replaces the
+// location of the query of the section, when one is chosen (areaSlug).
+const getSectionSearchQuery = (section, allSections, areaSlug) => {
+  const area = areaSlug ? getRegionAreas(allSections).find(a => a.slug === areaSlug) : null;
+  return getAreaListingSearchQuery(section?.listingSearchQuery, area);
+};
+
+// Responses that arrive after a newer request for the same section was sent are ignored,
+// e.g. when another neighbourhood is chosen before the listings of the previous one have loaded
+const isOutdatedResponse = (state, parentPage, sectionId, areaSlug) => {
+  const current = state[parentPage]?.[sectionId];
+  return !!current && (current.areaSlug || null) !== (areaSlug || null);
+};
 
 // Get section ids for all listing sections that match a specific selection type
 // e.g., if selectionType is "newest", returns ['section-1', 'section-3'] for sections 1 and 3 if they're both listing sections with selection type "newest"
@@ -25,10 +40,11 @@ const getSectionKeysBySelectionType = (allSections, selectionType) =>
 
 const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
   const { extra: sdk, rejectWithValue, dispatch } = thunkAPI;
-  const { sectionId, listingImageConfig, allSections } = arg;
+  const { sectionId, listingImageConfig, allSections, areaSlug, perPage = MAX_LISTING_COUNT } = arg;
 
   const currentSection = getSectionBySectionId(allSections, sectionId);
   const listingSelection = currentSection?.listingSelection;
+  const listingSearchQuery = getSectionSearchQuery(currentSection, allSections, areaSlug);
 
   // Validate selection type
   const validSelectionTypes = ['newest', 'queryString'];
@@ -44,11 +60,9 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
 
   return sdk.listings
     .query([
-      ...(listingSelection === 'queryString' && currentSection?.listingSearchQuery
-        ? [currentSection.listingSearchQuery]
-        : []),
+      ...(listingSelection === 'queryString' && listingSearchQuery ? [listingSearchQuery] : []),
       {
-        perPage: MAX_LISTING_COUNT,
+        perPage,
         page: 1,
         minStock: 1,
         stockMode: 'match-undefined',
@@ -127,6 +141,7 @@ const getAffectedSectionKeys = (allSections, triggeredSectionId, selectionType) 
 //   'landing-page': {
 //     'section-1': { selection: 'newest', listingIds: [...], fetched: true, inProgress: false },
 //     'section-3': { selection: 'queryString', listingIds: [...], fetched: true, inProgress: false }
+//     'region-practitioners': { ..., areaSlug: 'mitte', totalItems: 12 } // listings of a neighbourhood
 //   }
 // }
 const updateSectionState = (state, parentPage, sectionKey, selectionType, updates) => {
@@ -156,7 +171,7 @@ const featuredListingsSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchFeaturedListings.pending, (state, action) => {
-        const { parentPage, sectionId, allSections } = action.meta.arg;
+        const { parentPage, sectionId, allSections, areaSlug } = action.meta.arg;
         const currentSection = getSectionBySectionId(allSections, sectionId);
         const selectionType = currentSection?.listingSelection;
 
@@ -168,32 +183,38 @@ const featuredListingsSlice = createSlice({
           updateSectionState(state, parentPage, sectionKey, selectionType, {
             fetched: false,
             inProgress: true,
+            error: null,
+            areaSlug: areaSlug || null,
           });
         });
       })
       .addCase(fetchFeaturedListings.fulfilled, (state, action) => {
         const { apiResponse } = action.payload;
-        const { parentPage, sectionId, allSections } = action.meta.arg;
+        const { parentPage, sectionId, allSections, areaSlug } = action.meta.arg;
         const currentSection = getSectionBySectionId(allSections, sectionId);
         const selectionType = currentSection?.listingSelection;
 
-        if (!selectionType) return;
+        if (!selectionType || isOutdatedResponse(state, parentPage, sectionId, areaSlug)) return;
 
         const affectedSections = getAffectedSectionKeys(allSections, sectionId, selectionType);
         const listingIds = apiResponse.data.data.map(listing => listing.id);
+        const totalItems = apiResponse.data.meta?.totalItems ?? listingIds.length;
 
         affectedSections.forEach(sectionKey => {
           updateSectionState(state, parentPage, sectionKey, selectionType, {
             fetched: true,
             inProgress: false,
             listingIds,
+            totalItems,
           });
         });
       })
       .addCase(fetchFeaturedListings.rejected, (state, action) => {
-        const { parentPage, sectionId, allSections } = action.meta.arg;
+        const { parentPage, sectionId, allSections, areaSlug } = action.meta.arg;
         const currentSection = getSectionBySectionId(allSections, sectionId);
         const selectionType = currentSection?.listingSelection;
+
+        if (isOutdatedResponse(state, parentPage, sectionId, areaSlug)) return;
 
         const affectedSections = getAffectedSectionKeys(allSections, sectionId, selectionType);
 

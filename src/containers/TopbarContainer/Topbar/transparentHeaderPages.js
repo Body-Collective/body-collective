@@ -1,6 +1,6 @@
 // Pages whose hero sits under the topbar. On these pages the topbar is transparent until the page
 // is scrolled. Values match the `currentPage` handle that Topbar resolves from the current route.
-const TRANSPARENT_HEADER_PAGES = ['LandingPage', 'CMSPage:apply_now'];
+const TRANSPARENT_HEADER_PAGES = ['LandingPage', 'CMSPage:apply_now', 'CMSPage:berlin'];
 
 /**
  * Should the topbar be transparent over the page hero (until scrolled)?

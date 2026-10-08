@@ -1586,5 +1586,14 @@
   "TopbarBottomNav.explore": "Explorar",
   "TopbarBottomNav.home": "Inicio",
   "TopbarBottomNav.profile": "Perfil",
-  "TopbarBottomNav.screenreader.navigation": "Navegación inferior"
+  "TopbarBottomNav.screenreader.navigation": "Navegación inferior",
+  "SectionHero.regionKicker": "Body Collective · Región",
+  "RegionAreaPills.ariaLabel": "Barrios",
+  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Barrio",
+  "RegionSectionListings.countInRegion": "{count, plural, one {# profesional} other {# profesionales}} {scope}",
+  "RegionSectionListings.countInArea": "{count, plural, one {# profesional} other {# profesionales}} en {area}",
+  "RegionSectionListings.emptyInRegion": "Todavía no hay profesionales aquí.",
+  "RegionSectionListings.emptyInArea": "Todavía no hay profesionales en {area}.",
+  "RegionSectionListings.emptyHint": "Prueba con otro barrio o busca más lejos en la página de búsqueda.",
+  "RegionSectionListings.viewAll": "Ver los {count} resultados"
 }

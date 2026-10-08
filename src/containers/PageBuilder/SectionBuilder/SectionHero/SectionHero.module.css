@@ -12,3 +12,21 @@
   justify-content: center;
   align-items: center;
 }
+
+/* Label above the title of a region page hero ("Body Collective · Region") */
+.root .regionKicker {
+  margin: 0 0 14px;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 243, 238, 0.72);
+  text-align: left;
+  justify-self: start;
+
+  @media (min-width: 768px) {
+    font-size: 13px;
+  }
+}

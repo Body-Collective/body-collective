@@ -1,6 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { FormattedMessage } from '../../../../util/reactIntl';
+import { REGION_HERO_SECTION_ID } from '../../../../util/regionAreas';
+
 import { pickFieldOptions } from '../../PageBuilder.helpers';
 
 import Field, { hasDataInFields } from '../../Field';
@@ -55,6 +58,8 @@ const SectionHero = props => {
   const fieldOptions = pickFieldOptions(options);
 
   const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
+  // The hero of a region page (e.g. /p/berlin) has a small label above the title
+  const isRegionHero = sectionId === REGION_HERO_SECTION_ID;
 
   return (
     <SectionContainer
@@ -66,6 +71,11 @@ const SectionHero = props => {
     >
       {hasHeaderFields ? (
         <header className={defaultClasses.sectionDetails}>
+          {isRegionHero ? (
+            <p className={css.regionKicker}>
+              <FormattedMessage id="SectionHero.regionKicker" />
+            </p>
+          ) : null}
           <Field data={title} className={defaultClasses.title} options={fieldOptions} />
           <Field data={description} className={defaultClasses.description} options={fieldOptions} />
           <Field data={callToAction} className={defaultClasses.ctaButton} options={fieldOptions} />

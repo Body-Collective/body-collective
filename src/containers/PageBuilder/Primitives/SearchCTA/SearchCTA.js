@@ -12,13 +12,17 @@ import { FormattedMessage } from '../../../../util/reactIntl';
 import { createResourceLocatorString } from '../../../../util/routes';
 import { isOriginInUse } from '../../../../util/search';
 import { stringifyDateToISO8601 } from '../../../../util/dates';
+import { getAreaSearchParams } from '../../../../util/regionAreas';
 
 // Shared components
 import { Form, IconSearch, PrimaryButton } from '../../../../components';
 
+import { useRegionArea } from '../../RegionAreaContext';
+
 import FilterCategories from './FilterCategories/FilterCategories';
 import FilterDateRange from './FilterDateRange/FilterDateRange';
 import FilterLocation from './FilterLocation/FilterLocation';
+import FilterNeighbourhood from './FilterNeighbourhood/FilterNeighbourhood';
 import FilterKeyword from './FilterKeyword/FilterKeyword';
 
 import css from './SearchCTA.module.css';
@@ -53,6 +57,8 @@ export const SearchCTA = React.forwardRef((props, ref) => {
   const history = useHistory();
   const routeConfiguration = useRouteConfiguration();
   const config = useConfiguration();
+  // On a region page (e.g. /p/berlin) the neighbourhoods of the region replace the location search
+  const regionArea = useRegionArea();
 
   const { categories, dateRange, keywordSearch, locationSearch } = props.searchFields;
 
@@ -84,7 +90,11 @@ export const SearchCTA = React.forwardRef((props, ref) => {
       isValid: () => locationSearch,
       render: alignLeft => (
         <div className={css.filterField} key="locationSearch">
-          <FilterLocation setSubmitDisabled={setSubmitDisabled} alignLeft={alignLeft} />
+          {regionArea ? (
+            <FilterNeighbourhood alignLeft={alignLeft} />
+          ) : (
+            <FilterLocation setSubmitDisabled={setSubmitDisabled} alignLeft={alignLeft} />
+          )}
         </div>
       ),
     },
@@ -134,6 +144,8 @@ export const SearchCTA = React.forwardRef((props, ref) => {
         if (key == 'dateRange') {
           const { dates } = formatDateValue(value, 'dates');
           queryParams.dates = dates;
+        } else if (key == 'neighbourhood') {
+          // Search params of the neighbourhood are added below
         } else if (key == 'location') {
           if (value.selectedPlace) {
             const {
@@ -152,6 +164,12 @@ export const SearchCTA = React.forwardRef((props, ref) => {
         }
       }
     });
+
+    if (regionArea && locationSearch) {
+      // Search for the chosen neighbourhood, or the whole region when none is chosen
+      const area = regionArea.areas.find(a => a.slug === values.neighbourhood);
+      Object.assign(queryParams, getAreaSearchParams(regionArea.areas, area));
+    }
 
     const to = createResourceLocatorString('SearchPage', routeConfiguration, {}, queryParams);
     // Use history.push to navigate without page refresh

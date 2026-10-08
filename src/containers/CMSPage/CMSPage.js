@@ -48,8 +48,11 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  onFetchFeaturedListings: (sectionId, parentPage, listingImageConfig, allSections) =>
-    dispatch(fetchFeaturedListings({ sectionId, parentPage, listingImageConfig, allSections })),
+  // The last argument is optional: { areaSlug, perPage } of the listing sections of a region page
+  onFetchFeaturedListings: (sectionId, parentPage, listingImageConfig, allSections, options) =>
+    dispatch(
+      fetchFeaturedListings({ sectionId, parentPage, listingImageConfig, allSections, ...options })
+    ),
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

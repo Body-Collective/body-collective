@@ -1586,5 +1586,14 @@
   "TopbarBottomNav.explore": "Explorer",
   "TopbarBottomNav.home": "Accueil",
   "TopbarBottomNav.profile": "Profil",
-  "TopbarBottomNav.screenreader.navigation": "Navigation inférieure"
+  "TopbarBottomNav.screenreader.navigation": "Navigation inférieure",
+  "SectionHero.regionKicker": "Body Collective · Région",
+  "RegionAreaPills.ariaLabel": "Quartiers",
+  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Quartier",
+  "RegionSectionListings.countInRegion": "{count, plural, one {# praticien} other {# praticiens}} {scope}",
+  "RegionSectionListings.countInArea": "{count, plural, one {# praticien} other {# praticiens}} à {area}",
+  "RegionSectionListings.emptyInRegion": "Pas encore de praticiens ici.",
+  "RegionSectionListings.emptyInArea": "Pas encore de praticiens à {area}.",
+  "RegionSectionListings.emptyHint": "Essayez un autre quartier ou élargissez la recherche sur la page de recherche.",
+  "RegionSectionListings.viewAll": "Voir les {count} résultats"
 }

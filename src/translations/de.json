@@ -1586,5 +1586,14 @@
   "TopbarBottomNav.explore": "Entdecken",
   "TopbarBottomNav.home": "Start",
   "TopbarBottomNav.profile": "Profil",
-  "TopbarBottomNav.screenreader.navigation": "Untere Navigation"
+  "TopbarBottomNav.screenreader.navigation": "Untere Navigation",
+  "SectionHero.regionKicker": "Body Collective · Region",
+  "RegionAreaPills.ariaLabel": "Stadtteile",
+  "PageBuilder.SearchCTA.NeighbourhoodFilter.placeholder": "Stadtteil",
+  "RegionSectionListings.countInRegion": "{count, plural, one {# Praktiker} other {# Praktiker}} {scope}",
+  "RegionSectionListings.countInArea": "{count, plural, one {# Praktiker} other {# Praktiker}} in {area}",
+  "RegionSectionListings.emptyInRegion": "Hier gibt es noch keine Praktiker.",
+  "RegionSectionListings.emptyInArea": "In {area} gibt es noch keine Praktiker.",
+  "RegionSectionListings.emptyHint": "Probiere einen anderen Stadtteil oder suche weiter auf der Suchseite.",
+  "RegionSectionListings.viewAll": "Alle {count} Ergebnisse ansehen"
 }

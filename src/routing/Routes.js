@@ -89,8 +89,15 @@ const setPageScrollPosition = (location, delayed) => {
   }
 };
 
+// A navigation that only changes the state of the current page (e.g. choosing a neighbourhood on a
+// region page, which sets "?area=") passes `state: { inPageNavigation: true }` in the location.
+// The page should then stay where it is: no scrolling to top and no loading of the page data again.
+const isInPageNavigation = location => location?.state?.inPageNavigation === true;
+
 const handleLocationChanged = (dispatch, location, routeConfiguration, delayed) => {
-  setPageScrollPosition(location, delayed);
+  if (!isInPageNavigation(location)) {
+    setPageScrollPosition(location, delayed);
+  }
   const path = canonicalRoutePath(routeConfiguration, location);
   dispatch(locationChanged({ location, canonicalPath: path }));
 };
@@ -150,7 +157,9 @@ class RouteComponentRenderer extends Component {
       // Calling loadData after initial rendering (on client side).
       // This makes it possible to use loadData as default client side data loading technique.
       // However it is better to fetch data before location change to avoid "Loading data" state.
-      callLoadData(this.props);
+      if (!isInPageNavigation(location)) {
+        callLoadData(this.props);
+      }
       handleLocationChanged(dispatch, location, routeConfiguration, this.delayed);
     }
     handleFocusedElement(this.focusedElementDelay);

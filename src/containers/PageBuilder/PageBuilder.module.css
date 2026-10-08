@@ -1415,3 +1415,580 @@ right: 0;
     }
   }
 }
+
+/* ==========================================================================
+   Region pages (/p/berlin and other regions)
+   Content comes from Console (content/pages/berlin.json). Section ids:
+   region-hero, region-areas, region-practitioners, region-events, region-about, region-cta.
+   Phones follow the prototype (20px side padding); from tablet up the sections share the side
+   padding and max width of the landing page sections and footer, so edges line up.
+   ========================================================================== */
+
+/* Hero: text at the bottom of a darkened photo, with a compact search */
+:global(#region-hero) {
+  --region-pad: 20px;
+  --region-hero-bottom: 34px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+    --region-hero-bottom: 44px;
+  }
+
+  align-items: flex-end;
+  min-width: 0;
+  min-height: 560px;
+  margin-top: calc(-1 * var(--topbarHeight));
+
+  @media (min-width: 768px) {
+    min-height: clamp(520px, 56vw, 600px);
+    margin-top: calc(-1 * var(--topbarHeightDesktop));
+  }
+
+  /* Darkens the photo towards the bottom so the text stays readable */
+  & [class*="CustomAppearance_backgroundImageWrapper"]:after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20, 18, 15, 0.34) 0%, rgba(20, 18, 15, 0.72) 100%);
+    pointer-events: none;
+  }
+
+  & [class*="SectionContainer_sectionContent"] {
+    width: 100%;
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: 0 var(--region-pad) var(--region-hero-bottom);
+
+    & header {
+      display: block;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+
+      & h1 {
+        font-family: var(--font-heading);
+        font-weight: 400;
+        font-size: 34px;
+        line-height: 1.08;
+        letter-spacing: normal;
+        color: #f6f3ee;
+        margin: 0 0 12px;
+        padding: 0;
+        width: auto;
+        max-width: none;
+        text-align: left;
+        justify-self: start;
+
+        @media (min-width: 768px) {
+          font-size: clamp(36px, 4.6vw, 56px);
+        }
+      }
+
+      & [class*="Ingress_ingress"] {
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: rgba(246, 243, 238, 0.88);
+        margin: 0 0 24px;
+        padding: 0;
+        width: auto;
+        max-width: 520px;
+        text-align: left;
+        justify-self: start;
+        text-wrap: auto;
+
+        @media (min-width: 768px) {
+          font-size: 17px;
+        }
+      }
+
+      /* Search: three pill fields and a dark button, wrapping like the prototype */
+      & [class*="SearchCTA_searchBarContainer"] {
+        width: 100%;
+        max-width: 720px;
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        justify-self: start;
+      }
+
+      & form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 8px;
+      }
+
+      & form > div {
+        flex: 1 1 100%;
+        width: auto;
+        min-width: 0;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        background: #f3f2f2;
+        border: 1px solid rgba(32, 31, 29, 0.16);
+        border-radius: 999px;
+        font-size: 13.5px;
+        color: #605d5d;
+
+        @media (min-width: 768px) {
+          flex: 1 1 150px;
+        }
+      }
+
+      /* Field contents: icon (16px) and label sit 8px apart inside a 12px/16px padding */
+      & [class*="FilterCategories_dropdownContainer"] {
+        padding: 0;
+      }
+
+      & [class*="FilterCategories_toggleButton"],
+      & [class*="FilterDateRange_toggleButton"] {
+        display: flex;
+        align-items: center;
+        height: auto;
+        margin: 0;
+        padding: 12px 16px;
+        border-radius: 999px;
+        /* Collapses the non-breaking space between the icon and the label */
+        font-size: 0;
+        line-height: 1.55;
+        color: #201f1d;
+
+        & svg {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      & [class*="FilterCategories_toggleButton"] svg {
+        margin-right: 8px;
+      }
+
+      & [class*="FilterCategories_unselected"],
+      & [class*="FilterCategories_placeholderOpened"] {
+        color: #605d5d;
+      }
+
+      & [class*="FilterCategories_dropdownItem"] {
+        font-size: 13.5px;
+        line-height: 1.55;
+      }
+
+      & [class*="FilterCategories_chevron"] {
+        display: none;
+      }
+
+      /* The list of categories looks like the list of neighbourhoods */
+      & [class*="FilterCategories_dropdownContent"] {
+        top: calc(100% + 8px);
+        right: auto;
+        left: 0;
+        width: auto;
+        min-width: 240px;
+        padding: 12px;
+        transform: none;
+        background: #f3f2f2;
+        border: 1px solid rgba(32, 31, 29, 0.16);
+        border-radius: 4px;
+        box-shadow: 0 3px 10px rgba(45, 43, 43, 0.16);
+
+        & [class*="FilterCategories_option"] {
+          padding: 9px 10px;
+          border-radius: 10px;
+          background: transparent;
+          color: #201f1d;
+          font-size: 13.5px;
+          font-weight: 400;
+          line-height: 1.55;
+
+          &:hover {
+            background: #eae7e7;
+          }
+
+          &[aria-selected="true"] {
+            background: #f8f6f4;
+          }
+        }
+
+        & [class*="FilterCategories_dropdownItemBorder"] {
+          display: none;
+        }
+      }
+
+      & [class*="FilterDateRange_label"] {
+        margin-left: 8px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: #605d5d;
+      }
+
+      & [class*="FilterDateRange_active"] {
+        color: #201f1d;
+      }
+
+      & [class*="FilterDateRange_iconDate"] {
+        color: #605d5d;
+      }
+
+      & [class*="FilterLocation_root"] {
+        height: auto;
+      }
+
+      & [class*="FilterLocation_customField"] {
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+      }
+
+      & [class*="FilterLocation_locationAutocompleteInputIconWrapper"] {
+        align-self: auto;
+        background: transparent;
+      }
+
+      & [class*="FilterLocation_customIconLocation"] {
+        stroke: #605d5d;
+      }
+
+      & [class*="FilterLocation_input"] {
+        height: auto;
+        padding: 0;
+        background: transparent;
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: #201f1d;
+
+        &::placeholder {
+          color: #605d5d;
+          opacity: 1;
+        }
+      }
+
+      & form > button {
+        flex: 1 1 100%;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        height: auto;
+        min-height: 0;
+        padding: 12px 24px;
+        background: #161513;
+        color: #f6f3ee;
+        border: none;
+        border-radius: 999px;
+        box-shadow: none;
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 400;
+        line-height: normal;
+        gap: 8px;
+
+        &:hover:not(:disabled) {
+          background: #000;
+        }
+
+        @media (min-width: 768px) {
+          flex: 0 0 auto;
+        }
+      }
+    }
+  }
+}
+
+/* Neighbourhood pills: on white, between the hero and the listings */
+:global(#region-areas) {
+  --region-pad: 20px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+  }
+
+  min-width: 0;
+  background-color: #fff;
+
+  & [class*="SectionContainer_sectionContent"] {
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: 20px var(--region-pad) 0;
+
+    @media (min-width: 768px) {
+      padding-top: 26px;
+    }
+  }
+}
+
+/* Practitioners: the count and the grid of listing cards, on white */
+:global(#region-practitioners) {
+  --region-pad: 20px;
+  --region-bottom: 36px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+    --region-bottom: 48px;
+  }
+
+  min-width: 0;
+  background-color: #fff;
+
+  & [class*="SectionContainer_sectionContent"] {
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: 18px var(--region-pad) var(--region-bottom);
+  }
+}
+
+/* Seminars and events: a cream band with a heading, then the grid of event cards */
+:global(#region-events) {
+  --region-pad: 20px;
+  --region-gap: 36px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+    --region-gap: clamp(48px, 7vw, 72px);
+  }
+
+  min-width: 0;
+  background-color: var(--bc-surface-cream, #f8f6f4);
+
+  & [class*="SectionContainer_sectionContent"] {
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: var(--region-gap) var(--region-pad);
+  }
+
+  & header {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    justify-content: start;
+
+    & h2 {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 1.55;
+      letter-spacing: normal;
+      color: #201f1d;
+      margin: 0 0 8px;
+      padding: 0;
+      max-width: none;
+      text-align: left;
+      justify-self: start;
+
+      @media (min-width: 768px) {
+        font-size: clamp(24px, 3vw, 30px);
+      }
+    }
+
+    & [class*="Ingress_ingress"] {
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.6;
+      color: #605d5d;
+      margin: 0 0 32px;
+      padding: 0;
+      max-width: 560px;
+      text-align: left;
+      justify-self: start;
+
+      @media (min-width: 768px) {
+        font-size: 15px;
+      }
+    }
+  }
+}
+
+/* About the region: the heading on the left, the copy on the right */
+:global(#region-about) {
+  --region-pad: 20px;
+  --region-gap: 36px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+    --region-gap: clamp(48px, 7vw, 80px);
+  }
+
+  min-width: 0;
+  background-color: #fff;
+
+  & [class*="SectionContainer_sectionContent"] {
+    padding: 0;
+  }
+
+  & [class*="SectionBuilder_blockContainer"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: var(--region-gap) var(--region-pad);
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: clamp(32px, 5vw, 72px);
+    }
+  }
+
+  & [id="region-about-heading"],
+  & [id="region-about-text"] {
+    padding: 0;
+    margin: 0;
+  }
+
+  & [id="region-about-heading"] h2 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: normal;
+    color: #201f1d;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+
+    @media (min-width: 768px) {
+      font-size: clamp(24px, 3vw, 32px);
+    }
+  }
+
+  & [id="region-about-text"] p {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.75;
+    color: #444141;
+    margin: 0;
+    padding: 0;
+
+    @media (min-width: 768px) {
+      font-size: 17px;
+    }
+
+    & + p {
+      margin-top: 16px;
+    }
+  }
+}
+
+/* Call to action for practitioners: centered text over a darkened photo */
+:global(#region-cta) {
+  --region-pad: 20px;
+  --region-gap: 48px;
+
+  @media (min-width: 768px) {
+    --region-pad: 32px;
+    --region-gap: clamp(56px, 8vw, 88px);
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 300px;
+
+  @media (min-width: 768px) {
+    min-height: 340px;
+  }
+
+  /* Darkens the photo so the text stays readable */
+  & [class*="CustomAppearance_backgroundImageWrapper"]:after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20, 18, 15, 0.68) 0%, rgba(20, 18, 15, 0.8) 100%);
+    pointer-events: none;
+  }
+
+  & [class*="SectionContainer_sectionContent"] {
+    width: 100%;
+    max-width: var(--contentMaxWidthPages);
+    margin: 0 auto;
+    padding: var(--region-gap) var(--region-pad);
+  }
+
+  & header {
+    justify-content: center;
+    justify-items: center;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+
+    & h2 {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: 26px;
+      line-height: 1.15;
+      letter-spacing: normal;
+      color: #f6f3ee;
+      margin: 0 0 14px;
+      padding: 0;
+      max-width: none;
+      text-align: center;
+      justify-self: center;
+
+      @media (min-width: 768px) {
+        font-size: clamp(28px, 3.6vw, 40px);
+      }
+    }
+
+    & [class*="Ingress_ingress"] {
+      font-family: var(--font-body);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: rgba(246, 243, 238, 0.84);
+      margin: 0 auto 26px;
+      padding: 0;
+      max-width: 460px;
+      text-align: center;
+      justify-self: center;
+
+      @media (min-width: 768px) {
+        font-size: 17px;
+      }
+    }
+
+    & a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 13px 26px;
+      background: #f6f3ee;
+      color: #161513;
+      border: none;
+      border-radius: 999px;
+      box-shadow: none;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 400;
+      line-height: normal;
+      white-space: nowrap;
+      text-align: center;
+      justify-self: center;
+
+      @media (min-width: 768px) {
+        padding: 14px 30px;
+        font-size: 16px;
+      }
+
+      &:hover {
+        background: #fff;
+        text-decoration: none;
+      }
+
+      &:after {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23161513' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'%3E%3C/path%3E%3Cpath d='M13 6l6 6-6 6'%3E%3C/path%3E%3C/svg%3E");
+        background-size: 16px;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    }
+  }
+}

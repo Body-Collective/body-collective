@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { useConfiguration } from '../../../../context/configurationContext';
 import { lazyLoadWithDimensions } from '../../../../util/uiHelpers';
 import { FormattedMessage } from '../../../../util/reactIntl';
+import { isRegionListingsSectionId } from '../../../../util/regionAreas';
 import { pickFieldOptions } from '../../PageBuilder.helpers';
 
 // Import shared components
@@ -14,6 +15,7 @@ import Field, { hasDataInFields } from '../../Field';
 
 import SectionContainer from '../SectionContainer';
 import EventCard from './EventCard';
+import RegionSectionListings from './RegionSectionListings';
 
 import css from './SectionListings.module.css';
 
@@ -235,7 +237,7 @@ const ListingCarouselComponent = props => {
 const LazyListingCarouselComponent = lazyLoadWithDimensions(ListingCarouselComponent);
 
 /**
- * Main component for rendering a listings section with carousel functionality
+ * Component for rendering a listings section with carousel functionality
  * Supports 3 or 4 column layouts with horizontal scrolling and responsive behavior
  * @param {Object} props - Component properties
  * @param {string} props.sectionId - Unique identifier for this section
@@ -246,7 +248,7 @@ const LazyListingCarouselComponent = lazyLoadWithDimensions(ListingCarouselCompo
  * @param {Object} props.callToAction - CTA button field data
  * @returns {JSX.Element} Complete listings section with header and carousel
  */
-const SectionListings = props => {
+const CarouselSectionListings = props => {
   const config = useConfiguration();
   const {
     sectionId,
@@ -429,4 +431,19 @@ const SectionListings = props => {
     </SectionContainer>
   );
 };
+
+/**
+ * Listings section: a carousel of listings. On a region page (e.g. /p/berlin) the listing sections
+ * are grids that follow the neighbourhood chosen on the page, see RegionSectionListings.
+ *
+ * @param {Object} props see CarouselSectionListings
+ * @returns {JSX.Element} listings section
+ */
+const SectionListings = props =>
+  isRegionListingsSectionId(props.sectionId) ? (
+    <RegionSectionListings {...props} />
+  ) : (
+    <CarouselSectionListings {...props} />
+  );
+
 export default SectionListings;

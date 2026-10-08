@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
+import { REGION_AREAS_SECTION_ID } from '../../../../util/regionAreas';
 
 import { NamedLink } from '../../../../components';
 import { pickFieldOptions } from '../../PageBuilder.helpers';
@@ -11,6 +12,7 @@ import BlockBuilder from '../../BlockBuilder';
 
 import SectionContainer from '../SectionContainer';
 import FaqAccordion from './FaqAccordion';
+import RegionAreaPills from './RegionAreaPills';
 import css from './SectionColumns.module.css';
 
 // The number of columns (numColumns) affects styling and responsive images
@@ -90,6 +92,8 @@ const SectionColumns = props => {
   const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
   const hasBlocks = blocks?.length > 0;
   const isFaqSection = sectionId === 'faq';
+  // The blocks of the neighbourhoods section of a region page are shown as pills
+  const isRegionAreasSection = sectionId === REGION_AREAS_SECTION_ID;
 
   return (
     <SectionContainer
@@ -106,7 +110,9 @@ const SectionColumns = props => {
           <Field data={callToAction} className={defaultClasses.ctaButton} options={fieldOptions} />
         </header>
       ) : null}
-      {hasBlocks ? (
+      {isRegionAreasSection ? (
+        <RegionAreaPills />
+      ) : hasBlocks ? (
         <div
           className={classNames(defaultClasses.blockContainer, {
             [getColumnCSS(numColumns)]: !isFaqSection,

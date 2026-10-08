@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { isLazyImagesSection } from '../PageBuilder.helpers';
+import { RegionAreaProvider } from '../RegionAreaContext';
 import { getPrioritySectionId } from './SectionBuilder.helpers';
 
 // Section components
@@ -129,7 +130,7 @@ const SectionBuilder = props => {
   const prioritySectionId = getPrioritySectionId(sectionsWithResolvedIds);
 
   return (
-    <>
+    <RegionAreaProvider sections={sectionsWithResolvedIds}>
       {sectionsWithResolvedIds.map((section, index) => {
         const Section = getComponent(section.sectionType);
         // If the default "dark" theme should be applied (when text color is white).
@@ -167,7 +168,7 @@ const SectionBuilder = props => {
           return null;
         }
       })}
-    </>
+    </RegionAreaProvider>
   );
 };
 
