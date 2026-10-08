@@ -152,6 +152,13 @@ export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
 
+// Approve the logged in customer who has just signed up, so that they can use the marketplace at
+// once. The server reads the user from the session and approves only customers who are waiting
+// for approval. See `server/api/approve-customer.js`.
+export const approveCustomer = () => {
+  return post('/api/approve-customer');
+};
+
 // Open the Stripe customer portal for the logged-in user's subscription. Resolves with { url } to
 // redirect the user to. See `server/api/stripe/create-billing-portal-session.js`.
 export const createBillingPortalSession = () => {

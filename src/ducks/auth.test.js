@@ -3,7 +3,13 @@ import { storableError } from '../util/errors';
 import { createCurrentUser } from '../util/testData';
 import configureStore from '../store';
 import { clearCurrentUser } from './user.duck';
+import { approveCustomer } from '../util/api';
 import reducer, { authenticationInProgress, login, logout, signup } from './auth.duck';
+
+jest.mock('../util/api', () => ({
+  ...jest.requireActual('../util/api'),
+  approveCustomer: jest.fn(() => Promise.resolve({})),
+}));
 
 const logger = actions => () => {
   return next => action => {
@@ -515,6 +521,80 @@ describe('auth duck', () => {
         expect(actions[0].type).toBe('auth/signup/pending');
         expect(actions[1].type).toBe('auth/signup/rejected');
         expect(actions[1].payload?.message).toEqual(error.message);
+      });
+    });
+  });
+
+  describe('signup approval of customers', () => {
+    const setup = () => {
+      const calls = [];
+      const fakeCurrentUser = createCurrentUser({ id: 'test-user' });
+      const sdk = {
+        currentUser: {
+          create: jest.fn(() => {
+            calls.push('create');
+            return Promise.resolve({ data: { data: { id: { uuid: 'new-user-id' } } } });
+          }),
+          show: jest.fn(() => Promise.resolve({ data: { data: fakeCurrentUser, include: [] } })),
+        },
+        login: jest.fn(() => {
+          calls.push('login');
+          return Promise.resolve({});
+        }),
+        authInfo: jest.fn(() => Promise.resolve({})),
+        ownListings: { query: jest.fn(() => Promise.resolve({ data: { data: [], include: [] } })) },
+        transactions: {
+          query: jest.fn(() => Promise.resolve({ data: { data: [], include: [] } })),
+        },
+      };
+      approveCustomer.mockImplementation(() => {
+        calls.push('approve');
+        return Promise.resolve({});
+      });
+      const store = configureStore({
+        initialState: { auth: reducer(undefined, { type: '@@INIT' }) },
+        sdk,
+      });
+      return { calls, sdk, store };
+    };
+
+    const paramsOf = userType => ({
+      email: 'pekka@example.com',
+      password: 'some pass',
+      firstName: 'Pekka',
+      lastName: 'Pohjola',
+      publicData: { userType },
+    });
+
+    beforeEach(() => {
+      approveCustomer.mockClear();
+    });
+
+    it('approves a customer after the signup and the login, then fetches the user again', () => {
+      const { calls, sdk, store } = setup();
+      return signup(paramsOf('customer'))(store.dispatch, store.getState, sdk).then(() => {
+        expect(approveCustomer).toHaveBeenCalledTimes(1);
+        expect(calls).toEqual(['create', 'login', 'approve']);
+        // once by the login and once after the approval
+        expect(sdk.currentUser.show).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('does not approve a practitioner', () => {
+      const { calls, sdk, store } = setup();
+      return signup(paramsOf('practitioner'))(store.dispatch, store.getState, sdk).then(() => {
+        expect(approveCustomer).not.toHaveBeenCalled();
+        expect(calls).toEqual(['create', 'login']);
+      });
+    });
+
+    it('still logs the customer in when the approval fails', () => {
+      const { sdk, store } = setup();
+      log.error = jest.fn();
+      approveCustomer.mockImplementation(() => Promise.reject(new Error('approval failed')));
+      return signup(paramsOf('customer'))(store.dispatch, store.getState, sdk).then(() => {
+        expect(sdk.login).toHaveBeenCalled();
+        expect(log.error).toHaveBeenCalled();
       });
     });
   });

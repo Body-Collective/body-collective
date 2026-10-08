@@ -9,6 +9,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { deserialize } = require('./api-util/sdk');
+const middleware = require('./middleware');
 
 const initiateLoginAs = require('./api/initiate-login-as');
 const loginAs = require('./api/login-as');
@@ -16,6 +17,7 @@ const transactionLineItems = require('./api/transaction-line-items');
 const initiatePrivileged = require('./api/initiate-privileged');
 const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
+const approveCustomer = require('./api/approve-customer');
 const stripeWebhooks = require('./api/stripe/webhooks');
 const createBillingPortalSession = require('./api/stripe/create-billing-portal-session');
 const confirmCheckoutSession = require('./api/stripe/confirm-checkout-session');
@@ -64,6 +66,9 @@ router.post('/transaction-line-items', transactionLineItems);
 router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
+
+// Customers are approved right after the signup and the login. Practitioners are not.
+router.post('/approve-customer', middleware.auth, approveCustomer);
 
 // Stripe subscriptions
 router.post('/stripe/create-billing-portal-session', createBillingPortalSession);

@@ -2,8 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { storableError } from '../util/errors';
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
-import { createUserWithIdp } from '../util/api';
+import { approveCustomer, createUserWithIdp } from '../util/api';
 import { clearStoredReferralData } from '../util/webStorageHelpers';
+
+// The user type that is approved automatically at signup (Console > Users > User types)
+const CUSTOMER_USER_TYPE = 'customer';
 
 const authenticated = authInfo => authInfo?.isAnonymous === false;
 const loggedInAs = authInfo => authInfo?.isLoggedInAs === true;
@@ -101,6 +104,21 @@ const logoutThunk = createAsyncThunk(
   }
 );
 
+// Customers join without a review: they are approved right after the signup and the login.
+// The current user is fetched again, so the app sees the account as active. Practitioners wait
+// for the approval. If the approval fails, the signup still goes on and the user keeps waiting.
+const approveNewCustomer = (params, dispatch) => {
+  const isCustomer = params?.publicData?.userType === CUSTOMER_USER_TYPE;
+  if (!isCustomer) {
+    return Promise.resolve();
+  }
+  return approveCustomer()
+    .then(() => dispatch(fetchCurrentUser({ afterLogin: true, enforce: true })))
+    .catch(e => {
+      log.error(e, 'approve-customer-failed', { email: params.email });
+    });
+};
+
 const signupThunk = createAsyncThunk(
   'auth/signup',
   (params, thunkAPI) => {
@@ -111,6 +129,7 @@ const signupThunk = createAsyncThunk(
       .then(() =>
         dispatch(loginThunk({ username: params.email, password: params.password })).unwrap()
       )
+      .then(() => approveNewCustomer(params, dispatch))
       .then(() => {
         // Clear potential referral data from session storage
         clearStoredReferralData();
@@ -140,7 +159,7 @@ const signupWithIdpThunk = createAsyncThunk(
   (params, thunkAPI) => {
     const { rejectWithValue, dispatch } = thunkAPI;
     return createUserWithIdp(params)
-      .then(() => dispatch(fetchCurrentUser({ afterLogin: true })))
+      .then(() => dispatch(fetchCurrentUser({ afterLogin: true, enforce: true })))
       .then(() => {
         // Clear potential referral data from session storage
         clearStoredReferralData();
