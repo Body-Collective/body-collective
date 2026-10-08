@@ -33,6 +33,8 @@ const priceData = (price, currency, intl) => {
  * @param {Object} listing - API entity: listing or ownListing
  * @param {Object} config - app configuration (e.g. from useConfiguration())
  * @param {Object} intl - React Intl instance (e.g. from useIntl())
+ * @param {Object?} options
+ * @param {Object?} options.fallbackRating - { rating, reviewCount } shown when the listing has none
  * @returns {Object} translations and derived values:
  *   - titlePlain: raw title string (for aria/alt)
  *   - titleFormatted: React nodes from richText(title) for display
@@ -42,7 +44,7 @@ const priceData = (price, currency, intl) => {
  *   - cardAriaLabel: ready-to-use aria-label for the card link (listing title + plain price line when shown)
  *   - authorName: "ListingCard.author" string containing author's display name
  */
-export const getListingCardTranslations = (listing, config, intl) => {
+export const getListingCardTranslations = (listing, config, intl, { fallbackRating } = {}) => {
   const { title = '', price, publicData } = listing?.attributes || {};
 
   const authorDisplayName = listing?.author?.attributes?.profile?.displayName;
@@ -58,8 +60,9 @@ export const getListingCardTranslations = (listing, config, intl) => {
       ? locationSource.address.split(',')[0].trim()
       : publicData?.locationName || null;
 
-  const rating = publicData?.rating ?? publicData?.averageRating ?? null;
-  const reviewCount = publicData?.reviewCount ?? publicData?.reviewsCount ?? null;
+  const rating = publicData?.rating ?? publicData?.averageRating ?? fallbackRating?.rating ?? null;
+  const reviewCount =
+    publicData?.reviewCount ?? publicData?.reviewsCount ?? fallbackRating?.reviewCount ?? null;
 
   const validListingTypes = config.listing.listingTypes || [];
   const { listingType } = publicData || {};

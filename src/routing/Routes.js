@@ -89,13 +89,23 @@ const setPageScrollPosition = (location, delayed) => {
   }
 };
 
-// A navigation that only changes the state of the current page (e.g. choosing a neighbourhood on a
-// region page, which sets "?area=") passes `state: { inPageNavigation: true }` in the location.
-// The page should then stay where it is: no scrolling to top and no loading of the page data again.
-const isInPageNavigation = location => location?.state?.inPageNavigation === true;
+/**
+ * A navigation that only changes the state of the current page (e.g. choosing a neighbourhood on a
+ * region page, which sets "?area=") replaces the location with `state: { inPageNavigation: true }`.
+ * The page should then stay where it is: no scrolling to top and no loading of the page data again.
+ *
+ * The state stays in the history entry. When the user comes back to that entry with the back
+ * button, it is a new visit to the page: only a REPLACE counts as an in-page navigation.
+ *
+ * @param {Object} location the new location
+ * @param {Object?} history the history object (history.action is the action of the latest navigation)
+ * @returns {boolean}
+ */
+export const isInPageNavigation = (location, history) =>
+  history?.action === 'REPLACE' && location?.state?.inPageNavigation === true;
 
-const handleLocationChanged = (dispatch, location, routeConfiguration, delayed) => {
-  if (!isInPageNavigation(location)) {
+const handleLocationChanged = (dispatch, location, routeConfiguration, delayed, history) => {
+  if (!isInPageNavigation(location, history)) {
     setPageScrollPosition(location, delayed);
   }
   const path = canonicalRoutePath(routeConfiguration, location);
@@ -133,6 +143,7 @@ const handleFocusedElement = delayed => {
  * @param {Object} props.match - The match
  * @param {Object} props.match.params - The match params
  * @param {string} props.match.url - The match url
+ * @param {Object} props.history - The history object
  * @param {Object} props.location - The location
  * @param {Object} props.location.search - The location search
  * @param {Object} props.staticContext - The static context
@@ -150,17 +161,17 @@ class RouteComponentRenderer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { dispatch, location, routeConfiguration } = this.props;
+    const { dispatch, location, routeConfiguration, history } = this.props;
     // Call for handleLocationChanged affects store/state
     // and it generates an unnecessary update.
     if (prevProps.location !== this.props.location) {
       // Calling loadData after initial rendering (on client side).
       // This makes it possible to use loadData as default client side data loading technique.
       // However it is better to fetch data before location change to avoid "Loading data" state.
-      if (!isInPageNavigation(location)) {
+      if (!isInPageNavigation(location, history)) {
         callLoadData(this.props);
       }
-      handleLocationChanged(dispatch, location, routeConfiguration, this.delayed);
+      handleLocationChanged(dispatch, location, routeConfiguration, this.delayed, history);
     }
     handleFocusedElement(this.focusedElementDelay);
   }
@@ -265,6 +276,7 @@ const Routes = (props, context) => {
             {...renderProps}
             match={matchProps.match}
             location={matchProps.location}
+            history={matchProps.history}
             staticContext={matchProps.staticContext}
           />
         )}

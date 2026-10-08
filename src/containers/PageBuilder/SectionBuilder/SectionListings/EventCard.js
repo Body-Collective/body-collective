@@ -57,7 +57,7 @@ const getEventCardFields = listing => {
   return {
     title,
     category: publicData?.eventCategory || publicData?.category || null,
-    dateLabel: publicData?.dateLabel || null,
+    dateLabel: publicData?.dateLabel || publicData?.seminar_date || null,
     locationLabel,
     rating: publicData?.rating ?? publicData?.averageRating ?? null,
     reviewCount: publicData?.reviewCount ?? publicData?.reviewsCount ?? null,

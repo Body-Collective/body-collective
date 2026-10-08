@@ -81,6 +81,14 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.shippingEnabled',
           'publicData.priceVariationsEnabled',
           'publicData.priceVariants',
+          // Shown on the cards: where the listing is, how it is rated and when a seminar takes place
+          'publicData.location',
+          'publicData.locationName',
+          'publicData.rating',
+          'publicData.averageRating',
+          'publicData.reviewCount',
+          'publicData.reviewsCount',
+          'publicData.seminar_date',
         ],
         'fields.image': [
           'variants.listing-card',

@@ -28,6 +28,10 @@ const REGION_LISTING_COUNT = 24;
 const CARD_ASPECT_WIDTH = 2;
 const CARD_ASPECT_HEIGHT = 3;
 const CARD_IMAGE_SIZES = '(max-width: 767px) 100vw, (max-width: 1100px) 33vw, 280px';
+// TODO: ratings and reviews are not saved to the listings yet. Until they are, the cards of
+// practitioners show these. A rating that is saved to the listing (publicData.rating and
+// publicData.reviewCount) is shown instead.
+const STATIC_RATING = { rating: 5, reviewCount: 41 };
 
 /**
  * Listings section of a region page (e.g. /p/berlin): a grid of the listings of the section's
@@ -189,6 +193,7 @@ const RegionSectionListings = props => {
               <ListingCard
                 className={css.card}
                 aspectRatioClassName={css.cardImage}
+                fallbackRating={STATIC_RATING}
                 listing={listing}
                 renderSizes={CARD_IMAGE_SIZES}
                 aspectWidth={CARD_ASPECT_WIDTH}

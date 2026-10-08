@@ -130,6 +130,7 @@ const ListingCardImage = props => {
  * @param {boolean?} props.showAuthorInfo
  * @param {number?} props.aspectWidth override listing image aspect width
  * @param {number?} props.aspectHeight override listing image aspect height
+ * @param {Object?} props.fallbackRating { rating, reviewCount } shown when the listing has none
  * @returns {JSX.Element} listing card to be used in search result panel etc.
  */
 export const ListingCard = props => {
@@ -148,9 +149,10 @@ export const ListingCard = props => {
     lazyLoadImage = true,
     aspectWidth: aspectWidthProp,
     aspectHeight: aspectHeightProp,
+    fallbackRating,
   } = props;
 
-  const translations = getListingCardTranslations(listing, config, intl);
+  const translations = getListingCardTranslations(listing, config, intl, { fallbackRating });
   const {
     titlePlain,
     titleFormatted,
