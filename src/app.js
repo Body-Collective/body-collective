@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, StaticRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -10,11 +10,12 @@ import configureStore from './store';
 
 // utils
 import { RouteConfigurationProvider } from './context/routeConfigurationContext';
-import { ConfigurationProvider } from './context/configurationContext';
+import { ConfigurationProvider, useConfiguration } from './context/configurationContext';
 import { LanguageProvider, useLanguage } from './context/languageContext';
 import { parse } from './util/urlHelpers';
 import { difference, isEmpty } from './util/common';
 import { mergeConfig } from './util/configHelpers';
+import { localizeConfig } from './util/configLocalization';
 import {
   DEFAULT_LANGUAGE,
   SUPPORTED_LANGUAGES,
@@ -22,7 +23,7 @@ import {
   getLanguageFromCookieString,
   getStoredLanguage,
 } from './util/language';
-import { IntlProvider } from './util/reactIntl';
+import { IntlProvider, useIntl } from './util/reactIntl';
 import {
   clearReferralDataIfExpired,
   filterValidReferralData,
@@ -102,23 +103,35 @@ const localeMessagesByLanguage = Object.fromEntries(
 const getLocaleMessages = language =>
   localeMessagesByLanguage[language] || localeMessagesByLanguage[DEFAULT_LANGUAGE];
 
+// Gives the app the configuration whose texts (labels of user and listing fields, categories,
+// listing and user types) are translated to the language in use. See util/configLocalization.js.
+const LocalizedConfiguration = props => {
+  const { children } = props;
+  const config = useConfiguration();
+  const { messages } = useIntl();
+  const localizedConfig = useMemo(() => localizeConfig(config, messages), [config, messages]);
+
+  return <ConfigurationProvider value={localizedConfig}>{children}</ConfigurationProvider>;
+};
+
 // Provides the texts in the language that is chosen. The language can change without reloading.
 const LocalizedIntlProvider = props => {
   const { locale, hostedTranslations, children } = props;
   const { language } = useLanguage();
+  // The same object while the language stays, so the translated configuration is not rebuilt
+  const messages = useMemo(
+    () => ({
+      ...getLocaleMessages(language),
+      // The hosted translations (Console > Marketplace texts) are skipped for now. Only the
+      // translations in the code are used. Take this back into use to show them again:
+      // ...hostedTranslations,
+    }),
+    [language]
+  );
 
   return (
-    <IntlProvider
-      locale={locale}
-      messages={{
-        ...getLocaleMessages(language),
-        // The hosted translations (Console > Marketplace texts) are skipped for now. Only the
-        // translations in the code are used. Take this back into use to show them again:
-        // ...hostedTranslations,
-      }}
-      textComponent="span"
-    >
-      {children}
+    <IntlProvider locale={locale} messages={messages} textComponent="span">
+      <LocalizedConfiguration>{children}</LocalizedConfiguration>
     </IntlProvider>
   );
 };
