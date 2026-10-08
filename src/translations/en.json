@@ -1595,5 +1595,17 @@
   "RegionSectionListings.emptyInRegion": "No practitioners here yet.",
   "RegionSectionListings.emptyInArea": "No practitioners in {area} yet.",
   "RegionSectionListings.emptyHint": "Try another neighbourhood, or look further afield on the search page.",
-  "RegionSectionListings.viewAll": "View all {count} results"
+  "RegionSectionListings.viewAll": "View all {count} results",
+  "SignupForm.stepLabel": "Step {current} of {total}",
+  "SignupForm.stepOneTitle": "Your details",
+  "SignupForm.stepOneIntro": "Tell us who you are and how to reach you.",
+  "SignupForm.stepTwoTitle": "About your practice",
+  "SignupForm.stepTwoIntro": "Tell us about the work you do so we can review your application.",
+  "SignupForm.next": "Continue",
+  "SignupForm.back": "Back",
+  "SignupForm.submitApplication": "Submit application",
+  "ModalApplicationUnderReview.title": "Thank you!",
+  "ModalApplicationUnderReview.message": "Your details have been submitted and your profile is under review.",
+  "ModalApplicationUnderReview.note": "Our team will take a look and be in touch as soon as the review is done.",
+  "ModalApplicationUnderReview.close": "Got it"
 }

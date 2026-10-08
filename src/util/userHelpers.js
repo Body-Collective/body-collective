@@ -194,6 +194,16 @@ export const hasPermissionToViewData = currentUser => {
 export const isUserAuthorized = currentUser => currentUser?.attributes?.state === 'active';
 
 /**
+ * Check if currentUser is waiting for approval from the marketplace operator.
+ * This is the state of a new user when "Approve users who want to join" is on in Console.
+ *
+ * @param {Object} currentUser API entity.
+ * @returns {Boolean} true if the state of currentUser is 'pendingApproval'.
+ */
+export const isUserPendingApproval = currentUser =>
+  currentUser?.attributes?.state === 'pendingApproval';
+
+/**
  * Get the user type configuration for the current user's user type
  * @param {*} config marketplace configuration
  * @param {*} currentUser API entity

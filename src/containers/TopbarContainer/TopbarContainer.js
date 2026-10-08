@@ -4,7 +4,11 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import loadable from '@loadable/component';
 
-import { sendVerificationEmail, hasCurrentUserErrors } from '../../ducks/user.duck';
+import {
+  sendVerificationEmail,
+  hasCurrentUserErrors,
+  closeApplicationUnderReviewModal,
+} from '../../ducks/user.duck';
 import { logout, authenticationInProgress } from '../../ducks/auth.duck';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
 
@@ -18,6 +22,8 @@ const Topbar = loadable(() => import(/* webpackChunkName: "Topbar" */ './Topbar/
  * @param {Function} props.onLogout logout function
  * @param {Function} props.onManageDisableScrolling manage disable scrolling function
  * @param {Function} props.onResendVerificationEmail resend verification email function
+ * @param {boolean} props.showApplicationUnderReviewModal whether to thank the user for applying
+ * @param {Function} props.onCloseApplicationUnderReviewModal close the thank you modal
  * @param {Object} props.sendVerificationEmailInProgress send verification email in progress
  * @param {Object} props.sendVerificationEmailError send verification email error
  * @param {boolean} props.hasGenericError has generic error
@@ -43,6 +49,7 @@ const mapStateToProps = state => {
     currentUserOrderNotificationCount = 0,
     sendVerificationEmailInProgress,
     sendVerificationEmailError,
+    showApplicationUnderReviewModal,
   } = state.user;
   const hasGenericError = !!(logoutError || hasCurrentUserErrors(state));
   return {
@@ -56,6 +63,7 @@ const mapStateToProps = state => {
     authScopes,
     sendVerificationEmailInProgress,
     sendVerificationEmailError,
+    showApplicationUnderReviewModal,
     hasGenericError,
   };
 };
@@ -65,6 +73,7 @@ const mapDispatchToProps = dispatch => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
   onResendVerificationEmail: () => dispatch(sendVerificationEmail()),
+  onCloseApplicationUnderReviewModal: () => dispatch(closeApplicationUnderReviewModal()),
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

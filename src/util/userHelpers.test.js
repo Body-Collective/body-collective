@@ -2,9 +2,11 @@ import {
   pickUserFieldsData,
   initialValuesForUserFields,
   getPropsForCustomUserFieldInputs,
+  isUserAuthorized,
+  isUserPendingApproval,
 } from './userHelpers';
 
-import { fakeIntl } from './testData';
+import { createCurrentUser, fakeIntl } from './testData';
 
 const config = [
   {
@@ -168,6 +170,25 @@ const expectedUserFieldInput = (n, userTypeArray) => [
 ];
 
 describe('userHelpers', () => {
+  describe('isUserPendingApproval', () => {
+    it('is true when the user is waiting for approval', () => {
+      const user = createCurrentUser('user1', { state: 'pendingApproval' });
+      expect(isUserPendingApproval(user)).toEqual(true);
+      expect(isUserAuthorized(user)).toEqual(false);
+    });
+
+    it('is false for active and banned users', () => {
+      expect(isUserPendingApproval(createCurrentUser('user1', { state: 'active' }))).toEqual(false);
+      expect(isUserPendingApproval(createCurrentUser('user1', { state: 'banned' }))).toEqual(false);
+    });
+
+    it('is false when there is no user', () => {
+      expect(isUserPendingApproval(null)).toEqual(false);
+      expect(isUserPendingApproval(undefined)).toEqual(false);
+      expect(isUserPendingApproval({})).toEqual(false);
+    });
+  });
+
   describe('pickUserFieldsData', () => {
     it('returns correct fields per user type for public data', () => {
       const data = pickUserFieldsData(formData, 'public', 'a', config);

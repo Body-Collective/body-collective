@@ -4,7 +4,7 @@ import { denormalisedResponseEntities, ensureOwnListing } from '../util/data';
 import * as log from '../util/log';
 import { LISTING_STATE_DRAFT } from '../util/types';
 import { isForbiddenError, storableError } from '../util/errors';
-import { isUserAuthorized } from '../util/userHelpers';
+import { isUserAuthorized, isUserPendingApproval } from '../util/userHelpers';
 import {
   getStatesNeedingProviderAttention,
   getStatesNeedingCustomerAttention,
@@ -340,10 +340,14 @@ const userSlice = createSlice({
     currentUserHasOrdersError: null,
     sendVerificationEmailInProgress: false,
     sendVerificationEmailError: null,
+    // Opens when a user logs in or signs up while the account is waiting for approval,
+    // see ModalApplicationUnderReview
+    showApplicationUnderReviewModal: false,
   },
   reducers: {
     clearCurrentUser: state => {
       state.currentUser = null;
+      state.showApplicationUnderReviewModal = false;
       state.currentUserShowError = null;
       state.currentUserHasListings = false;
       state.currentUserHasListingsError = null;
@@ -359,6 +363,9 @@ const userSlice = createSlice({
     setCurrentUserHasOrders: state => {
       state.currentUserHasOrders = true;
     },
+    closeApplicationUnderReviewModal: state => {
+      state.showApplicationUnderReviewModal = false;
+    },
   },
   extraReducers: builder => {
     builder
@@ -369,6 +376,12 @@ const userSlice = createSlice({
       .addCase(fetchCurrentUserThunk.fulfilled, (state, action) => {
         state.currentUser = mergeCurrentUser(state.currentUser, action.payload);
         state.currentUserShowTimestamp = action.payload ? new Date().getTime() : 0;
+
+        // The fetch has the afterLogin option only when the user has just logged in or signed up.
+        // If the account is still waiting for approval, tell the user that it is under review.
+        if (action.meta?.arg?.afterLogin && isUserPendingApproval(action.payload)) {
+          state.showApplicationUnderReviewModal = true;
+        }
       })
       .addCase(fetchCurrentUserThunk.rejected, (state, action) => {
         console.error(action.payload);
@@ -425,7 +438,12 @@ const userSlice = createSlice({
 
 export default userSlice.reducer;
 
-export const { clearCurrentUser, setCurrentUser, setCurrentUserHasOrders } = userSlice.actions;
+export const {
+  clearCurrentUser,
+  setCurrentUser,
+  setCurrentUserHasOrders,
+  closeApplicationUnderReviewModal,
+} = userSlice.actions;
 
 // ================ Selectors ================ //
 

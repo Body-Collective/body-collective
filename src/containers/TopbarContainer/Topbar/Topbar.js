@@ -15,6 +15,7 @@ import {
   IconArrowHead,
   LimitedAccessBanner,
   Modal,
+  ModalApplicationUnderReview,
   ModalMissingInformation,
   NamedLink,
 } from '../../../components';
@@ -29,7 +30,11 @@ import { isTransparentHeaderPage } from './transparentHeaderPages';
 import TopbarBottomNav from './TopbarBottomNav/TopbarBottomNav';
 
 import css from './Topbar.module.css';
-import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
+import {
+  getCurrentUserTypeRoles,
+  isUserPendingApproval,
+  showCreateListingLinkForUser,
+} from '../../../util/userHelpers';
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
 
@@ -167,6 +172,8 @@ const TopbarComponent = props => {
     onResendVerificationEmail,
     sendVerificationEmailInProgress,
     sendVerificationEmailError,
+    showApplicationUnderReviewModal,
+    onCloseApplicationUnderReviewModal,
     showGenericError,
     config,
     routeConfiguration,
@@ -475,6 +482,12 @@ const TopbarComponent = props => {
         sendVerificationEmailInProgress={sendVerificationEmailInProgress}
         sendVerificationEmailError={sendVerificationEmailError}
       />
+      <ModalApplicationUnderReview
+        id="ApplicationUnderReview"
+        isOpen={!!showApplicationUnderReviewModal && isUserPendingApproval(currentUser)}
+        onClose={onCloseApplicationUnderReviewModal}
+        onManageDisableScrolling={onManageDisableScrolling}
+      />
 
       <GenericError show={showGenericError} />
     </div>
@@ -503,6 +516,8 @@ const TopbarComponent = props => {
  * @param {Function} props.onResendVerificationEmail
  * @param {Object} props.sendVerificationEmailInProgress
  * @param {Object} props.sendVerificationEmailError
+ * @param {boolean} props.showApplicationUnderReviewModal
+ * @param {Function} props.onCloseApplicationUnderReviewModal
  * @param {boolean} props.showGenericError
  * @param {Object} props.history
  * @param {Function} props.history.push

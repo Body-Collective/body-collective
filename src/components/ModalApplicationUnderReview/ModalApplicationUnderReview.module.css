@@ -1,0 +1,63 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  /* Adding empty .root class to enforce className overwrite */
+}
+
+/* The same look as the other modals that are opened from the Topbar */
+.container {
+  composes: marketplaceModalBaseStyles from global;
+  padding-top: 70px;
+}
+
+.icon {
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 24px;
+  color: var(--marketplaceColor);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--fontWeightMedium);
+  font-size: 32px;
+  line-height: 38px;
+  color: var(--colorGrey900);
+
+  @media (--viewportMedium) {
+    font-size: 40px;
+    line-height: 48px;
+  }
+}
+
+.message {
+  composes: marketplaceModalParagraphStyles from global;
+  font-size: 18px;
+  line-height: 28px;
+
+  @media (--viewportMedium) {
+    font-size: 20px;
+    line-height: 32px;
+  }
+}
+
+.note {
+  composes: textSmall from global;
+  margin: 12px 0 0;
+  color: var(--colorGrey600);
+
+  @media (--viewportMedium) {
+    margin-top: 16px;
+  }
+}
+
+.bottomWrapper {
+  composes: marketplaceModalBottomWrapper from global;
+  margin-top: 36px;
+
+  @media (--viewportMedium) {
+    margin-top: 48px;
+  }
+}

@@ -1595,5 +1595,17 @@
   "RegionSectionListings.emptyInRegion": "Hier gibt es noch keine Praktiker.",
   "RegionSectionListings.emptyInArea": "In {area} gibt es noch keine Praktiker.",
   "RegionSectionListings.emptyHint": "Probiere einen anderen Stadtteil oder suche weiter auf der Suchseite.",
-  "RegionSectionListings.viewAll": "Alle {count} Ergebnisse ansehen"
+  "RegionSectionListings.viewAll": "Alle {count} Ergebnisse ansehen",
+  "SignupForm.stepLabel": "Schritt {current} von {total}",
+  "SignupForm.stepOneTitle": "Deine Angaben",
+  "SignupForm.stepOneIntro": "Erzähl uns, wer du bist und wie wir dich erreichen können.",
+  "SignupForm.stepTwoTitle": "Über deine Praxis",
+  "SignupForm.stepTwoIntro": "Erzähl uns von deiner Arbeit, damit wir deine Bewerbung prüfen können.",
+  "SignupForm.next": "Weiter",
+  "SignupForm.back": "Zurück",
+  "SignupForm.submitApplication": "Bewerbung absenden",
+  "ModalApplicationUnderReview.title": "Vielen Dank!",
+  "ModalApplicationUnderReview.message": "Deine Angaben wurden übermittelt und dein Profil wird geprüft.",
+  "ModalApplicationUnderReview.note": "Unser Team sieht es sich an und meldet sich, sobald die Prüfung abgeschlossen ist.",
+  "ModalApplicationUnderReview.close": "Verstanden"
 }
