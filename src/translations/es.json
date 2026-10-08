@@ -1581,5 +1581,10 @@
   "SubscriptionPlans.feature.bookDirectly": "Los clientes reservan directamente en tu calendario",
   "SubscriptionPlans.feature.editorialProfile": "Perfil editorial cuidado",
   "SubscriptionPlans.feature.multipleLocations": "Varias ubicaciones",
-  "SubscriptionPlans.feature.publishEvents": "Publica seminarios, talleres y eventos"
+  "SubscriptionPlans.feature.publishEvents": "Publica seminarios, talleres y eventos",
+  "TopbarBottomNav.bookings": "Reservas",
+  "TopbarBottomNav.explore": "Explorar",
+  "TopbarBottomNav.home": "Inicio",
+  "TopbarBottomNav.profile": "Perfil",
+  "TopbarBottomNav.screenreader.navigation": "Navegación inferior"
 }

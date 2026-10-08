@@ -1581,5 +1581,10 @@
   "SubscriptionPlans.feature.bookDirectly": "Kund:innen buchen direkt über deinen Kalender",
   "SubscriptionPlans.feature.editorialProfile": "Redaktionell gestaltetes Profil",
   "SubscriptionPlans.feature.multipleLocations": "Mehrere Standorte",
-  "SubscriptionPlans.feature.publishEvents": "Seminare, Workshops und Veranstaltungen veröffentlichen"
+  "SubscriptionPlans.feature.publishEvents": "Seminare, Workshops und Veranstaltungen veröffentlichen",
+  "TopbarBottomNav.bookings": "Buchungen",
+  "TopbarBottomNav.explore": "Entdecken",
+  "TopbarBottomNav.home": "Start",
+  "TopbarBottomNav.profile": "Profil",
+  "TopbarBottomNav.screenreader.navigation": "Untere Navigation"
 }

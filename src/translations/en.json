@@ -1581,5 +1581,10 @@
   "SubscriptionPlans.feature.bookDirectly": "Clients book directly through your calendar",
   "SubscriptionPlans.feature.editorialProfile": "Curated editorial profile",
   "SubscriptionPlans.feature.multipleLocations": "Multiple locations",
-  "SubscriptionPlans.feature.publishEvents": "Publish seminars, workshops & events"
+  "SubscriptionPlans.feature.publishEvents": "Publish seminars, workshops & events",
+  "TopbarBottomNav.bookings": "Bookings",
+  "TopbarBottomNav.explore": "Explore",
+  "TopbarBottomNav.home": "Home",
+  "TopbarBottomNav.profile": "Profile",
+  "TopbarBottomNav.screenreader.navigation": "Bottom navigation"
 }

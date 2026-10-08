@@ -710,7 +710,7 @@
 
 .inquirySubmitButtonWrapper {
   position: fixed;
-  bottom: 0;
+  bottom: var(--bottomNavOffset);
   left: 0;
   right: 0;
   padding: 24px;

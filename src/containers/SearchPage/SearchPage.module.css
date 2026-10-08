@@ -1,5 +1,9 @@
 @import '../../styles/customMediaQueries.css';
 
+.page {
+  padding-bottom: var(--bottomNavOffset);
+}
+
 .topbar {
   width: 100%;
 

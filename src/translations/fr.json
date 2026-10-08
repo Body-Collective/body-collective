@@ -1581,5 +1581,10 @@
   "SubscriptionPlans.feature.bookDirectly": "Les clients réservent directement via votre agenda",
   "SubscriptionPlans.feature.editorialProfile": "Profil éditorial soigné",
   "SubscriptionPlans.feature.multipleLocations": "Plusieurs lieux",
-  "SubscriptionPlans.feature.publishEvents": "Publiez séminaires, ateliers et événements"
+  "SubscriptionPlans.feature.publishEvents": "Publiez séminaires, ateliers et événements",
+  "TopbarBottomNav.bookings": "Réservations",
+  "TopbarBottomNav.explore": "Explorer",
+  "TopbarBottomNav.home": "Accueil",
+  "TopbarBottomNav.profile": "Profil",
+  "TopbarBottomNav.screenreader.navigation": "Navigation inférieure"
 }

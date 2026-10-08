@@ -16,16 +16,17 @@ import {
   LimitedAccessBanner,
   Modal,
   ModalMissingInformation,
+  NamedLink,
 } from '../../../components';
 import { getSearchPageResourceLocatorStringParams } from '../../SearchPage/SearchPage.shared';
 
 import MenuIcon from './MenuIcon';
-import SearchIcon from './SearchIcon';
 import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
 import TopbarMobileMenu from './TopbarMobileMenu/TopbarMobileMenu';
 import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
 import TopbarLogo from './TopbarLogo/TopbarLogo';
 import { isTransparentHeaderPage } from './transparentHeaderPages';
+import TopbarBottomNav from './TopbarBottomNav/TopbarBottomNav';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
@@ -37,6 +38,18 @@ const SEARCH_DISPLAY_NOT_LANDING_PAGE = 'notLandingPage';
 const SEARCH_DISPLAY_ONLY_SEARCH_PAGE = 'onlySearchPage';
 const MOBILE_MENU_BUTTON_ID = 'mobileMenuButton';
 const MOBILE_SEARCH_BUTTON_ID = 'mobileSearchButton';
+
+const MobileSignupLink = () => (
+  <NamedLink name="SignupPage" className={css.signupButton}>
+    <FormattedMessage id="TopbarDesktop.signup" />
+  </NamedLink>
+);
+
+const MobileLoginLink = () => (
+  <NamedLink name="LoginPage" className={css.loginButton}>
+    <FormattedMessage id="TopbarDesktop.login" />
+  </NamedLink>
+);
 
 const redirectToURLWithModalState = (history, location, modalStateParam) => {
   const { pathname, search, state } = location;
@@ -242,6 +255,11 @@ const TopbarComponent = props => {
   // LandingPage (and the apply page) header is transparent over the hero until the page is scrolled
   const isLandingPage = isTransparentHeaderPage(resolvedCurrentPage);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isLandingPage) {
@@ -316,21 +334,24 @@ const TopbarComponent = props => {
   const showSearchForm =
     showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage;
 
-  const mobileSearchButtonMaybe = showSearchForm ? (
+  const authenticatedOnClientSide = mounted && isAuthenticated;
+  const isAuthenticatedOrJustHydrated = isAuthenticated || !mounted;
+  const loginLinkMaybe = isAuthenticatedOrJustHydrated ? null : <MobileLoginLink />;
+  const signupLinkMaybe = isAuthenticatedOrJustHydrated ? null : <MobileSignupLink />;
+  const mobileMenuButtonMaybe = authenticatedOnClientSide ? (
     <Button
-      id={MOBILE_SEARCH_BUTTON_ID}
-      rootClassName={css.searchMenu}
-      onClick={() => redirectToURLWithModalState(history, location, 'mobilesearch')}
-      title={intl.formatMessage({ id: 'Topbar.searchIcon' })}
+      id={MOBILE_MENU_BUTTON_ID}
+      rootClassName={css.menu}
+      onClick={() => redirectToURLWithModalState(history, location, 'mobilemenu')}
+      title={intl.formatMessage({ id: 'Topbar.menuIcon' })}
     >
-      <SearchIcon
-        className={css.searchMenuIcon}
-        ariaLabel={intl.formatMessage({ id: 'Topbar.searchIcon' })}
+      <MenuIcon
+        className={css.menuIcon}
+        ariaLabel={intl.formatMessage({ id: 'Topbar.menuIcon' })}
       />
+      {notificationDot}
     </Button>
-  ) : (
-    <div className={css.searchMenu} />
-  );
+  ) : null;
 
   const handleSkipToMainContent = e => {
     e.preventDefault();
@@ -371,21 +392,23 @@ const TopbarComponent = props => {
           [css.scrolled]: isLandingPage && isScrolled,
         })}
       >
-        <Button
-          id={MOBILE_MENU_BUTTON_ID}
-          rootClassName={css.menu}
-          onClick={() => redirectToURLWithModalState(history, location, 'mobilemenu')}
-          title={intl.formatMessage({ id: 'Topbar.menuIcon' })}
-        >
-          <MenuIcon
-            className={css.menuIcon}
-            ariaLabel={intl.formatMessage({ id: 'Topbar.menuIcon' })}
-          />
-          {notificationDot}
-        </Button>
-        <TopbarLogo id="logo-topbar-mobile" linkToExternalSite={config?.topbar?.logoLink} />
-        {mobileSearchButtonMaybe}
+        <TopbarLogo
+          id="logo-topbar-mobile"
+          className={css.mobileLogo}
+          linkToExternalSite={config?.topbar?.logoLink}
+        />
+        <div className={css.mobileRight}>
+          {loginLinkMaybe}
+          {signupLinkMaybe}
+          {mobileMenuButtonMaybe}
+        </div>
       </nav>
+      <TopbarBottomNav
+        currentPage={resolvedCurrentPage}
+        inboxTab={topbarInboxTab}
+        notificationCount={notificationCount}
+        intl={intl}
+      />
       <div className={css.desktop}>
         <TopbarDesktop
           className={desktopClassName}
