@@ -78,7 +78,7 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  color: var(--bc-accent-deep, #7f4a5c);
+  color: var(--colorBrandAccent);
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1;
@@ -91,6 +91,11 @@
 
 .ratingValue {
   font-weight: var(--fontWeightRegular);
+}
+
+/* Review count in the meta line, e.g. "12 reviews" */
+.reviewCount {
+  color: var(--colorBrandAccent);
 }
 
 /* ⚠️ used in SectionListings.js calculateCarouselHeight() as titleHeightSingleLine */
@@ -149,5 +154,5 @@
 .longWord {
   word-break: break-all;
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 }

@@ -13,7 +13,7 @@ import BlockBuilder from '../../BlockBuilder';
 
 import SectionContainer from '../SectionContainer';
 import NewsletterForm from './NewsletterForm';
-import { IconCheckCircle, IconLock, IconMail } from './FooterIcons';
+import { IconLock, IconMail } from './FooterIcons';
 import css from './SectionFooter.module.css';
 
 // The number of columns (numberOfColumns) affects styling
@@ -154,10 +154,6 @@ const SectionFooter = props => {
               <li className={css.trustBadge}>
                 <IconLock className={css.trustIcon} />
                 <FormattedMessage id="SectionFooter.securePayments" />
-              </li>
-              <li className={css.trustBadge}>
-                <IconCheckCircle className={css.trustIcon} />
-                <FormattedMessage id="SectionFooter.practitionersReviewed" />
               </li>
             </ul>
 

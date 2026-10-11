@@ -71,5 +71,5 @@
 
 .longWord {
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 }

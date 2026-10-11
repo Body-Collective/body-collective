@@ -3,7 +3,7 @@
   word-break: break-all;
   /* use break-word if available */
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 }
 
 .media {
@@ -26,8 +26,11 @@
     margin-bottom: 6px;
     color: var(--color-text);
 
-    &:hover {
-      color: rgb(168, 112, 90);
+    /* The normal color stays; the accent shows only on hover, keyboard focus and tap */
+    &:hover,
+    &:focus-visible,
+    &:active {
+      color: var(--colorBrandAccent);
       text-decoration: none;
     }
   }

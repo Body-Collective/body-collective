@@ -71,7 +71,7 @@
   font-style: italic;
   font-size: 15px;
   line-height: 1.6;
-  color: rgb(168, 112, 90);
+  color: #000;
   margin: 12px 0 20px;
   padding: 0;
 }
@@ -165,8 +165,10 @@
     fill: currentColor;
   }
 
-  & a:hover {
-    color: rgb(168, 112, 90);
+  & a:hover,
+  & a:focus-visible,
+  & a:active {
+    color: var(--colorBrandAccent);
   }
 }
 
@@ -231,6 +233,7 @@
 @media (--viewportLarge) {
   .content {
     row-gap: 56px;
+    column-gap: 48px;
   }
 
   .grid {
@@ -245,8 +248,9 @@
     grid-template-columns: repeat(3, 1fr);
   }
 
+  /* The brand column is wider, so the link columns sit further from the logo */
   .contentCol3,
   .contentCol4 {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1.5fr repeat(3, 1fr);
   }
 }

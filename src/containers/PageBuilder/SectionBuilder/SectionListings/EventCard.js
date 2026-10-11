@@ -156,7 +156,7 @@ const EventCard = props => {
           <div className={css.meta}>
             {withAuthor ? <span>{withAuthor}</span> : null}
             {withAuthor && reviewsLabel ? <span className={css.metaDot}>·</span> : null}
-            {reviewsLabel ? <span>{reviewsLabel}</span> : null}
+            {reviewsLabel ? <span className={css.reviewCount}>{reviewsLabel}</span> : null}
           </div>
         ) : null}
       </div>

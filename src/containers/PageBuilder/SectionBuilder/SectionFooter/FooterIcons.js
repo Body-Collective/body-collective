@@ -32,33 +32,6 @@ export const IconLock = ({ className }) => (
 );
 
 /**
- * Check mark inside a circle.
- *
- * @component
- * @param {Object} props
- * @param {string?} props.className
- * @returns {JSX.Element} SVG icon
- */
-export const IconCheckCircle = ({ className }) => (
-  <svg
-    className={className}
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <circle cx="12" cy="12" r="9" />
-    <path d="m8.5 12.5 2.5 2.5 4.5-5" />
-  </svg>
-);
-
-/**
  * Envelope icon.
  *
  * @component

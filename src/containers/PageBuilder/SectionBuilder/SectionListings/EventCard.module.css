@@ -104,7 +104,7 @@
   gap: 4px;
   flex-shrink: 0;
   margin-top: 4px;
-  color: var(--bc-accent-deep, #7f4a5c);
+  color: var(--colorBrandAccent);
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1;
@@ -129,4 +129,9 @@
 
 .metaDot {
   margin: 0 0.35em;
+}
+
+/* Review count in the meta line, e.g. "12 reviews" */
+.reviewCount {
+  color: var(--colorBrandAccent);
 }

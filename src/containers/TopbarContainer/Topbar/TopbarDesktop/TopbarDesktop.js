@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 
+import { useLanguage } from '../../../../context/languageContext';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { showCreateListingLinkForUser } from '../../../../util/userHelpers';
 import {
   Avatar,
   InlineTextButton,
+  LanguageSwitch,
   Menu,
   MenuLabel,
   MenuContent,
@@ -14,6 +16,7 @@ import {
   NamedLink,
 } from '../../../../components';
 
+import useChangeLanguage from '../../../LanguageSync/useChangeLanguage';
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import TopbarLogo from '../TopbarLogo/TopbarLogo';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
@@ -167,6 +170,8 @@ const TopbarDesktop = props => {
     isScrolled = false,
   } = props;
   const [mounted, setMounted] = useState(false);
+  const { language, languages } = useLanguage();
+  const onChangeLanguage = useChangeLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -246,6 +251,14 @@ const TopbarDesktop = props => {
         intl={intl}
         hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
         showCreateListingsLink={showCreateListingsLinkHydrationSafe}
+      />
+
+      <LanguageSwitch
+        className={css.languageSwitch}
+        language={language}
+        languages={languages}
+        onChange={onChangeLanguage}
+        ariaLabel={intl.formatMessage({ id: 'Topbar.languageSwitchLabel' })}
       />
 
       {inboxLinkMaybe}

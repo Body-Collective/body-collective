@@ -423,7 +423,7 @@
 
 .longWord {
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 }
 
 /* Passed-in props for FeedSection subcomponent */

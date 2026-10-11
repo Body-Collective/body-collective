@@ -73,6 +73,10 @@
         @media (max-width: 768px) {
           text-align: center;
         }
+        /* Room for the German subtitle on one line, about as long as the heading */
+        @media (min-width: 1024px) {
+          max-width: 820px;
+        }
       }
     }
 
@@ -690,10 +694,17 @@ right: 0;
           font-size: 12.5px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: var(--color-text);
-          border-bottom: 1px solid var(--color-text);
+          color: var(--colorBrandAccent);
+          /* One underline only: the border, never the text decoration of links on hover */
+          border-bottom: 1px solid currentColor;
+          text-decoration: none;
           padding-bottom: 3px;
           cursor: pointer;
+
+          &:hover,
+          &:focus {
+            text-decoration: none;
+          }
         }
         & h4{
           font-family: var(--font-body);

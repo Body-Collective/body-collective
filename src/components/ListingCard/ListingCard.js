@@ -241,7 +241,7 @@ export const ListingCard = props => {
           <div className={css.meta}>
             {locationLabel ? <span>{locationLabel}</span> : null}
             {locationLabel && reviewsLabel ? <span className={css.metaDot}>·</span> : null}
-            {reviewsLabel ? <span>{reviewsLabel}</span> : null}
+            {reviewsLabel ? <span className={css.reviewCount}>{reviewsLabel}</span> : null}
           </div>
         ) : null}
         {showPrice ? (

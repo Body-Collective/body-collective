@@ -2,7 +2,7 @@
 
 .longWord {
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 }
 
 .message,
@@ -75,7 +75,7 @@
   text-decoration: underline;
 
   word-break: break-word;
-  hyphens: auto;
+  hyphens: manual;
 
   &:hover {
     text-decoration: none;

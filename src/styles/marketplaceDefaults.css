@@ -59,6 +59,9 @@
   * from hosted assets, which means that they could be managed through Console.
   */
   --marketplaceColor: #6938ef; /* hsl(256, 85%, 58%) */
+
+  /* Body Collective accent: star ratings, review counts, journal links, footer link hover */
+  --colorBrandAccent: #ed8762;
   --marketplaceColorLight: #4a12e2; /* hsl(256, 85%, 48%) */
   --marketplaceColorDark: #8d68f3; /* hsl(256, 85%, 68% */
 
@@ -237,6 +240,10 @@ body {
 
   text-rendering: optimizeSpeed;
   font-optical-sizing: auto;
+
+  /* No automatic hyphenation: long words are not split with a hyphen at the end of a line */
+  -webkit-hyphens: manual;
+  hyphens: manual;
 
   background-color: var(--colorGrey50);
 }
