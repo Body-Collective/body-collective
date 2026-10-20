@@ -1,4 +1,5 @@
 import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers';
+import { getListingRating } from '../../util/rating';
 import { formatMoney } from '../../util/currency';
 import { richText } from '../../util/richText';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -60,9 +61,10 @@ export const getListingCardTranslations = (listing, config, intl, { fallbackRati
       ? locationSource.address.split(',')[0].trim()
       : publicData?.locationName || null;
 
-  const rating = publicData?.rating ?? publicData?.averageRating ?? fallbackRating?.rating ?? null;
-  const reviewCount =
-    publicData?.reviewCount ?? publicData?.reviewsCount ?? fallbackRating?.reviewCount ?? null;
+  // Aggregate rating of the listing (see util/rating.js)
+  const listingRating = getListingRating(listing) || fallbackRating;
+  const rating = listingRating?.rating ?? null;
+  const reviewCount = listingRating?.reviewCount ?? null;
 
   const validListingTypes = config.listing.listingTypes || [];
   const { listingType } = publicData || {};

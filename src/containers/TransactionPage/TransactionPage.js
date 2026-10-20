@@ -20,6 +20,7 @@ import { requireListingImage } from '../../util/configHelpers';
 import { getCurrentUserTypeRoles, hasPermissionToViewData } from '../../util/userHelpers.js';
 import { userDisplayNameAsString } from '../../util/data';
 import { isMobileSafari } from '../../util/userAgent';
+import { updateAggregateRating } from '../../util/api';
 
 import {
   INQUIRY_PROCESS_NAME,
@@ -563,6 +564,14 @@ export const TransactionPageComponent = props => {
       .then(r => {
         setReviewModalOpen(false);
         setReviewSubmitted(true);
+        // The customer's rating is added to the listing's aggregate rating (listing metadata).
+        // The server reads the rating from the review, and counts it once.
+        if (transactionRole === CUSTOMER && !isDownloadProcess(processName)) {
+          updateAggregateRating({ transactionId: transaction.id.uuid }).catch(e => {
+            // eslint-disable-next-line no-console
+            console.error('Failed to update the aggregate rating', e);
+          });
+        }
       })
       .catch(e => {
         // Do nothing.

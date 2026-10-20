@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useIntl } from '../../../../util/reactIntl';
 import { createSlug } from '../../../../util/urlHelpers';
 import { formatSeminarSchedule } from '../../../../util/seminarSchedule';
+import { getListingRating } from '../../../../util/rating';
 
 import { AspectRatioWrapper, NamedLink, ResponsiveImage } from '../../../../components';
 
@@ -60,8 +61,8 @@ const getEventCardFields = (listing, intl) => {
     category: publicData?.eventCategory || publicData?.category || null,
     dateLabel: publicData?.dateLabel || formatSeminarSchedule(intl, publicData)?.dates || null,
     locationLabel,
-    rating: publicData?.rating ?? publicData?.averageRating ?? null,
-    reviewCount: publicData?.reviewCount ?? publicData?.reviewsCount ?? null,
+    rating: getListingRating(listing)?.rating ?? null,
+    reviewCount: getListingRating(listing)?.reviewCount ?? null,
     authorName: listing?.author?.attributes?.profile?.displayName || null,
   };
 };

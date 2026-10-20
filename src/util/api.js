@@ -179,3 +179,11 @@ export const confirmCheckoutSession = body => {
 export const cancelTransaction = body => {
   return post('/api/transaction-cancel', body);
 };
+
+// Adds the customer's review rating to the listing's aggregate rating, after the customer has
+// reviewed a transaction. The server reads the rating from the review itself.
+//
+// See `server/api/update-aggregate-rating.js` to see what data should be sent in the body.
+export const updateAggregateRating = body => {
+  return post('/api/update-aggregate-rating', body);
+};

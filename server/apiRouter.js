@@ -19,6 +19,7 @@ const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
 const approveCustomer = require('./api/approve-customer');
 const transactionCancel = require('./api/transaction-cancel');
+const updateAggregateRating = require('./api/update-aggregate-rating');
 const stripeWebhooks = require('./api/stripe/webhooks');
 const createBillingPortalSession = require('./api/stripe/create-billing-portal-session');
 const confirmCheckoutSession = require('./api/stripe/confirm-checkout-session');
@@ -74,6 +75,7 @@ router.post('/approve-customer', approveCustomer);
 // Customer cancellation with a refund of the payment minus the Stripe fee (bookings after
 // acceptance, seminar places): see server/services/cancellation
 router.post('/transaction-cancel', middleware.auth, transactionCancel);
+router.post('/update-aggregate-rating', middleware.auth, updateAggregateRating);
 
 // Stripe subscriptions
 router.post('/stripe/create-billing-portal-session', createBillingPortalSession);

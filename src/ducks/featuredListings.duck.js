@@ -5,6 +5,7 @@ import { addMarketplaceEntities } from './marketplaceData.duck';
 import { createImageVariantConfig } from '../util/sdkLoader';
 import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
 import { SEMINAR_LISTING_TYPE } from '../util/seminarSchedule';
+import { LISTING_RATING_FIELDS } from '../util/rating';
 
 const MAX_LISTING_COUNT = 10;
 
@@ -94,10 +95,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           // Shown on the cards: where the listing is, how it is rated and when a seminar takes place
           'publicData.location',
           'publicData.locationName',
-          'publicData.rating',
-          'publicData.averageRating',
-          'publicData.reviewCount',
-          'publicData.reviewsCount',
+          ...LISTING_RATING_FIELDS,
           'publicData.seminar_date',
           'publicData.event_start',
           'publicData.event_end',
