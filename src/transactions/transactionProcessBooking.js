@@ -49,8 +49,8 @@ export const transitions = {
   CANCEL: 'transition/cancel',
 
   // The customer can cancel: for free before the booking is accepted, and after it's accepted
-  // (until 7 days before the start) with a refund minus the Stripe fee. The latter is a
-  // privileged transition that goes through the server: see server/api/transaction-cancel.js
+  // (until the start) with the refund of the cancellation policy. The latter is a privileged
+  // transition that goes through the server: see server/api/transaction-cancel.js
   CUSTOMER_CANCEL_REQUEST: 'transition/customer-cancel-request',
   CUSTOMER_CANCEL: 'transition/customer-cancel',
 

@@ -7,6 +7,7 @@ const {
   retrievePaymentIntent,
 } = require('../stripe');
 const { formatMoney, getRefundAmounts } = require('./index');
+const { payOutOrSchedule } = require('./payouts');
 
 /**
  * An error that is answered to the browser with the given status and code.
@@ -20,13 +21,14 @@ const cancelError = (status, code) => {
 };
 
 /**
- * The Stripe payment of the transaction and the amounts of the refund (payment minus the Stripe
- * fee). The payment must match the totals of the transaction, otherwise it needs manual handling.
+ * The Stripe payment of the transaction and the amounts of the cancellation. The payment must
+ * match the totals of the transaction, otherwise it needs manual handling.
  *
  * @param {Object} tx Transaction entity
+ * @param {number} refundShare 0 to 1, see getRefundShare
  * @returns {Promise<Object>} { paymentIntentId, amounts } (see getRefundAmounts)
  */
-const getPaymentAndAmounts = async tx => {
+const getPaymentAndAmounts = async (tx, refundShare) => {
   const transactionId = tx.id.uuid;
 
   // Sharetribe doesn't return the PaymentIntent id once the payment is confirmed
@@ -42,7 +44,7 @@ const getPaymentAndAmounts = async tx => {
 
   let amounts;
   try {
-    amounts = getRefundAmounts(await retrievePaymentIntent(paymentIntentId));
+    amounts = getRefundAmounts(await retrievePaymentIntent(paymentIntentId), refundShare);
   } catch (e) {
     if (e.code === 'payment-not-captured' || e.code === 'currency-mismatch') {
       log.error(e, 'transaction-cancel-payment-not-supported', { transactionId });
@@ -65,17 +67,19 @@ const getPaymentAndAmounts = async tx => {
 };
 
 /**
- * Cancels the transaction and refunds the customer the payment minus the Stripe fee.
+ * Cancels the transaction, refunds the customer their share and pays out what the practitioner
+ * keeps.
  *
  *  1. Checks that the cancel transition is possible (speculative transition)
  *  2. Records the cancellation in the metadata (status 'refunding'), so that an interrupted one
  *     can be found and finished
- *  3. Takes back the share of the practitioner from their Stripe account (transfer reversal)
- *  4. Refunds the customer the payment minus the Stripe fee
+ *  3. Takes back the refunded part of the practitioner's share (transfer reversal)
+ *  4. Refunds the customer (refund share × (payment − Stripe fee))
  *  5. Cancels with the privileged transition, which stores the refund in the metadata
+ *  6. Pays out the rest of the practitioner's share, now or when the funds are available
  *
- * Stripe calls use idempotency keys and only move what hasn't been moved yet, so a failed
- * cancellation can safely be retried.
+ * Stripe calls use idempotency keys and only move what hasn't been moved yet, so a cancellation
+ * that failed before step 5 can safely be retried.
  *
  * @param {Object} params
  * @param {Object} params.tx Transaction entity
@@ -87,16 +91,21 @@ const getPaymentAndAmounts = async tx => {
  */
 const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts, trustedSdk }) => {
   const txId = tx.id.uuid;
-  const { currency, paid, fee, refund } = amounts;
+  const { currency, paid, fee, refund, payout, refundShare } = amounts;
   const cancellation = {
+    refundShare,
     paidAmount: paid,
     feeAmount: fee,
     refundAmount: refund,
+    payoutAmount: payout,
     currency,
     // For the emails
+    hasRefund: refund > 0,
+    hasPayout: payout > 0,
     paidText: formatMoney(paid, currency),
     feeText: formatMoney(fee, currency),
     refundText: formatMoney(refund, currency),
+    payoutText: formatMoney(payout, currency),
     cancelledBy: 'customer',
   };
 
@@ -114,8 +123,8 @@ const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts
     metadata: { cancellation: { ...cancellation, status: 'refunding', startedAt } },
   });
 
-  // 3. Take back the share of the practitioner
-  const reverseAmount = amounts.providerShare - amounts.alreadyReversed;
+  // 3. Take back the refunded part of the practitioner's share
+  const reverseAmount = amounts.reversal - amounts.alreadyReversed;
   const reversal =
     reverseAmount > 0
       ? await createTransferReversal({
@@ -126,7 +135,7 @@ const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts
         })
       : null;
 
-  // 4. Refund the customer the payment minus the Stripe fee
+  // 4. Refund the customer
   const refundAmount = refund - amounts.alreadyRefunded;
   const stripeRefund =
     refundAmount > 0
@@ -152,6 +161,9 @@ const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts
     transition: cancelTransition,
     params: { metadata: { cancellation: done } },
   });
+
+  // 6. Pay out what the practitioner keeps (never fails: retried by the payouts job)
+  await payOutOrSchedule({ paymentIntentId, transactionId: txId, amounts });
 
   return done;
 };

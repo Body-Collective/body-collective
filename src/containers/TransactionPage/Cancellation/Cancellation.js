@@ -31,34 +31,45 @@ const Card = ({ title, children }) => (
   </section>
 );
 
-// Paid / non-refundable card processing fee / refund
-const RefundRows = ({ intl, paid, fee, refund, currency }) => (
-  <dl className={css.amounts}>
-    <dt className={css.amountLabel}>
-      <FormattedMessage id="TransactionPage.Cancellation.paid" />
-    </dt>
-    <dd className={css.amountValue}>{formatMoney(intl, toMoney(paid, currency))}</dd>
-    <dt className={css.amountLabel}>
-      <FormattedMessage id="TransactionPage.Cancellation.fee" />
-    </dt>
-    <dd className={css.amountValue}>−{formatMoney(intl, toMoney(fee, currency))}</dd>
-    <dt className={classNames(css.amountLabel, css.total)}>
-      <FormattedMessage id="TransactionPage.Cancellation.refund" />
-    </dt>
-    <dd className={classNames(css.amountValue, css.total)}>
-      {formatMoney(intl, toMoney(refund, currency))}
-    </dd>
-  </dl>
-);
+// Paid / non-refundable card processing fee / not refunded under the policy / refund
+const RefundRows = ({ intl, paid, fee, refund, currency }) => {
+  const notRefunded = Math.max(paid - fee - refund, 0);
+  return (
+    <dl className={css.amounts}>
+      <dt className={css.amountLabel}>
+        <FormattedMessage id="TransactionPage.Cancellation.paid" />
+      </dt>
+      <dd className={css.amountValue}>{formatMoney(intl, toMoney(paid, currency))}</dd>
+      <dt className={css.amountLabel}>
+        <FormattedMessage id="TransactionPage.Cancellation.fee" />
+      </dt>
+      <dd className={css.amountValue}>−{formatMoney(intl, toMoney(fee, currency))}</dd>
+      {notRefunded > 0 ? (
+        <>
+          <dt className={css.amountLabel}>
+            <FormattedMessage id="TransactionPage.Cancellation.notRefunded" />
+          </dt>
+          <dd className={css.amountValue}>−{formatMoney(intl, toMoney(notRefunded, currency))}</dd>
+        </>
+      ) : null}
+      <dt className={classNames(css.amountLabel, css.total)}>
+        <FormattedMessage id="TransactionPage.Cancellation.refund" />
+      </dt>
+      <dd className={classNames(css.amountValue, css.total)}>
+        {formatMoney(intl, toMoney(refund, currency))}
+      </dd>
+    </dl>
+  );
+};
 
 /**
  * Customer cancellations on the transaction page (practitioners can't cancel):
  *
  * - Booking request, before it's accepted: cancel for free (card authorization released)
- * - Accepted booking or purchased place (Seminars & Events), more than 7 days before the start:
- *   cancel with a refund of the payment minus the card processing (Stripe) fee. The exact amounts
+ * - Accepted booking or purchased place (Seminars & Events), until the start: cancel with the
+ *   refund of the cancellation policy (util/cancellation.js), possibly nothing. The exact amounts
  *   are calculated by the server and shown before confirming.
- * - After the cancellation: what was refunded (customer), no payout (practitioner)
+ * - After the cancellation: what was refunded (customer), what is paid out (practitioner)
  *
  * @component
  * @param {Object} props
@@ -137,7 +148,9 @@ const Cancellation = props => {
   // After the cancellation
   if (info.isCancelledRequest) {
     return (
-      <Card title={intl.formatMessage({ id: 'TransactionPage.Cancellation.requestCancelledTitle' })}>
+      <Card
+        title={intl.formatMessage({ id: 'TransactionPage.Cancellation.requestCancelledTitle' })}
+      >
         <p className={css.note}>
           <FormattedMessage
             id={
@@ -155,7 +168,9 @@ const Cancellation = props => {
   if (info.isCancelledWithRefund) {
     const { cancellation } = info;
     return (
-      <Card title={intl.formatMessage({ id: `TransactionPage.Cancellation.cancelledTitle.${kind}` })}>
+      <Card
+        title={intl.formatMessage({ id: `TransactionPage.Cancellation.cancelledTitle.${kind}` })}
+      >
         {isCustomer ? (
           <>
             {cancellation?.refundAmount != null ? (
@@ -168,16 +183,39 @@ const Cancellation = props => {
               />
             ) : null}
             <p className={css.note}>
-              <FormattedMessage id="TransactionPage.Cancellation.refundTiming" />
+              <FormattedMessage
+                id={
+                  cancellation?.refundAmount > 0
+                    ? 'TransactionPage.Cancellation.refundTiming'
+                    : 'TransactionPage.Cancellation.noRefund'
+                }
+              />
             </p>
           </>
         ) : (
-          <p className={css.note}>
-            <FormattedMessage
-              id={`TransactionPage.Cancellation.cancelledProvider.${kind}`}
-              values={values}
-            />
-          </p>
+          <>
+            <p className={css.note}>
+              <FormattedMessage
+                id={`TransactionPage.Cancellation.cancelledProvider.${kind}`}
+                values={values}
+              />
+            </p>
+            <p className={css.note}>
+              {cancellation?.payoutAmount > 0 ? (
+                <FormattedMessage
+                  id="TransactionPage.Cancellation.providerPayout"
+                  values={{
+                    payout: formatMoney(
+                      intl,
+                      toMoney(cancellation.payoutAmount, cancellation.currency)
+                    ),
+                  }}
+                />
+              ) : (
+                <FormattedMessage id="TransactionPage.Cancellation.providerNoPayout" />
+              )}
+            </p>
+          </>
         )}
       </Card>
     );
@@ -249,22 +287,37 @@ const Cancellation = props => {
     );
   }
 
-  // Accepted booking or purchased place: refund minus the card processing fee
+  // Accepted booking or purchased place: refund by the cancellation policy (possibly nothing)
   if (info.canCancel) {
     const previewError = getErrorMessage(intl, cancelPreviewError);
+    const { refundShare, refundUntil, policy } = info;
+    const descriptionId =
+      policy === 'seminar-non-refundable'
+        ? 'nonRefundable'
+        : refundShare === 1
+        ? 'fullRefund'
+        : refundShare > 0
+        ? 'halfRefund'
+        : 'noRefundNow';
+    const deadline = refundUntil
+      ? intl.formatDate(refundUntil, {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: info.isBooking ? timeZone : 'Europe/Berlin',
+        })
+      : null;
+    // Without a refund, the button says so
+    const hasRefund = cancelPreview ? cancelPreview.refund > 0 : refundShare > 0;
     return (
       <>
         <Card title={intl.formatMessage({ id: 'TransactionPage.Cancellation.cancelTitle' })}>
           <p className={css.note}>
             <FormattedMessage
-              id={`TransactionPage.Cancellation.cancelDescription.${kind}`}
-              values={{
-                deadline: intl.formatDate(info.cancelDeadline, {
-                  month: 'short',
-                  day: 'numeric',
-                  timeZone: info.isBooking ? timeZone : 'Europe/Berlin',
-                }),
-              }}
+              id={`TransactionPage.Cancellation.cancelDescription.${descriptionId}`}
+              values={{ deadline }}
             />
           </p>
           <SecondaryButton
@@ -323,7 +376,13 @@ const Cancellation = props => {
                   .catch(() => {})
               }
             >
-              <FormattedMessage id={`TransactionPage.Cancellation.cancelConfirm.${kind}`} />
+              <FormattedMessage
+                id={
+                  hasRefund
+                    ? `TransactionPage.Cancellation.cancelConfirm.${kind}`
+                    : 'TransactionPage.Cancellation.cancelWithoutRefund'
+                }
+              />
             </PrimaryButton>
             <SecondaryButton
               className={css.modalButton}

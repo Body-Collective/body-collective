@@ -46,6 +46,7 @@ const dataLoader = require('./dataLoader');
 const { generateCSPNonce, csp } = require('./csp');
 const sdkUtils = require('./api-util/sdk');
 const { getSDKProxy } = require('./api-util/sdkCacheProxy');
+const { startPendingPayoutsJob } = require('./services/cancellation/payouts');
 
 const buildPath = path.resolve(__dirname, '..', 'build');
 const dev = process.env.REACT_APP_ENV === 'development';
@@ -358,11 +359,18 @@ if (cspEnabled) {
   });
 }
 
+// Payouts of cancelled transactions that wait for the funds to be available (the practitioner's
+// share when the refund is below 100%). Started once the server is listening, stopped on shutdown.
+let pendingPayoutsJob = null;
+
 const server = app.listen(PORT, () => {
   const mode = dev ? 'development' : 'production';
   console.log(`Listening to port ${PORT} in ${mode} mode`); // eslint-disable-line no-console
   if (dev) {
     console.log(`Open http://localhost:${PORT}/ and start hacking!\n`); // eslint-disable-line no-console
+  }
+  if (process.env.STRIPE_SECRET_KEY) {
+    pendingPayoutsJob = startPendingPayoutsJob();
   }
 });
 
@@ -371,6 +379,7 @@ const server = app.listen(PORT, () => {
 ['SIGINT', 'SIGTERM'].forEach(signal => {
   process.on(signal, () => {
     console.log('Shutting down...'); // eslint-disable-line no-console
+    clearInterval(pendingPayoutsJob);
     server.close(() => {
       console.log('Server shut down.'); // eslint-disable-line no-console
     });

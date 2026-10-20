@@ -15,6 +15,12 @@ import {
   isFieldForListingType,
   pickCategoryFields,
 } from '../../../../util/fieldHelpers';
+import {
+  SEMINAR_LISTING_TYPE,
+  getSeminarScheduleInitialValues,
+  getSeminarSchedulePublicData,
+  withoutLegacySeminarFields,
+} from '../../../../util/seminarSchedule';
 import { isBookingProcessAlias } from '../../../../transactions/transaction';
 
 // Import shared components
@@ -269,6 +275,7 @@ const getInitialValues = (
       nestedCategories,
       listingFields
     ),
+    ...(listingType === SEMINAR_LISTING_TYPE ? getSeminarScheduleInitialValues(publicData) : {}),
   };
 };
 
@@ -314,7 +321,9 @@ const EditListingDetailsPanel = props => {
   const classes = classNames(rootClassName || css.root, className);
   const { publicData, state } = listing?.attributes || {};
   const listingTypes = config.listing.listingTypes;
-  const listingFields = config.listing.listingFields;
+  // The Console fields seminar_date, seminar_times and event_date_sort are replaced by the date
+  // range and time selectors of Seminars & Events (SeminarScheduleFields)
+  const listingFields = withoutLegacySeminarFields(config.listing.listingFields);
   const listingCategories = config.categoryConfiguration.categories;
   const categoryKey = config.categoryConfiguration.key;
 
@@ -425,6 +434,8 @@ const EditListingDetailsPanel = props => {
                 unitType,
                 ...cleanedNestedCategories,
                 ...publicListingFields,
+                // Dates and times of Seminars & Events, as unix timestamps
+                ...(listingType === SEMINAR_LISTING_TYPE ? getSeminarSchedulePublicData(rest) : {}),
               },
               privateData: privateListingFields,
               ...setNoAvailabilityForUnbookableListings(transactionProcessAlias),

@@ -14,6 +14,7 @@ import {
   isValidCurrencyForTransactionProcess,
 } from '../../../../util/fieldHelpers';
 import { maxLength, required, composeValidators } from '../../../../util/validators';
+import { SEMINAR_LISTING_TYPE } from '../../../../util/seminarSchedule';
 
 // Import shared components
 import {
@@ -25,6 +26,7 @@ import {
   CustomExtendedDataField,
 } from '../../../../components';
 // Import modules from this directory
+import SeminarScheduleFields from './SeminarScheduleFields';
 import css from './EditListingDetailsForm.module.css';
 
 const TITLE_MAX_LENGTH = 60;
@@ -452,6 +454,10 @@ const EditListingDetailsForm = props => (
                 })
               )}
             />
+          )}
+
+          {showListingFields && isCompatibleCurrency && listingType === SEMINAR_LISTING_TYPE && (
+            <SeminarScheduleFields formId={formId} intl={intl} />
           )}
 
           {showListingFields && isCompatibleCurrency && (

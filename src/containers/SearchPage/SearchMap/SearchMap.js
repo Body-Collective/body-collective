@@ -146,6 +146,7 @@ export class SearchMapComponent extends Component {
       config,
       activeListingId,
       messages,
+      locale,
     } = this.props;
     const classes = classNames(rootClassName || css.root, className);
 
@@ -174,6 +175,7 @@ export class SearchMapComponent extends Component {
         reusableMapHiddenHandle={REUSABLE_MAP_HIDDEN_HANDLE}
         onReattach={forceUpdateHandler}
         messages={messages}
+        locale={locale}
         config={config}
       >
         <SearchMapVariantComponent
@@ -221,6 +223,7 @@ export class SearchMapComponent extends Component {
  * @param {Function} props.onMapMoveEnd - The function to move end
  * @param {number} props.zoom - The zoom
  * @param {Object} props.messages - The messages for the IntlProvider
+ * @param {string} [props.locale] - The locale of the page (language of the visitor)
  * @returns {JSX.Element}
  */
 const SearchMap = props => {

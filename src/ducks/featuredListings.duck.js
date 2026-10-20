@@ -4,6 +4,7 @@ import { isForbiddenError, storableError } from '../util/errors';
 import { addMarketplaceEntities } from './marketplaceData.duck';
 import { createImageVariantConfig } from '../util/sdkLoader';
 import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
+import { SEMINAR_LISTING_TYPE } from '../util/seminarSchedule';
 
 const MAX_LISTING_COUNT = 10;
 
@@ -20,6 +21,14 @@ const isListingsSection = section => section.sectionType === 'listings';
 const getSectionSearchQuery = (section, allSections, areaSlug) => {
   const area = areaSlug ? getRegionAreas(allSections).find(a => a.slug === areaSlug) : null;
   return getAreaListingSearchQuery(section?.listingSearchQuery, area);
+};
+
+// Seminars & Events sections show the next events first (search schema of pub_event_start), unless
+// the query of the section in Console sets its own order
+const getSortMaybe = query => {
+  const params = new URLSearchParams(query || '');
+  const isSeminarQuery = params.get('pub_listingType') === SEMINAR_LISTING_TYPE;
+  return isSeminarQuery && !params.has('sort') ? { sort: '-pub_event_start' } : {};
 };
 
 // Responses that arrive after a newer request for the same section was sent are ignored,
@@ -64,6 +73,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
       {
         perPage,
         page: 1,
+        ...getSortMaybe(listingSelection === 'queryString' ? listingSearchQuery : null),
         minStock: 1,
         stockMode: 'match-undefined',
         include: ['images', 'author'],
@@ -89,6 +99,8 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.reviewCount',
           'publicData.reviewsCount',
           'publicData.seminar_date',
+          'publicData.event_start',
+          'publicData.event_end',
         ],
         'fields.image': [
           'variants.listing-card',

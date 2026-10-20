@@ -482,6 +482,7 @@ export class SearchPageComponent extends Component {
                     onManageDisableScrolling('SearchPage_map', false);
                   }}
                   messages={intl.messages}
+                  locale={intl.locale}
                 />
               ) : null}
             </div>

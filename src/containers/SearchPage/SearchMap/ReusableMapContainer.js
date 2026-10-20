@@ -19,6 +19,7 @@ import css from './SearchMap.module.css';
  * @param {string} props.reusableMapHiddenHandle - The handle for the reusable map hidden
  * @param {Object} props.messages - The messages for IntlProvider
  * @param {Object} props.config - The config
+ * @param {string} [props.locale] - The locale of the page (language of the visitor)
  * @returns {JSX.Element}
  */
 class ReusableMapContainer extends React.Component {
@@ -66,9 +67,13 @@ class ReusableMapContainer extends React.Component {
     // NOTICE: Children rendered with ReactDOM.render doesn't have Router access
     // You need to provide onClick functions and URLs as props.
     const renderChildren = () => {
-      const { config, messages } = this.props;
+      const { config, messages, locale } = this.props;
       const children = (
-        <IntlProvider locale={config.localization.locale} messages={messages} textComponent="span">
+        <IntlProvider
+          locale={locale || config.localization.locale}
+          messages={messages}
+          textComponent="span"
+        >
           {this.props.children}
         </IntlProvider>
       );

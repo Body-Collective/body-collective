@@ -7,6 +7,10 @@ const mockStripe = {
   retrievePaymentIntent: jest.fn(),
   createTransferReversal: jest.fn(),
   createRefund: jest.fn(),
+  getDestinationPaymentAvailability: jest.fn(),
+  createPayout: jest.fn(),
+  updatePaymentIntentMetadata: jest.fn(),
+  findPendingPayouts: jest.fn(),
 };
 
 jest.mock('../log', () => ({ error: () => {} }));
@@ -18,11 +22,19 @@ jest.mock('../api-util/sdk', () => ({
   handleError: (res, e) => res.status(e.status || 500).json({ status: e.status || 500 }),
 }));
 jest.mock('../services/stripe', () => ({
+  PAYOUT_PAID: 'paid',
+  PAYOUT_PENDING: 'pending',
+  PAYOUT_STATUS_KEY: 'bodycollective-cancellation-payout',
   findPaymentIntentsForTransaction: (...args) =>
     mockStripe.findPaymentIntentsForTransaction(...args),
   retrievePaymentIntent: (...args) => mockStripe.retrievePaymentIntent(...args),
   createTransferReversal: (...args) => mockStripe.createTransferReversal(...args),
   createRefund: (...args) => mockStripe.createRefund(...args),
+  getDestinationPaymentAvailability: (...args) =>
+    mockStripe.getDestinationPaymentAvailability(...args),
+  createPayout: (...args) => mockStripe.createPayout(...args),
+  updatePaymentIntentMetadata: (...args) => mockStripe.updatePaymentIntentMetadata(...args),
+  findPendingPayouts: (...args) => mockStripe.findPendingPayouts(...args),
 }));
 
 const transactionCancel = require('./transaction-cancel');
@@ -32,17 +44,11 @@ const CUSTOMER_ID = 'customer-1';
 const PROVIDER_ID = 'provider-1';
 const TX_ID = '6a8b6676-2a2d-4bb4-b3d7-d9c1f7762d0b';
 
-const yyyymmdd = date =>
-  Number(
-    `${date.getUTCFullYear()}${String(date.getUTCMonth() + 1).padStart(2, '0')}${String(
-      date.getUTCDate()
-    ).padStart(2, '0')}`
-  );
-
 const txResponse = ({
   processName = 'default-booking',
   lastTransition = 'transition/accept',
   daysToStart = 10,
+  cancellationPolicy,
 } = {}) => {
   const start = new Date(Date.now() + daysToStart * DAY_MS);
   return {
@@ -53,6 +59,7 @@ const txResponse = ({
         attributes: {
           processName,
           lastTransition,
+          protectedData: cancellationPolicy ? { cancellationPolicy } : {},
           payinTotal: { amount: 10000, currency: 'EUR' },
           payoutTotal: { amount: 8500, currency: 'EUR' },
         },
@@ -68,7 +75,12 @@ const txResponse = ({
         {
           id: { uuid: 'listing-1' },
           type: 'listing',
-          attributes: { publicData: { event_date_sort: yyyymmdd(start) } },
+          attributes: {
+            publicData: {
+              transactionProcessAlias: `${processName}/release-1`,
+              event_start: Math.floor(start.getTime() / 1000),
+            },
+          },
         },
       ],
     },
@@ -83,7 +95,13 @@ const paymentIntent = () => ({
     amount_refunded: 0,
     application_fee_amount: 1500,
     balance_transaction: { fee: 175, currency: 'eur' },
-    transfer: { id: 'tr_1', amount: 10000, amount_reversed: 0 },
+    transfer: {
+      id: 'tr_1',
+      amount: 10000,
+      amount_reversed: 0,
+      destination: 'acct_1',
+      destination_payment: 'py_1',
+    },
   },
 });
 
@@ -94,6 +112,14 @@ const call = async (userId, action) => {
   await transactionCancel({ tokenUserId: userId, body: { transactionId: TX_ID, action } }, res);
   return res;
 };
+
+const purchase = (daysToStart, cancellationPolicy) =>
+  txResponse({
+    processName: 'default-purchase',
+    lastTransition: 'transition/confirm-payment',
+    daysToStart,
+    cancellationPolicy,
+  });
 
 describe('transaction-cancel', () => {
   let calls;
@@ -118,16 +144,32 @@ describe('transaction-cancel', () => {
       calls.push('refund');
       return { id: 're_1' };
     });
+    mockStripe.getDestinationPaymentAvailability.mockResolvedValue({
+      isAvailable: true,
+      availableOn: new Date(),
+    });
+    mockStripe.createPayout.mockImplementation(async () => {
+      calls.push('payout');
+      return { id: 'po_1' };
+    });
+    mockStripe.updatePaymentIntentMetadata.mockResolvedValue({});
   });
 
   it('previews the refund without moving money', async () => {
     const res = await call(CUSTOMER_ID, 'preview');
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ currency: 'eur', paid: 10000, fee: 175, refund: 9825 });
+    expect(res.json).toHaveBeenCalledWith({
+      policy: 'treatment',
+      refundShare: 1,
+      currency: 'eur',
+      paid: 10000,
+      fee: 175,
+      refund: 9825,
+    });
     expect(calls).toEqual([]);
   });
 
-  it('cancels an accepted booking: reversal, refund, then the transition', async () => {
+  it('cancels a treatment more than 24 hours before: refund minus the Stripe fee', async () => {
     const res = await call(CUSTOMER_ID, 'cancel');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(calls).toEqual(['speculative', 'metadata', 'reversal', 'refund', 'transition']);
@@ -140,21 +182,60 @@ describe('transaction-cancel', () => {
     const transitionParams = mockSdk.transactions.transition.mock.calls[0][0];
     expect(transitionParams.transition).toEqual('transition/customer-cancel');
     expect(transitionParams.params.metadata.cancellation).toEqual(
-      expect.objectContaining({ status: 'refunded', refundAmount: 9825, stripeRefundId: 're_1' })
+      expect.objectContaining({
+        status: 'refunded',
+        refundShare: 1,
+        refundAmount: 9825,
+        payoutAmount: 0,
+        hasRefund: true,
+        hasPayout: false,
+        stripeRefundId: 're_1',
+      })
     );
   });
 
-  it('cancels a purchased seminar place by the date of the event', async () => {
-    mockSdk.transactions.show.mockResolvedValue(
-      txResponse({ processName: 'default-purchase', lastTransition: 'transition/confirm-payment' })
+  it('cancels a treatment within 24 hours without a refund and pays the practitioner', async () => {
+    mockSdk.transactions.show.mockResolvedValue(txResponse({ daysToStart: 0.5 }));
+    const res = await call(CUSTOMER_ID, 'cancel');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(calls).toEqual(['speculative', 'metadata', 'transition', 'payout']);
+    expect(mockStripe.createPayout).toHaveBeenCalledWith(
+      expect.objectContaining({ accountId: 'acct_1', amount: 8500, currency: 'eur' })
     );
+  });
+
+  it('refunds half of a seminar place 30 to 14 days before and keeps the payout pending', async () => {
+    mockSdk.transactions.show.mockResolvedValue(purchase(20));
+    mockStripe.getDestinationPaymentAvailability.mockResolvedValue({
+      isAvailable: false,
+      availableOn: new Date('2026-11-01T00:00:00Z'),
+    });
     const res = await call(CUSTOMER_ID, 'cancel');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(calls).toEqual(['speculative', 'metadata', 'reversal', 'refund', 'transition']);
+    expect(mockStripe.createTransferReversal).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 4250 })
+    );
+    expect(mockStripe.createRefund).toHaveBeenCalledWith(expect.objectContaining({ amount: 4913 }));
+    expect(mockStripe.updatePaymentIntentMetadata).toHaveBeenCalledWith(
+      'pi_1',
+      expect.objectContaining({
+        'bodycollective-cancellation-payout': 'pending',
+        'bodycollective-cancellation-payout-amount': '4250',
+      })
+    );
   });
 
-  it('refuses 7 days or less before the start, without moving money', async () => {
-    mockSdk.transactions.show.mockResolvedValue(txResponse({ daysToStart: 5 }));
+  it('gives no refund for a non-refundable seminar, also long before', async () => {
+    mockSdk.transactions.show.mockResolvedValue(purchase(60, 'seminar-non-refundable'));
+    const res = await call(CUSTOMER_ID, 'preview');
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ policy: 'seminar-non-refundable', refundShare: 0, refund: 0 })
+    );
+  });
+
+  it('refuses once it has started, without moving money', async () => {
+    mockSdk.transactions.show.mockResolvedValue(txResponse({ daysToStart: -1 }));
     const res = await call(CUSTOMER_ID, 'cancel');
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({ status: 403, code: 'too-late' });
@@ -189,7 +270,7 @@ describe('transaction-cancel', () => {
       latest_charge: {
         ...paymentIntent().latest_charge,
         amount_refunded: 9825,
-        transfer: { id: 'tr_1', amount: 10000, amount_reversed: 8500 },
+        transfer: { ...paymentIntent().latest_charge.transfer, amount_reversed: 8500 },
       },
     });
     const res = await call(CUSTOMER_ID, 'cancel');

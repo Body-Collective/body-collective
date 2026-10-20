@@ -5,6 +5,8 @@ import classNames from 'classnames';
 
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
+import { withoutLegacySeminarFields } from '../../util/seminarSchedule';
+import { OFFERS_CANCELLATIONS_KEY } from '../../util/cancellation';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
@@ -54,6 +56,7 @@ import SectionAuthorMaybe from './SectionAuthorMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
 import SectionCancellationPolicy from './SectionCancellationPolicy';
 import CustomListingFields from './CustomListingFields';
+import SectionSeminarSchedule from './SectionSeminarSchedule';
 import Notifications from './Notifications/Notifications';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
 
@@ -300,10 +303,15 @@ export const ListingPageComponent = props => {
             </div>
             {showDescription && <SectionText text={description} showAsIngress />}
 
+            <SectionSeminarSchedule publicData={publicData} />
+
             <CustomListingFields
               publicData={publicData}
               metadata={metadata}
-              listingFieldConfigs={listingConfig.listingFields}
+              // Dates and the cancellation policy have their own sections
+              listingFieldConfigs={withoutLegacySeminarFields(listingConfig.listingFields).filter(
+                f => f.key !== OFFERS_CANCELLATIONS_KEY
+              )}
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
             />

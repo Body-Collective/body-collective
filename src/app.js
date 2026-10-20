@@ -20,6 +20,7 @@ import {
   DEFAULT_LANGUAGE,
   SUPPORTED_LANGUAGES,
   getCookieLanguage,
+  getIntlLocale,
   getLanguageFromCookieString,
   getStoredLanguage,
 } from './util/language';
@@ -130,7 +131,7 @@ const LocalizedIntlProvider = props => {
   );
 
   return (
-    <IntlProvider locale={locale} messages={messages} textComponent="span">
+    <IntlProvider locale={getIntlLocale(language, locale)} messages={messages} textComponent="span">
       <LocalizedConfiguration>{children}</LocalizedConfiguration>
     </IntlProvider>
   );

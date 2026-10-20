@@ -635,6 +635,16 @@
   }
 }
 
+.sectionSeminarSchedule {
+  padding: 0 24px;
+  margin-bottom: 36px;
+
+  @media (--viewportMedium) {
+    padding: 0;
+    margin-bottom: 40px;
+  }
+}
+
 .sectionCancellationPolicy {
   padding: 0 24px;
   margin-bottom: 36px;

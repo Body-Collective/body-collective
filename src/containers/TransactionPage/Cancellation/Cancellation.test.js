@@ -8,19 +8,33 @@ import { getCancellationInfo } from './Cancellation.helpers';
 
 const { screen, userEvent, waitFor } = testingLibrary;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 const NOW = new Date('2026-10-01T12:00:00.000Z');
 const start = new Date('2026-10-20T14:00:00.000Z');
 const end = new Date('2026-10-20T17:00:00.000Z');
 
+const eventStart = new Date('2026-12-12T09:00:00.000Z');
+
 const bookingTx = ({ lastTransition, metadata = {} }) => ({
   attributes: { processName: 'default-booking', lastTransition, metadata },
   booking: { attributes: { start, end } },
-  listing: { attributes: { publicData: {} } },
+  listing: { attributes: { publicData: { transactionProcessAlias: 'default-booking/release-1' } } },
 });
-const purchaseTx = ({ lastTransition, eventDate = 20261020 }) => ({
-  attributes: { processName: 'default-purchase', lastTransition, metadata: {} },
-  listing: { attributes: { publicData: { event_date_sort: eventDate } } },
+const purchaseTx = ({
+  lastTransition,
+  eventStartSec = eventStart.getTime() / 1000,
+  protectedData = {},
+}) => ({
+  attributes: { processName: 'default-purchase', lastTransition, metadata: {}, protectedData },
+  listing: {
+    attributes: {
+      publicData: {
+        transactionProcessAlias: 'default-purchase/release-1',
+        ...(eventStartSec ? { event_start: eventStartSec } : {}),
+      },
+    },
+  },
 });
 const next = names => names.map(name => ({ attributes: { name } }));
 
@@ -36,39 +50,58 @@ describe('getCancellationInfo', () => {
     expect(info.canCancel).toBe(false);
   });
 
-  it('offers a cancellation with refund more than 7 days before an accepted booking', () => {
+  it('treatments: refund more than 24 hours before, then cancel without refund', () => {
     const params = {
       transaction: bookingTx({ lastTransition: 'transition/accept' }),
       transactionRole: 'customer',
       nextTransitions: next(['transition/customer-cancel']),
     };
-    expect(getCancellationInfo({ ...params, now: NOW }).canCancel).toBe(true);
-    // 7 days or less before the start: nothing to show
-    expect(getCancellationInfo({ ...params, now: new Date(start.getTime() - 7 * DAY_MS) })).toBe(
-      null
+    const early = getCancellationInfo({ ...params, now: NOW });
+    expect(early).toEqual(
+      expect.objectContaining({ canCancel: true, policy: 'treatment', refundShare: 1 })
     );
+    expect(early.refundUntil).toEqual(new Date(start.getTime() - DAY_MS));
+
+    const late = getCancellationInfo({ ...params, now: new Date(start.getTime() - HOUR_MS) });
+    expect(late).toEqual(expect.objectContaining({ canCancel: true, refundShare: 0 }));
+    // Started: nothing to show
+    expect(getCancellationInfo({ ...params, now: start })).toBe(null);
   });
 
-  it('offers a cancellation of a purchased place until 7 days before the event day in Berlin', () => {
+  it('seminars: 100%, 50% and nothing by the days before the event', () => {
     const params = {
       transaction: purchaseTx({ lastTransition: 'transition/confirm-payment' }),
       transactionRole: 'customer',
       nextTransitions: next(['transition/customer-cancel']),
     };
-    const info = getCancellationInfo({ ...params, now: NOW });
-    expect(info.isBooking).toBe(false);
-    expect(info.canCancel).toBe(true);
-    // The event day starts on 2026-10-19T22:00:00Z in Berlin (summer time)
-    expect(info.cancelDeadline).toEqual(new Date('2026-10-12T22:00:00.000Z'));
-    expect(getCancellationInfo({ ...params, now: new Date('2026-10-13T00:00:00.000Z') })).toBe(
-      null
+    const share = now => getCancellationInfo({ ...params, now }).refundShare;
+    expect(share(new Date(eventStart.getTime() - 31 * DAY_MS))).toEqual(1);
+    expect(share(new Date(eventStart.getTime() - 20 * DAY_MS))).toEqual(0.5);
+    expect(share(new Date(eventStart.getTime() - 10 * DAY_MS))).toEqual(0);
+  });
+
+  it('uses the policy copied to the transaction: non-refundable events', () => {
+    const info = getCancellationInfo({
+      transaction: purchaseTx({
+        lastTransition: 'transition/confirm-payment',
+        protectedData: { cancellationPolicy: 'seminar-non-refundable' },
+      }),
+      transactionRole: 'customer',
+      nextTransitions: next(['transition/customer-cancel']),
+      now: new Date(eventStart.getTime() - 60 * DAY_MS),
+    });
+    expect(info).toEqual(
+      expect.objectContaining({ policy: 'seminar-non-refundable', refundShare: 0 })
     );
   });
 
   it('does not offer a cancellation of a place without an event date', () => {
     expect(
       getCancellationInfo({
-        transaction: purchaseTx({ lastTransition: 'transition/confirm-payment', eventDate: null }),
+        transaction: purchaseTx({
+          lastTransition: 'transition/confirm-payment',
+          eventStartSec: null,
+        }),
         transactionRole: 'customer',
         nextTransitions: next(['transition/customer-cancel']),
         now: NOW,
@@ -127,8 +160,10 @@ describe('Cancellation', () => {
   const acceptedInfo = {
     isBooking: true,
     canCancel: true,
+    policy: 'treatment',
+    refundShare: 1,
+    refundUntil: new Date(start.getTime() - DAY_MS),
     startTime: start,
-    cancelDeadline: new Date(start.getTime() - 7 * DAY_MS),
   };
 
   it('shows the refund before the customer confirms the cancellation', async () => {
@@ -157,16 +192,34 @@ describe('Cancellation', () => {
     expect(onCancel).toHaveBeenCalled();
   });
 
-  it('tells the provider that there is no payout after a place is cancelled', () => {
+  it('lets the customer cancel without a refund', () => {
+    render(
+      <Cancellation
+        {...baseProps}
+        info={{ ...acceptedInfo, refundShare: 0, refundUntil: null }}
+        cancelPreview={{ currency: 'eur', paid: 10000, fee: 175, refund: 0 }}
+      />
+    );
+    expect(
+      screen.getByText('TransactionPage.Cancellation.cancelDescription.noRefundNow')
+    ).toBeInTheDocument();
+  });
+
+  it('tells the provider what is paid out after a place is cancelled', () => {
     render(
       <Cancellation
         {...baseProps}
         transactionRole="provider"
-        info={{ isBooking: false, isCancelledWithRefund: true, cancellation: null }}
+        info={{
+          isBooking: false,
+          isCancelledWithRefund: true,
+          cancellation: { payoutAmount: 4250, currency: 'eur' },
+        }}
       />
     );
     expect(
       screen.getByText('TransactionPage.Cancellation.cancelledProvider.place')
     ).toBeInTheDocument();
+    expect(screen.getByText('TransactionPage.Cancellation.providerPayout')).toBeInTheDocument();
   });
 });

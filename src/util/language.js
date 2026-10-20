@@ -30,6 +30,22 @@ export const LANGUAGE_NAMES = {
   de: 'Deutsch',
 };
 
+// The locale used to format dates, times, numbers and money in each language. The locale in
+// Console (general/localization.json) is "de", which would show German month and day names (e.g.
+// in date pickers) on the English site too.
+const INTL_LOCALES = {
+  en: 'en-GB',
+  de: 'de-DE',
+};
+
+/**
+ * @param {string} language
+ * @param {string} [fallbackLocale] e.g. the locale set in Console
+ * @returns {string} locale for React Intl, e.g. 'en-GB'
+ */
+export const getIntlLocale = (language, fallbackLocale) =>
+  INTL_LOCALES[language] || fallbackLocale || INTL_LOCALES[DEFAULT_LANGUAGE];
+
 /**
  * @param {*} language
  * @returns {boolean} true if the app has translations for the language

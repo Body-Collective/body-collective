@@ -10,6 +10,7 @@ const {
   serialize,
   fetchCommission,
 } = require('../api-util/sdk');
+const { withCancellationPolicy } = require('../services/cancellation');
 
 const { Money } = sharetribeSdk.types;
 
@@ -58,10 +59,11 @@ module.exports = (req, res) => {
   const sdk = getSdk(req, res, tokenStore);
   let lineItems = null;
   let metadataMaybe = {};
+  let listing = null;
 
   Promise.all([listingPromise(sdk, bodyParams?.params?.listingId), fetchCommission(sdk)])
     .then(([showListingResponse, fetchAssetsResponse]) => {
-      const listing = showListingResponse.data.data;
+      listing = showListingResponse.data.data;
       const commissionAsset = fetchAssetsResponse.data.data[0];
 
       const currency = listing.attributes.price?.currency || orderData.currency;
@@ -83,7 +85,9 @@ module.exports = (req, res) => {
       return getTrustedSdk(req, res, tokenStore);
     })
     .then(trustedSdk => {
-      const { params } = bodyParams;
+      // The cancellation policy of the listing is copied to the protected data of a paid
+      // transaction (see services/cancellation/policy.js)
+      const params = withCancellationPolicy(transitionName, bodyParams.params, listing);
 
       // Add lineItems to the body params
       const body = {

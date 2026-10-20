@@ -1,22 +1,28 @@
 import React from 'react';
 
 import { FormattedMessage } from '../../util/reactIntl';
-import { BOOKING_PROCESS_NAME, PURCHASE_PROCESS_NAME } from '../../transactions/transaction';
+import {
+  POLICY_SEMINAR,
+  POLICY_SEMINAR_NON_REFUNDABLE,
+  POLICY_TREATMENT,
+  getListingPolicy,
+} from '../../util/cancellation';
 
 import { Heading } from '../../components';
 
 import css from './ListingPage.module.css';
 
-// The customer cancellation policy of each process. Keep in sync with src/util/cancellation.js and
-// server/services/cancellation/policy.js.
+// The lines of each customer cancellation policy (see src/util/cancellation.js)
 const POLICY_ITEMS = {
-  [BOOKING_PROCESS_NAME]: ['free', 'refund', 'noCancel', 'practitioner'],
-  [PURCHASE_PROCESS_NAME]: ['refundPlace', 'noCancelPlace', 'practitioner'],
+  [POLICY_TREATMENT]: ['treatmentFree', 'treatmentRefund', 'treatmentNoRefund'],
+  [POLICY_SEMINAR]: ['seminarRefund', 'seminarHalf', 'seminarNoRefund'],
+  [POLICY_SEMINAR_NON_REFUNDABLE]: ['nonRefundable'],
 };
 
 /**
  * Cancellation policy of the listing: Studio and Mobile Service listings (booking process) and
- * Seminars & Events (purchase process). Nothing for other processes.
+ * Seminars & Events (purchase process; with or without cancellations, listing field
+ * offers_cancellations). Nothing for other processes.
  *
  * @component
  * @param {Object} props
@@ -25,8 +31,7 @@ const POLICY_ITEMS = {
  */
 const SectionCancellationPolicy = props => {
   const { publicData } = props;
-  const processName = publicData?.transactionProcessAlias?.split('/')[0];
-  const items = POLICY_ITEMS[processName];
+  const items = POLICY_ITEMS[getListingPolicy(publicData)];
   if (!items) {
     return null;
   }

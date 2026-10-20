@@ -126,10 +126,11 @@
     {:name :action/decline-booking}],
    :from :state/preauthorized,
    :to :state/cancelled}
-  ;; After the booking is accepted, until 7 days before it starts: the customer is refunded the
-  ;; payment minus the Stripe fee. The refund is made on the server with the Stripe API (the
-  ;; Stripe refund action only does full refunds), see server/api/transaction-cancel.js. This
-  ;; transition only cancels the booking and stores the refund details in metadata.
+  ;; After the booking is accepted, until it starts: the refund follows the cancellation policy
+  ;; (more than 24 hours before: the payment minus the Stripe fee, later: nothing). The refund and
+  ;; the payout of what the practitioner keeps are made on the server with the Stripe API, see
+  ;; server/api/transaction-cancel.js. This transition only cancels the booking and stores the
+  ;; refund details in metadata.
   {:name :transition/customer-cancel,
    :actor :actor.role/customer,
    :actions

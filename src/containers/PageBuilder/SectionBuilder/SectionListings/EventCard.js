@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import { useIntl } from '../../../../util/reactIntl';
 import { createSlug } from '../../../../util/urlHelpers';
+import { formatSeminarSchedule } from '../../../../util/seminarSchedule';
 
 import { AspectRatioWrapper, NamedLink, ResponsiveImage } from '../../../../components';
 
@@ -44,7 +45,7 @@ const RatingStarIcon = () => (
   </svg>
 );
 
-const getEventCardFields = listing => {
+const getEventCardFields = (listing, intl) => {
   const { title = '', publicData } = listing?.attributes || {};
   const locationSource = publicData?.location;
   const locationLabel =
@@ -57,7 +58,7 @@ const getEventCardFields = listing => {
   return {
     title,
     category: publicData?.eventCategory || publicData?.category || null,
-    dateLabel: publicData?.dateLabel || publicData?.seminar_date || null,
+    dateLabel: publicData?.dateLabel || formatSeminarSchedule(intl, publicData)?.dates || null,
     locationLabel,
     rating: publicData?.rating ?? publicData?.averageRating ?? null,
     reviewCount: publicData?.reviewCount ?? publicData?.reviewsCount ?? null,
@@ -89,7 +90,7 @@ const EventCard = props => {
     rating,
     reviewCount,
     authorName,
-  } = getEventCardFields(listing);
+  } = getEventCardFields(listing, intl);
 
   const id = listing?.id?.uuid;
   const slug = createSlug(title);

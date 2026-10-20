@@ -97,10 +97,12 @@
     {:name :action/cancel-stock-reservation}],
    :from :state/purchased,
    :to :state/canceled}
-  ;; Seminars & Events: the customer cancels their place until 7 days before the event and is
-  ;; refunded the payment minus the Stripe fee. The refund is made on the server with the Stripe
-  ;; API (the Stripe refund action only does full refunds), see server/api/transaction-cancel.js.
-  ;; This transition only releases the place and stores the refund details in metadata.
+  ;; Seminars & Events: the customer cancels their place until the event starts. The refund
+  ;; follows the cancellation policy (more than 30 days before: the payment minus the Stripe fee,
+  ;; 30 to 14 days: half of it, later or non-refundable events: nothing). The refund and the
+  ;; payout of what the practitioner keeps are made on the server with the Stripe API, see
+  ;; server/api/transaction-cancel.js. This transition only releases the place and stores the
+  ;; refund details in metadata.
   {:name :transition/customer-cancel,
    :actor :actor.role/customer,
    :actions

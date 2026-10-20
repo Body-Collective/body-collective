@@ -75,3 +75,45 @@
     margin-top: 100px;
   }
 }
+
+/* Dates and times of Seminars & Events listings */
+.seminarSchedule {
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 32px;
+  }
+}
+
+.seminarDates {
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.seminarTimes {
+  display: flex;
+  gap: 18px;
+
+  @media (--viewportMedium) {
+    gap: 24px;
+  }
+}
+
+.seminarTime {
+  flex: 1;
+}
+
+.seminarScheduleHelp {
+  margin: 12px 0 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--colorGrey700);
+
+  @media (--viewportMedium) {
+    margin-top: 8px;
+  }
+}

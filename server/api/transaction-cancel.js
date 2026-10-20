@@ -2,19 +2,27 @@ const { types } = require('sharetribe-flex-sdk');
 
 const log = require('../log');
 const { createCookieTokenStore, getSdk, getTrustedSdk, handleError } = require('../api-util/sdk');
-const { getCancelError, getCancelTransition, getStartTime } = require('../services/cancellation');
+const {
+  getCancelError,
+  getCancelTransition,
+  getRefundShare,
+  getStartTime,
+  getTransactionPolicy,
+} = require('../services/cancellation');
 const { cancelWithRefund, getPaymentAndAmounts } = require('../services/cancellation/refund');
 
 /**
- * Customer cancellation with a refund of the payment minus the Stripe fee: an accepted booking
- * (Studio, Mobile Service) or a purchased place (Seminars & Events), until 7 days before the start.
- * See server/services/cancellation/policy.js. Runs after middleware.auth (req.tokenUserId).
+ * Customer cancellation of an accepted booking (Studio, Mobile Service) or a purchased place
+ * (Seminars & Events), until the start. The refund follows the cancellation policy of the
+ * transaction: see server/services/cancellation/policy.js. Runs after middleware.auth
+ * (req.tokenUserId).
  *
  * Body:
  *  - transactionId
  *  - action: 'preview' (the amounts, nothing changes) or 'cancel'
  *
- * Responds with { currency, paid, fee, refund } (minor units), and the transition when cancelled.
+ * Responds with { policy, refundShare, currency, paid, fee, refund } (amounts in minor units),
+ * and the transition when cancelled.
  * Errors: { status, code } with code 'invalid-request', 'not-allowed', 'no-start-time',
  * 'too-late', 'no-payment', 'payment-not-captured', 'currency-mismatch', 'payment-mismatch' or
  * 'cancel-failed'.
@@ -53,26 +61,31 @@ module.exports = async (req, res) => {
     const providerId = tx.relationships?.provider?.data?.id?.uuid;
     const role = userId === customerId ? 'customer' : userId === providerId ? 'provider' : null;
 
+    const listing = findIncluded(tx, included, 'listing');
     const cancelTransition = getCancelTransition(processName, lastTransition);
+    const policy = getTransactionPolicy(tx, listing);
     const startTime = getStartTime({
       processName,
       booking: findIncluded(tx, included, 'booking'),
-      listing: findIncluded(tx, included, 'listing'),
+      listing,
     });
-    const error = getCancelError({ role, cancelTransition, startTime, now: new Date() });
+    const now = new Date();
+    const error = getCancelError({ role, cancelTransition, policy, startTime, now });
     if (error) {
       return fail(res, 403, error);
     }
 
-    const { paymentIntentId, amounts } = await getPaymentAndAmounts(tx);
+    const refundShare = getRefundShare({ policy, startTime, now });
+    const { paymentIntentId, amounts } = await getPaymentAndAmounts(tx, refundShare);
     const { currency, paid, fee, refund } = amounts;
+    const result = { policy, refundShare, currency, paid, fee, refund };
     if (action === 'preview') {
-      return res.status(200).json({ currency, paid, fee, refund });
+      return res.status(200).json(result);
     }
 
     const trustedSdk = await getTrustedSdk(req, res, tokenStore);
     await cancelWithRefund({ tx, cancelTransition, paymentIntentId, amounts, trustedSdk });
-    return res.status(200).json({ transition: cancelTransition, currency, paid, fee, refund });
+    return res.status(200).json({ transition: cancelTransition, ...result });
   } catch (e) {
     if (e.isCancelError) {
       return fail(res, e.status, e.code);

@@ -19,7 +19,10 @@ const {
   fetchCommission,
 } = require('../api-util/sdk');
 
-const { CANCEL_PRIVILEGED_TRANSITIONS } = require('../services/cancellation');
+const {
+  CANCEL_PRIVILEGED_TRANSITIONS,
+  withCancellationPolicy,
+} = require('../services/cancellation');
 
 const { Money } = sharetribeSdk.types;
 
@@ -132,12 +135,13 @@ module.exports = (req, res) => {
   const transitionName = bodyParams.transition;
   let lineItems = null;
   let metadataMaybe = {};
+  let listing = null;
 
   Promise.all([transactionPromise(sdk, bodyParams?.id), fetchCommission(sdk)])
     .then(responses => {
       const [showTransactionResponse, fetchAssetsResponse] = responses;
       const transaction = showTransactionResponse.data.data;
-      const listing = getListingRelationShip(showTransactionResponse.data);
+      listing = getListingRelationShip(showTransactionResponse.data);
       const commissionAsset = fetchAssetsResponse.data.data[0];
 
       const existingMetadata = transaction?.attributes?.metadata;
@@ -176,8 +180,14 @@ module.exports = (req, res) => {
       // - If you customize the transaction process to allow customers to update protected data
       //   after a provider's offer, you can add that logic in this same function.
       const roleBasedBodyParams = getRoleBasedBodyParams(orderData, bodyParams);
-      // Omit listingId from params (transition/request-payment-after-inquiry does not need it)
-      const { listingId, ...restParams } = roleBasedBodyParams?.params || {};
+      // Omit listingId from params (transition/request-payment-after-inquiry does not need it).
+      // The cancellation policy of the listing is copied to the protected data of a paid
+      // transaction (see services/cancellation/policy.js).
+      const { listingId, ...restParams } = withCancellationPolicy(
+        transitionName,
+        roleBasedBodyParams?.params || {},
+        listing
+      );
 
       // Add lineItems to the body params
       const body = {
