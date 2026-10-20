@@ -86,12 +86,53 @@ describe('cancellation rules', () => {
       const tx = {
         attributes: { protectedData: { cancellationPolicy: 'seminar-non-refundable' } },
       };
-      expect(getTransactionPolicy(tx, listing('default-purchase/release-1'))).toEqual(
-        'seminar-non-refundable'
-      );
       expect(
-        getTransactionPolicy({ attributes: {} }, listing('default-purchase/release-1'))
+        getTransactionPolicy(
+          { ...tx, attributes: { ...tx.attributes, processName: 'default-purchase' } },
+          listing('default-purchase/release-1')
+        )
+      ).toEqual('seminar-non-refundable');
+      expect(
+        getTransactionPolicy(
+          { attributes: { processName: 'default-purchase' } },
+          listing('default-purchase/release-1')
+        )
       ).toEqual('seminar');
+    });
+
+    it('ignores a policy the server did not write or of another process', () => {
+      const purchaseTx = cancellationPolicy => ({
+        attributes: { processName: 'default-purchase', protectedData: { cancellationPolicy } },
+      });
+      // A booking policy on a purchase: the listing's counts
+      expect(getTransactionPolicy(purchaseTx('treatment'), listing('default-purchase/release-1'))).toEqual(
+        'seminar'
+      );
+      // A listing without a policy (e.g. another process): no cancellation
+      expect(getTransactionPolicy(purchaseTx('seminar'), listing('default-inquiry/release-1'))).toBeNull();
+    });
+
+    it('always writes the start of the event and drops values sent by the client', () => {
+      const params = {
+        protectedData: { note: 'x', cancellationPolicy: 'seminar', cancellationStartTime: 4102444800 },
+      };
+      // Older listing: only event_date_sort
+      const old = listing('default-purchase/release-1', { event_date_sort: 20260912 });
+      expect(withCancellationPolicy('transition/request-payment', params, old).protectedData).toEqual({
+        note: 'x',
+        cancellationPolicy: 'seminar',
+        cancellationStartTime: Date.parse('2026-09-11T22:00:00Z') / 1000,
+      });
+      // No date on the listing: null replaces anything stored earlier
+      const none = listing('default-purchase/release-1');
+      expect(
+        withCancellationPolicy('transition/request-payment-after-inquiry', params, none).protectedData
+          .cancellationStartTime
+      ).toBeNull();
+      // Other transitions: the server-only keys are removed
+      expect(withCancellationPolicy('transition/inquire', params, old).protectedData).toEqual({
+        note: 'x',
+      });
     });
 
     it('copies the policy to the protected data of paid transactions only', () => {
@@ -99,7 +140,11 @@ describe('cancellation rules', () => {
       const params = { listingId: 'l1', protectedData: { note: 'x' } };
       expect(withCancellationPolicy('transition/request-payment', params, l)).toEqual({
         listingId: 'l1',
-        protectedData: { note: 'x', cancellationPolicy: 'seminar-non-refundable' },
+        protectedData: {
+          note: 'x',
+          cancellationPolicy: 'seminar-non-refundable',
+          cancellationStartTime: null,
+        },
       });
       expect(withCancellationPolicy('transition/inquire', params, l)).toBe(params);
     });

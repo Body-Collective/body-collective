@@ -97,8 +97,45 @@ const getDestinationPaymentAvailability = async ({ accountId, destinationPayment
     { expand: ['balance_transaction'] },
     { stripeAccount: accountId }
   );
-  const { status, available_on } = payment.balance_transaction || {};
-  return { isAvailable: status === 'available', availableOn: new Date(available_on * 1000) };
+  const { status, available_on, currency } = payment.balance_transaction || {};
+  return {
+    isAvailable: status === 'available',
+    availableOn: new Date(available_on * 1000),
+    // The currency of the funds in the connected account
+    currency,
+  };
+};
+
+/**
+ * The payout already made for a transaction from a connected account, if any (payouts carry
+ * the transaction id in their metadata). Looks through the account's recent payouts.
+ *
+ * @param {Object} params
+ * @param {string} params.accountId Connected account id
+ * @param {string} params.transactionId
+ * @returns {Promise<Object|null>} The payout
+ */
+const findPayoutForTransaction = async ({ accountId, transactionId }) => {
+  const payouts = await getStripe().payouts.list({ limit: 100 }, { stripeAccount: accountId });
+  return (
+    payouts.data.find(p => p.metadata?.['sharetribe-transaction-id'] === transactionId) || null
+  );
+};
+
+// All results of a PaymentIntent search (the search returns pages of 100)
+const searchAllPaymentIntents = async query => {
+  const results = [];
+  let page;
+  do {
+    const response = await getStripe().paymentIntents.search({
+      query,
+      limit: 100,
+      ...(page ? { page } : {}),
+    });
+    results.push(...response.data);
+    page = response.has_more ? response.next_page : null;
+  } while (page);
+  return results;
 };
 
 /**
@@ -133,26 +170,16 @@ const updatePaymentIntentMetadata = (paymentIntentId, metadata) =>
  *
  * @returns {Promise<Array<Object>>}
  */
-const findPendingPayouts = async () => {
-  const result = await getStripe().paymentIntents.search({
-    query: `metadata['${PAYOUT_STATUS_KEY}']:'${PAYOUT_PENDING}'`,
-    limit: 100,
-  });
-  return result.data;
-};
+const findPendingPayouts = () =>
+  searchAllPaymentIntents(`metadata['${PAYOUT_STATUS_KEY}']:'${PAYOUT_PENDING}'`);
 
 /**
  * PaymentIntents of cancelled transactions whose refund hasn't been finished.
  *
  * @returns {Promise<Array<Object>>}
  */
-const findPendingRefunds = async () => {
-  const result = await getStripe().paymentIntents.search({
-    query: `metadata['${REFUND_STATUS_KEY}']:'${REFUND_PENDING}'`,
-    limit: 100,
-  });
-  return result.data;
-};
+const findPendingRefunds = () =>
+  searchAllPaymentIntents(`metadata['${REFUND_STATUS_KEY}']:'${REFUND_PENDING}'`);
 
 module.exports = {
   REFUND_DONE,
@@ -166,6 +193,7 @@ module.exports = {
   createTransferReversal,
   findPaymentIntentsForTransaction,
   findPendingPayouts,
+  findPayoutForTransaction,
   findPendingRefunds,
   getDestinationPaymentAvailability,
   retrievePaymentIntent,

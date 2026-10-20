@@ -4,6 +4,7 @@ const {
   PAYOUT_PENDING,
   PAYOUT_STATUS_KEY,
   createPayout,
+  findPayoutForTransaction,
   findPendingPayouts,
   getDestinationPaymentAvailability,
   updatePaymentIntentMetadata,
@@ -17,6 +18,10 @@ const {
  * transaction's own funds are available in the connected account (some days after the payment),
  * never from other funds: until then the payout waits as "pending" in the metadata of the
  * PaymentIntent, and processPendingPayouts pays it later (see ./jobs.js).
+ *
+ * There is at most one payout per transaction: before paying, the connected account's payouts are
+ * checked for one with the transaction id, so a payout is never made twice, even when recording
+ * it failed.
  */
 
 // Metadata keys on the PaymentIntent with the payout details
@@ -26,21 +31,40 @@ const PAYMENT_KEY = 'bodycollective-cancellation-payout-payment';
 const AVAILABLE_ON_KEY = 'bodycollective-cancellation-payout-available-on';
 const PAYOUT_ID_KEY = 'bodycollective-cancellation-payout-id';
 
+const payoutError = message => {
+  const error = new Error(message);
+  error.isPayoutError = true;
+  return error;
+};
+
+/**
+ * Pays out the practitioner's share once (see above) and records it on the PaymentIntent.
+ * Requires the funds to be available and in the currency of the payment.
+ */
 const payProviderShare = async ({
   paymentIntentId,
   transactionId,
   accountId,
   amount,
   currency,
+  fundsCurrency,
 }) => {
-  const payout = await createPayout({
-    accountId,
-    amount,
-    currency,
-    // One payout per cancelled transaction
-    idempotencyKey: `cancellation-payout-${transactionId}`,
-    metadata: { 'sharetribe-transaction-id': transactionId },
-  });
+  if (!(Number.isInteger(amount) && amount > 0)) {
+    throw payoutError(`Invalid payout amount: ${amount}`);
+  }
+  if (fundsCurrency && fundsCurrency !== currency) {
+    // The connected account holds the funds in another currency: needs manual handling
+    throw payoutError(`Payout currency ${currency} differs from the funds (${fundsCurrency})`);
+  }
+  const payout =
+    (await findPayoutForTransaction({ accountId, transactionId })) ||
+    (await createPayout({
+      accountId,
+      amount,
+      currency,
+      idempotencyKey: `cancellation-payout-${transactionId}`,
+      metadata: { 'sharetribe-transaction-id': transactionId },
+    }));
   await updatePaymentIntentMetadata(paymentIntentId, {
     [PAYOUT_STATUS_KEY]: PAYOUT_PAID,
     [PAYOUT_ID_KEY]: payout.id,
@@ -50,7 +74,7 @@ const payProviderShare = async ({
 
 /**
  * Pays out the practitioner's share now if this transaction's funds are available, or marks it
- * pending. Never throws: a failure is retried by the job.
+ * pending for the job. Throws only if neither worked, so that the caller is retried.
  *
  * @param {Object} params
  * @param {string} params.paymentIntentId
@@ -75,24 +99,27 @@ const payOutOrSchedule = async ({ paymentIntentId, transactionId, amounts }) => 
   };
 
   try {
-    const { isAvailable, availableOn } = await getDestinationPaymentAvailability({
+    const availability = await getDestinationPaymentAvailability({
       accountId,
       destinationPaymentId,
     });
-    if (!isAvailable) {
-      return await markPending(availableOn);
+    if (!availability.isAvailable) {
+      return await markPending(availability.availableOn);
     }
-    await payProviderShare({ paymentIntentId, transactionId, accountId, amount, currency });
+    await payProviderShare({
+      paymentIntentId,
+      transactionId,
+      accountId,
+      amount,
+      currency,
+      fundsCurrency: availability.currency,
+    });
     return { status: PAYOUT_PAID };
   } catch (e) {
     log.error(e, 'cancellation-payout-failed', { transactionId });
-    try {
-      // Tried again by the pending payouts job
-      return await markPending(new Date());
-    } catch (e2) {
-      log.error(e2, 'cancellation-payout-not-scheduled', { transactionId, paymentIntentId });
-      return { status: 'failed' };
-    }
+    // Retried by the job. If this fails too, the error goes to the caller, which keeps the
+    // refund pending so that the job runs the whole step again.
+    return markPending(new Date());
   }
 };
 
@@ -104,26 +131,29 @@ const payOutOrSchedule = async ({ paymentIntentId, transactionId, amounts }) => 
  */
 const processPendingPayouts = async (now = new Date()) => {
   const paymentIntents = await findPendingPayouts();
-  const due = paymentIntents.filter(
-    pi => new Date(pi.metadata[AVAILABLE_ON_KEY]).getTime() <= now.getTime()
-  );
   let count = 0;
-  for (const pi of due) {
+  for (const pi of paymentIntents) {
     const { metadata, currency } = pi;
-    const accountId = metadata[ACCOUNT_KEY];
     const transactionId = metadata['sharetribe-transaction-id'];
+    const availableOn = new Date(metadata[AVAILABLE_ON_KEY]).getTime();
+    // An unreadable date is tried now (the funds are checked anyway)
+    if (!Number.isNaN(availableOn) && availableOn > now.getTime()) {
+      continue;
+    }
     try {
-      const { isAvailable } = await getDestinationPaymentAvailability({
+      const accountId = metadata[ACCOUNT_KEY];
+      const availability = await getDestinationPaymentAvailability({
         accountId,
         destinationPaymentId: metadata[PAYMENT_KEY],
       });
-      if (isAvailable) {
+      if (availability.isAvailable) {
         await payProviderShare({
           paymentIntentId: pi.id,
           transactionId,
           accountId,
           amount: Number(metadata[AMOUNT_KEY]),
           currency,
+          fundsCurrency: availability.currency,
         });
         count += 1;
       }

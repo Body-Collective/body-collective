@@ -21,6 +21,11 @@ import {
 } from '../../../util/urlHelpers';
 import { createResourceLocatorString } from '../../../util/routes';
 import {
+  SEMINAR_LISTING_TYPE,
+  getSeminarSchedule,
+  withoutLegacySeminarFields,
+} from '../../../util/seminarSchedule';
+import {
   SCHEMA_TYPE_ENUM,
   SCHEMA_TYPE_MULTI_ENUM,
   SCHEMA_TYPE_TEXT,
@@ -212,10 +217,14 @@ const hasValidListingFieldsInExtendedData = (publicData, privateData, config) =>
     }
     return true;
   };
-  return config.listing.listingFields.reduce((isValid, fieldConfig) => {
+  // The Console fields replaced by the date range and time selectors of Seminars & Events are
+  // not asked anymore; those listings need their dates and times (event_start, event_end) instead
+  const hasSeminarScheduleMaybe =
+    publicData?.listingType !== SEMINAR_LISTING_TYPE || !!getSeminarSchedule(publicData);
+  return withoutLegacySeminarFields(config.listing.listingFields).reduce((isValid, fieldConfig) => {
     const data = fieldConfig.scope === 'private' ? privateData : publicData;
     return isValid && isValidField(fieldConfig, data);
-  }, true);
+  }, hasSeminarScheduleMaybe);
 };
 
 /**

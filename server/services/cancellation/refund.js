@@ -40,7 +40,8 @@ const cancelError = (status, code) => {
  *
  * @param {Object} tx Transaction entity
  * @param {number} refundShare 0 to 1, see getRefundShare
- * @returns {Promise<Object>} { paymentIntentId, amounts } (see getRefundAmounts)
+ * @returns {Promise<Object>} { paymentIntentId, paymentIntentMetadata, amounts } (see
+ * getRefundAmounts)
  */
 const getPaymentAndAmounts = async (tx, refundShare) => {
   const transactionId = tx.id.uuid;
@@ -57,8 +58,11 @@ const getPaymentAndAmounts = async (tx, refundShare) => {
   const paymentIntentId = paymentIntents[0].id;
 
   let amounts;
+  let paymentIntentMetadata;
   try {
-    amounts = getRefundAmounts(await retrievePaymentIntent(paymentIntentId), refundShare);
+    const paymentIntent = await retrievePaymentIntent(paymentIntentId);
+    paymentIntentMetadata = paymentIntent.metadata || {};
+    amounts = getRefundAmounts(paymentIntent, refundShare);
   } catch (e) {
     if (e.code === 'payment-not-captured' || e.code === 'currency-mismatch') {
       log.error(e, 'transaction-cancel-payment-not-supported', { transactionId });
@@ -77,7 +81,7 @@ const getPaymentAndAmounts = async (tx, refundShare) => {
     throw cancelError(409, 'payment-mismatch');
   }
 
-  return { paymentIntentId, amounts };
+  return { paymentIntentId, paymentIntentMetadata, amounts };
 };
 
 /**
@@ -122,7 +126,8 @@ const finishCancellation = async ({ txId, paymentIntentId, amounts, cancellation
         })
       : null;
 
-  // Never throws: a failed payout is retried by the cancellation job
+  // Paid now or marked pending for the job; throws only if neither worked (this step is then
+  // retried by the job, which never pays out twice)
   await payOutOrSchedule({ paymentIntentId, transactionId, amounts });
 
   const done = {
@@ -157,11 +162,25 @@ const finishCancellation = async ({ txId, paymentIntentId, amounts, cancellation
  * @param {Object} params.tx Transaction entity
  * @param {string} params.cancelTransition
  * @param {string} params.paymentIntentId
+ * @param {Object} params.paymentIntentMetadata
  * @param {Object} params.amounts See getRefundAmounts
  * @param {Object} params.trustedSdk Trusted SDK of the customer
  * @returns {Promise<Object>} The cancellation details
  */
-const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts, trustedSdk }) => {
+const cancelWithRefund = async ({
+  tx,
+  cancelTransition,
+  paymentIntentId,
+  paymentIntentMetadata,
+  amounts,
+  trustedSdk,
+}) => {
+  // A cancellation of this payment already started or finished (e.g. a second click): don't
+  // write over its mark. The job finishes a started one.
+  if (paymentIntentMetadata?.[REFUND_STATUS_KEY]) {
+    throw cancelError(409, 'already-cancelling');
+  }
+
   const { currency, paid, fee, refund, payout, refundShare } = amounts;
   const startedAt = new Date().toISOString();
   const cancellation = {
@@ -207,10 +226,14 @@ const cancelWithRefund = async ({ tx, cancelTransition, paymentIntentId, amounts
   }
 };
 
+// The refund shares the policies can give (see ./policy.js)
+const VALID_REFUND_SHARES = [0, 0.5, 1];
+
 /**
  * Finishes the refunds of cancellations that were interrupted after the transition (see
  * cancelWithRefund). Only transactions that Sharetribe shows as cancelled by the customer are
- * refunded, with the refund share stored when the cancellation started.
+ * refunded, with the refund share that the cancel transition stored in the transaction's
+ * metadata (written in the same step as the cancellation, so it's the one that counts).
  *
  * @param {Date} [now]
  * @returns {Promise<number>} Number of refunds finished
@@ -222,7 +245,13 @@ const processPendingRefunds = async (now = new Date()) => {
     const { metadata } = pi;
     const transactionId = metadata['sharetribe-transaction-id'];
     const startedAt = new Date(metadata[REFUND_STARTED_AT_KEY]).getTime();
-    if (!(now.getTime() - startedAt > PENDING_REFUND_GRACE_MS)) {
+    if (Number.isNaN(startedAt)) {
+      log.error(new Error('Invalid start time'), 'transaction-cancel-refund-invalid', {
+        transactionId,
+      });
+      continue;
+    }
+    if (now.getTime() - startedAt <= PENDING_REFUND_GRACE_MS) {
       continue;
     }
     try {
@@ -237,8 +266,8 @@ const processPendingRefunds = async (now = new Date()) => {
         await updatePaymentIntentMetadata(pi.id, { [REFUND_STATUS_KEY]: '' });
         continue;
       }
-      const refundShare = Number(metadata[REFUND_SHARE_KEY]);
-      if (!(refundShare >= 0 && refundShare <= 1)) {
+      const refundShare = txMetadata.cancellation?.refundShare;
+      if (!VALID_REFUND_SHARES.includes(refundShare)) {
         log.error(new Error('Invalid refund share'), 'transaction-cancel-refund-invalid', {
           transactionId,
         });

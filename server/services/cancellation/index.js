@@ -67,17 +67,50 @@ const getListingPolicy = listing => {
   return null;
 };
 
+// The process each policy belongs to
+const POLICY_PROCESS = {
+  [POLICY_TREATMENT]: BOOKING_PROCESS,
+  [POLICY_SEMINAR]: PURCHASE_PROCESS,
+  [POLICY_SEMINAR_NON_REFUNDABLE]: PURCHASE_PROCESS,
+};
+
 /**
- * The policy of a transaction: the one copied when it was created, or the listing's (transactions
- * made before the policies were copied).
+ * The policy of a transaction: the one copied by the server when it was paid, or the listing's
+ * (transactions made before the policies were copied). Only a policy of the transaction's own
+ * process counts, and the listing must have a policy too: a value in the protected data that the
+ * server didn't write (e.g. sent with transition/inquire) can't give a cancellation right.
  *
  * @param {Object} tx Transaction entity
  * @param {Object} listing Listing entity
  * @returns {string|null}
  */
 const getTransactionPolicy = (tx, listing) => {
+  const processName = tx?.attributes?.processName;
+  const listingPolicy = getListingPolicy(listing);
+  if (!listingPolicy || POLICY_PROCESS[listingPolicy] !== processName) {
+    return null;
+  }
   const copied = tx?.attributes?.protectedData?.cancellationPolicy;
-  return POLICIES[copied] ? copied : getListingPolicy(listing);
+  return POLICIES[copied] && POLICY_PROCESS[copied] === processName ? copied : listingPolicy;
+};
+
+// Protected data keys that only the server writes
+const SERVER_ONLY_KEYS = ['cancellationPolicy', 'cancellationStartTime'];
+
+/**
+ * The start of a Seminars & Events listing in unix seconds: event_start, or the start of the day
+ * of event_date_sort in Berlin (older listings).
+ *
+ * @param {Object} listing Listing entity
+ * @returns {number|null}
+ */
+const getListingEventStart = listing => {
+  const { event_start, event_date_sort } = listing?.attributes?.publicData || {};
+  if (typeof event_start === 'number' && Number.isInteger(event_start)) {
+    return event_start;
+  }
+  const startOfDay = startOfDayInBerlin(event_date_sort);
+  return startOfDay ? Math.floor(startOfDay.getTime() / 1000) : null;
 };
 
 /**
@@ -90,23 +123,32 @@ const getTransactionPolicy = (tx, listing) => {
  * @returns {Object} params
  */
 const withCancellationPolicy = (transitionName, params, listing) => {
+  // Clients can't send the keys that only the server writes, in any transition
+  const clientProtectedData = params?.protectedData;
+  const hasServerOnlyKeys =
+    clientProtectedData && SERVER_ONLY_KEYS.some(key => key in clientProtectedData);
+  const protectedData = hasServerOnlyKeys
+    ? Object.fromEntries(
+        Object.entries(clientProtectedData).filter(([key]) => !SERVER_ONLY_KEYS.includes(key))
+      )
+    : clientProtectedData;
+  const cleanParams = hasServerOnlyKeys ? { ...params, protectedData } : params;
+
   const policy = getListingPolicy(listing);
   if (!REQUEST_PAYMENT_TRANSITIONS.includes(transitionName) || !policy) {
-    return params;
+    return cleanParams;
   }
-  // Seminars & Events: the start of the event is copied too, so that moving the event on the
-  // listing later doesn't change the refund of places already sold
-  const eventStart = listing?.attributes?.publicData?.event_start;
-  const eventStartMaybe =
-    policy !== POLICY_TREATMENT && typeof eventStart === 'number'
-      ? { cancellationStartTime: eventStart }
-      : {};
+  // Seminars & Events: the start of the event is copied too (null if the listing has none), so
+  // that moving the event on the listing later doesn't change the refund of places already sold.
+  // Always written: it replaces anything stored earlier (e.g. with transition/inquire).
+  const startMaybe =
+    policy !== POLICY_TREATMENT ? { cancellationStartTime: getListingEventStart(listing) } : {};
   return {
-    ...params,
+    ...cleanParams,
     protectedData: {
-      ...(params?.protectedData || {}),
+      ...(protectedData || {}),
       cancellationPolicy: policy,
-      ...eventStartMaybe,
+      ...startMaybe,
     },
   };
 };

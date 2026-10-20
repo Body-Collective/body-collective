@@ -24,7 +24,7 @@ const { cancelWithRefund, getPaymentAndAmounts } = require('../services/cancella
  * Responds with { policy, refundShare, currency, paid, fee, refund } (amounts in minor units),
  * and the transition when cancelled.
  * Errors: { status, code } with code 'invalid-request', 'not-allowed', 'no-start-time',
- * 'too-late', 'no-payment', 'payment-not-captured', 'currency-mismatch', 'payment-mismatch' or
+ * 'too-late', 'already-cancelling', 'no-payment', 'payment-not-captured', 'currency-mismatch', 'payment-mismatch' or
  * 'cancel-failed'.
  */
 
@@ -77,7 +77,10 @@ module.exports = async (req, res) => {
     }
 
     const refundShare = getRefundShare({ policy, startTime, now });
-    const { paymentIntentId, amounts } = await getPaymentAndAmounts(tx, refundShare);
+    const { paymentIntentId, paymentIntentMetadata, amounts } = await getPaymentAndAmounts(
+      tx,
+      refundShare
+    );
     const { currency, paid, fee, refund } = amounts;
     const result = { policy, refundShare, currency, paid, fee, refund };
     if (action === 'preview') {
@@ -85,7 +88,14 @@ module.exports = async (req, res) => {
     }
 
     const trustedSdk = await getTrustedSdk(req, res, tokenStore);
-    await cancelWithRefund({ tx, cancelTransition, paymentIntentId, amounts, trustedSdk });
+    await cancelWithRefund({
+      tx,
+      cancelTransition,
+      paymentIntentId,
+      paymentIntentMetadata,
+      amounts,
+      trustedSdk,
+    });
     return res.status(200).json({ transition: cancelTransition, ...result });
   } catch (e) {
     if (e.isCancelError) {

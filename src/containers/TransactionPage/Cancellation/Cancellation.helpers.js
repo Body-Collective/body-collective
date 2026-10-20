@@ -1,5 +1,8 @@
 import {
   POLICIES,
+  POLICY_SEMINAR,
+  POLICY_SEMINAR_NON_REFUNDABLE,
+  POLICY_TREATMENT,
   getCurrentRefund,
   getListingPolicy,
   startOfDayInBerlin,
@@ -39,16 +42,27 @@ const getStartTime = (processName, transaction) => {
   return null;
 };
 
+// The process each policy belongs to
+const POLICY_PROCESS = {
+  [POLICY_TREATMENT]: BOOKING_PROCESS_NAME,
+  [POLICY_SEMINAR]: PURCHASE_PROCESS_NAME,
+  [POLICY_SEMINAR_NON_REFUNDABLE]: PURCHASE_PROCESS_NAME,
+};
+
 /**
- * The policy of a transaction: the one copied when it was created, or the listing's (transactions
- * made before the policies were copied).
+ * The policy of a transaction, as on the server (server/services/cancellation/index.js): the one
+ * copied when it was paid, or the listing's. Only a policy of the transaction's own process counts.
  *
  * @param {Object} transaction
  * @returns {string|null}
  */
-const getTransactionPolicy = transaction => {
+const getTransactionPolicy = (transaction, processName) => {
+  const listingPolicy = getListingPolicy(transaction?.listing?.attributes?.publicData);
+  if (!listingPolicy || POLICY_PROCESS[listingPolicy] !== processName) {
+    return null;
+  }
   const copied = transaction?.attributes?.protectedData?.cancellationPolicy;
-  return POLICIES[copied] ? copied : getListingPolicy(transaction?.listing?.attributes?.publicData);
+  return POLICIES[copied] && POLICY_PROCESS[copied] === processName ? copied : listingPolicy;
 };
 
 /**
@@ -74,7 +88,7 @@ export const getCancellationInfo = ({ transaction, transactionRole, nextTransiti
   const isCustomer = transactionRole === 'customer';
   const nextTransitionNames = (nextTransitions || []).map(nt => nt?.attributes?.name);
   const startTime = getStartTime(processName, transaction);
-  const policy = getTransactionPolicy(transaction);
+  const policy = getTransactionPolicy(transaction, processName);
   const currentTime = now || new Date();
   const hasStarted = !startTime || startTime.getTime() <= currentTime.getTime();
 

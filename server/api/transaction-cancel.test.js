@@ -12,6 +12,7 @@ const mockStripe = {
   updatePaymentIntentMetadata: jest.fn(),
   findPendingPayouts: jest.fn(),
   findPendingRefunds: jest.fn(),
+  findPayoutForTransaction: jest.fn(),
 };
 
 jest.mock('../log', () => ({ error: () => {} }));
@@ -40,6 +41,7 @@ jest.mock('../services/stripe', () => ({
   updatePaymentIntentMetadata: (...args) => mockStripe.updatePaymentIntentMetadata(...args),
   findPendingPayouts: (...args) => mockStripe.findPendingPayouts(...args),
   findPendingRefunds: (...args) => mockStripe.findPendingRefunds(...args),
+  findPayoutForTransaction: (...args) => mockStripe.findPayoutForTransaction(...args),
 }));
 
 const transactionCancel = require('./transaction-cancel');
@@ -168,6 +170,7 @@ describe('transaction-cancel', () => {
       calls.push('payout');
       return { id: 'po_1' };
     });
+    mockStripe.findPayoutForTransaction.mockResolvedValue(null);
     mockStripe.updatePaymentIntentMetadata.mockImplementation(async (id, metadata) => {
       const status = metadata['bodycollective-cancellation-refund'];
       if (status) {
@@ -347,7 +350,9 @@ describe('transaction-cancel', () => {
       mockStripe.findPendingRefunds.mockResolvedValue([pendingPi('2026-10-20T11:00:00Z')]);
       const cancelled = purchase(20);
       cancelled.data.data.attributes.lastTransition = 'transition/customer-cancel';
-      cancelled.data.data.attributes.metadata = { cancellation: { status: 'refunding' } };
+      cancelled.data.data.attributes.metadata = {
+        cancellation: { status: 'refunding', refundShare: 0.5 },
+      };
       mockIntegrationSdk.transactions.show.mockResolvedValue(cancelled);
       mockStripe.getDestinationPaymentAvailability.mockResolvedValue({
         isAvailable: false,
@@ -380,14 +385,48 @@ describe('transaction-cancel', () => {
       expect(mockIntegrationSdk.transactions.show).not.toHaveBeenCalled();
     });
 
-    it('skips a broken refund share', async () => {
-      mockStripe.findPendingRefunds.mockResolvedValue([pendingPi('2026-10-20T11:00:00Z', 'x')]);
+    it('uses the refund share of the cancel transition, not the one of the payment mark', async () => {
+      // Two requests on both sides of a policy limit: the one that cancelled had a 100% refund
+      mockStripe.findPendingRefunds.mockResolvedValue([pendingPi('2026-10-20T11:00:00Z', '0.5')]);
+      const cancelled = purchase(40);
+      cancelled.data.data.attributes.lastTransition = 'transition/customer-cancel';
+      cancelled.data.data.attributes.metadata = {
+        cancellation: { status: 'refunding', refundShare: 1 },
+      };
+      mockIntegrationSdk.transactions.show.mockResolvedValue(cancelled);
+      expect(await processPendingRefunds(now)).toEqual(1);
+      expect(mockStripe.createRefund).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 9825 })
+      );
+      // The practitioner keeps nothing: no payout
+      expect(mockStripe.createPayout).not.toHaveBeenCalled();
+    });
+
+    it('skips a transaction without a valid refund share', async () => {
+      mockStripe.findPendingRefunds.mockResolvedValue([pendingPi('2026-10-20T11:00:00Z')]);
       const cancelled = purchase(20);
       cancelled.data.data.attributes.lastTransition = 'transition/customer-cancel';
+      cancelled.data.data.attributes.metadata = { cancellation: { refundShare: '1' } };
       mockIntegrationSdk.transactions.show.mockResolvedValue(cancelled);
       expect(await processPendingRefunds(now)).toEqual(0);
       expect(mockStripe.createRefund).not.toHaveBeenCalled();
     });
+
+    it('skips a mark without a readable start time', async () => {
+      mockStripe.findPendingRefunds.mockResolvedValue([pendingPi('not a date')]);
+      expect(await processPendingRefunds(now)).toEqual(0);
+      expect(mockIntegrationSdk.transactions.show).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not start a second cancellation of the same payment', async () => {
+    mockStripe.retrievePaymentIntent.mockResolvedValue({
+      ...paymentIntent(),
+      metadata: { 'bodycollective-cancellation-refund': 'pending' },
+    });
+    const res = await call(CUSTOMER_ID, 'cancel');
+    expect(res.json).toHaveBeenCalledWith({ status: 409, code: 'already-cancelling' });
+    expect(calls).toEqual([]);
   });
 
   it('answers a bad request with 400', async () => {

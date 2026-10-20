@@ -1,5 +1,6 @@
 const mockStripe = {
   createPayout: jest.fn(),
+  findPayoutForTransaction: jest.fn(),
   findPendingPayouts: jest.fn(),
   getDestinationPaymentAvailability: jest.fn(),
   updatePaymentIntentMetadata: jest.fn(),
@@ -11,6 +12,7 @@ jest.mock('../stripe', () => ({
   PAYOUT_PENDING: 'pending',
   PAYOUT_STATUS_KEY: 'bodycollective-cancellation-payout',
   createPayout: (...args) => mockStripe.createPayout(...args),
+  findPayoutForTransaction: (...args) => mockStripe.findPayoutForTransaction(...args),
   findPendingPayouts: (...args) => mockStripe.findPendingPayouts(...args),
   getDestinationPaymentAvailability: (...args) =>
     mockStripe.getDestinationPaymentAvailability(...args),
@@ -31,6 +33,40 @@ describe('cancellation payouts', () => {
     jest.clearAllMocks();
     mockStripe.createPayout.mockResolvedValue({ id: 'po_1' });
     mockStripe.updatePaymentIntentMetadata.mockResolvedValue({});
+    mockStripe.findPayoutForTransaction.mockResolvedValue(null);
+  });
+
+  it('never pays twice: an existing payout of the transaction is recorded instead', async () => {
+    mockStripe.getDestinationPaymentAvailability.mockResolvedValue({
+      isAvailable: true,
+      currency: 'eur',
+    });
+    mockStripe.findPayoutForTransaction.mockResolvedValue({ id: 'po_old' });
+    const result = await payOutOrSchedule({ paymentIntentId: 'pi_1', transactionId: 'tx-1', amounts });
+    expect(result).toEqual({ status: 'paid' });
+    expect(mockStripe.createPayout).not.toHaveBeenCalled();
+    expect(mockStripe.updatePaymentIntentMetadata).toHaveBeenCalledWith(
+      'pi_1',
+      expect.objectContaining({ 'bodycollective-cancellation-payout-id': 'po_old' })
+    );
+  });
+
+  it('does not pay out funds held in another currency', async () => {
+    mockStripe.getDestinationPaymentAvailability.mockResolvedValue({
+      isAvailable: true,
+      currency: 'usd',
+    });
+    const result = await payOutOrSchedule({ paymentIntentId: 'pi_1', transactionId: 'tx-1', amounts });
+    expect(result.status).toEqual('pending');
+    expect(mockStripe.createPayout).not.toHaveBeenCalled();
+  });
+
+  it('throws when the payout can neither be made nor scheduled, for the job to retry', async () => {
+    mockStripe.getDestinationPaymentAvailability.mockRejectedValue(new Error('Stripe down'));
+    mockStripe.updatePaymentIntentMetadata.mockRejectedValue(new Error('Stripe down'));
+    await expect(
+      payOutOrSchedule({ paymentIntentId: 'pi_1', transactionId: 'tx-1', amounts })
+    ).rejects.toThrow('Stripe down');
   });
 
   it('pays nothing when the practitioner keeps nothing', async () => {
