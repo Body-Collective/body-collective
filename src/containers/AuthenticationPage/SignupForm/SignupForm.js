@@ -10,6 +10,7 @@ import { getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
 
 import {
   Form,
+  NamedLink,
   PrimaryButton,
   SecondaryButton,
   FieldTextInput,
@@ -196,15 +197,36 @@ const SignupFormFields = props => {
         <span className={classNames(css.stepBar, { [css.stepBarDone]: step === SECOND_STEP })} />
       </div>
       <h2 className={css.stepTitle} tabIndex={-1} ref={stepTitleRef}>
-        <FormattedMessage
-          id={isFirstStep ? 'SignupForm.stepOneTitle' : 'SignupForm.stepTwoTitle'}
-        />
+        <FormattedMessage id={isFirstStep ? 'SignupForm.applyTitle' : 'SignupForm.stepTwoTitle'} />
       </h2>
-      <p className={css.stepIntro}>
-        <FormattedMessage
-          id={isFirstStep ? 'SignupForm.stepOneIntro' : 'SignupForm.stepTwoIntro'}
-        />
-      </p>
+      {isFirstStep ? (
+        // The introduction to the application (text from Body Collective)
+        <div className={css.applyIntro}>
+          {['applyIntroThanks', 'applyIntroReview', 'applyIntroInvite', 'applyIntroTellUs'].map(
+            key => (
+              <p key={key} className={css.stepIntro}>
+                <FormattedMessage id={`SignupForm.${key}`} />
+              </p>
+            )
+          )}
+          <p className={css.applyLogin}>
+            <FormattedMessage
+              id="SignupForm.applyHaveAccount"
+              values={{
+                loginLink: (
+                  <NamedLink name="LoginPage" className={css.applyLoginLink}>
+                    <FormattedMessage id="SignupForm.applyLogIn" />
+                  </NamedLink>
+                ),
+              }}
+            />
+          </p>
+        </div>
+      ) : (
+        <p className={css.stepIntro}>
+          <FormattedMessage id="SignupForm.stepTwoIntro" />
+        </p>
+      )}
     </div>
   ) : null;
 
@@ -337,7 +359,7 @@ const SignupFormFields = props => {
             {isTwoStep ? (
               <SecondaryButton
                 type="button"
-                className={css.backButton}
+                className={classNames(css.backButton, css.roundSecondaryButton)}
                 onClick={() => showStep(FIRST_STEP)}
               >
                 <FormattedMessage id="SignupForm.back" />
@@ -345,7 +367,7 @@ const SignupFormFields = props => {
             ) : null}
             <PrimaryButton
               type="submit"
-              className={css.submitButton}
+              className={classNames(css.submitButton, { [css.roundButton]: isTwoStep })}
               inProgress={submitInProgress}
               disabled={submitDisabled}
             >
@@ -355,7 +377,11 @@ const SignupFormFields = props => {
             </PrimaryButton>
           </div>
         ) : (
-          <PrimaryButton type="button" onClick={event => showSecondStep(event.currentTarget.form)}>
+          <PrimaryButton
+            type="button"
+            className={css.roundButton}
+            onClick={event => showSecondStep(event.currentTarget.form)}
+          >
             <FormattedMessage id="SignupForm.next" />
           </PrimaryButton>
         )}

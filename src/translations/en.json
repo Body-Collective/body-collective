@@ -1598,8 +1598,6 @@
   "RegionSectionListings.emptyHint": "Try another area, or look further afield on the search page.",
   "RegionSectionListings.viewAll": "View all {count} results",
   "SignupForm.stepLabel": "Step {current} of {total}",
-  "SignupForm.stepOneTitle": "Your details",
-  "SignupForm.stepOneIntro": "Tell us who you are and how to reach you.",
   "SignupForm.stepTwoTitle": "About your practice",
   "SignupForm.stepTwoIntro": "Tell us about the work you do so we can review your application.",
   "SignupForm.next": "Continue",
@@ -1731,5 +1729,12 @@
   "ListingFields.offers_cancellations": "Do you offer cancellations?",
   "ListingFields.offers_cancellations.yes": "Yes",
   "ListingFields.offers_cancellations.no": "No",
-  "ListingFields.offers_cancellations.helpText": "Yes: guests can cancel with a refund more than 14 days before the start (the full price more than 30 days before, half of it between 30 and 14 days). Later cancellations are not refunded, so you keep your earnings. No: places are non-refundable."
+  "ListingFields.offers_cancellations.helpText": "Yes: guests can cancel with a refund more than 14 days before the start (the full price more than 30 days before, half of it between 30 and 14 days). Later cancellations are not refunded, so you keep your earnings. No: places are non-refundable.",
+  "SignupForm.applyTitle": "Apply to join Body Collective",
+  "SignupForm.applyIntroThanks": "Thank you for your interest in joining Body Collective.",
+  "SignupForm.applyIntroReview": "This application is the first step. We read every application ourselves, because we want to understand your training, your experience and the way you work.",
+  "SignupForm.applyIntroInvite": "If your application is successful, we will invite you to create your practitioner profile.",
+  "SignupForm.applyIntroTellUs": "Tell us about yourself and your work. We look forward to getting to know you.",
+  "SignupForm.applyHaveAccount": "Already have an account? {loginLink}",
+  "SignupForm.applyLogIn": "Log in"
 }

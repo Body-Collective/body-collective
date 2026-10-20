@@ -1598,8 +1598,6 @@
   "RegionSectionListings.emptyHint": "Probiere ein anderes Gebiet oder suche weiter auf der Suchseite.",
   "RegionSectionListings.viewAll": "Alle {count} Ergebnisse ansehen",
   "SignupForm.stepLabel": "Schritt {current} von {total}",
-  "SignupForm.stepOneTitle": "Deine Angaben",
-  "SignupForm.stepOneIntro": "Erzähl uns, wer du bist und wie wir dich erreichen können.",
   "SignupForm.stepTwoTitle": "Über deine Praxis",
   "SignupForm.stepTwoIntro": "Erzähl uns von deiner Arbeit, damit wir deine Bewerbung prüfen können.",
   "SignupForm.next": "Weiter",
@@ -1731,5 +1729,12 @@
   "ListingFields.offers_cancellations": "Bietest du Stornierungen an?",
   "ListingFields.offers_cancellations.yes": "Ja",
   "ListingFields.offers_cancellations.no": "Nein",
-  "ListingFields.offers_cancellations.helpText": "Ja: Gäste können bis 14 Tage vor Beginn mit Erstattung stornieren (mehr als 30 Tage vorher der volle Preis, zwischen 30 und 14 Tagen die Hälfte). Spätere Stornierungen werden nicht erstattet, dein Verdienst bleibt dir. Nein: Plätze sind nicht erstattungsfähig."
+  "ListingFields.offers_cancellations.helpText": "Ja: Gäste können bis 14 Tage vor Beginn mit Erstattung stornieren (mehr als 30 Tage vorher der volle Preis, zwischen 30 und 14 Tagen die Hälfte). Spätere Stornierungen werden nicht erstattet, dein Verdienst bleibt dir. Nein: Plätze sind nicht erstattungsfähig.",
+  "SignupForm.applyTitle": "Bewirb dich bei Body Collective",
+  "SignupForm.applyIntroThanks": "Schön, dass du Teil von Body Collective werden möchtest.",
+  "SignupForm.applyIntroReview": "Diese Bewerbung ist der erste Schritt. Wir lesen jede Bewerbung selbst, weil wir verstehen möchten, wie du ausgebildet bist, welche Erfahrung du mitbringst und wie du arbeitest.",
+  "SignupForm.applyIntroInvite": "Wenn deine Bewerbung erfolgreich ist, laden wir dich ein, dein Profil anzulegen.",
+  "SignupForm.applyIntroTellUs": "Erzähl uns von dir und deiner Arbeit. Wir freuen uns darauf, dich kennenzulernen.",
+  "SignupForm.applyHaveAccount": "Du hast schon ein Konto? {loginLink}",
+  "SignupForm.applyLogIn": "Anmelden"
 }

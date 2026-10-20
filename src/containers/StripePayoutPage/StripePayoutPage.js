@@ -8,7 +8,12 @@ import { createResourceLocatorString } from '../../util/routes';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser } from '../../util/data';
 import { propTypes } from '../../util/types';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import {
+  isUserAuthorized,
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers';
+import { NO_ACCESS_PAGE_USER_PENDING_APPROVAL } from '../../util/urlHelpers';
 import { showManageSubscriptionForUser } from '../../util/subscription';
 import { getDisplayAccountType } from '../../util/stripeConnect';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -173,6 +178,17 @@ export const StripePayoutPageComponent = props => {
 
   // Failure url should redirect back to Stripe since it's most likely due to page reload
   // Account link creation will fail if the account is the reason
+  // Users waiting for approval (practitioners whose application is under review) can't set up
+  // payouts yet: they see the same page as when they try to post a listing
+  if (currentUser?.id && !isUserAuthorized(currentUser)) {
+    return (
+      <NamedRedirect
+        name="NoAccessPage"
+        params={{ missingAccessRight: NO_ACCESS_PAGE_USER_PENDING_APPROVAL }}
+      />
+    );
+  }
+
   if (returnedAbnormallyFromStripe && !getAccountLinkError) {
     handleGetStripeConnectAccountLink('custom_account_verification')();
   }
