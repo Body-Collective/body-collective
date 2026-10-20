@@ -5,6 +5,20 @@ import {
   ConditionalResolver,
 } from '../../transactions/transaction';
 
+// After a customer cancellation with a refund minus the Stripe fee, the line items still show the
+// payout of the provider, but there is no payout: the cancellation card explains it instead.
+const hasCustomerCancellation = transaction => !!transaction?.attributes?.metadata?.cancellation;
+
+// Activity feed messages for the customer cancellations: the default (state based) message
+// doesn't say who cancelled.
+const getCancelTransitionMessages = transitions =>
+  [[transitions.CUSTOMER_CANCEL, 'customerCancelled']]
+    .filter(([transition]) => !!transition)
+    .map(([transition, key]) => ({
+      transition,
+      translationId: `TransactionPage.ActivityFeed.default-purchase.${key}`,
+    }));
+
 /**
  * Get state data against product process for TransactionPage's UI.
  * I.e. info about showing action buttons, current state etc.
@@ -28,7 +42,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
     leaveReviewProps,
   } = processInfo;
 
-  return new ConditionalResolver([processState, transactionRole])
+  const stateData = new ConditionalResolver([processState, transactionRole])
     .cond([states.INQUIRY, CUSTOMER], () => {
       const transitionNames = Array.isArray(nextTransitions)
         ? nextTransitions.map(t => t.attributes.name)
@@ -109,9 +123,19 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
     .cond([states.REVIEWED, _], () => {
       return { processName, processState, showDetailCardHeadings: true, showReviews: true };
     })
+    .cond([states.CANCELED, PROVIDER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showBreakDown: !hasCustomerCancellation(transaction),
+      };
+    })
     .default(() => {
       // Default values for other states
       return { processName, processState, showDetailCardHeadings: true };
     })
     .resolve();
+
+  return { ...stateData, transitionMessages: getCancelTransitionMessages(transitions) };
 };

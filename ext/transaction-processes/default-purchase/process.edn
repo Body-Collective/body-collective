@@ -97,6 +97,20 @@
     {:name :action/cancel-stock-reservation}],
    :from :state/purchased,
    :to :state/canceled}
+  ;; Seminars & Events: the customer cancels their place until 7 days before the event and is
+  ;; refunded the payment minus the Stripe fee. The refund is made on the server with the Stripe
+  ;; API (the Stripe refund action only does full refunds), see server/api/transaction-cancel.js.
+  ;; This transition only releases the place and stores the refund details in metadata.
+  {:name :transition/customer-cancel,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/privileged-update-metadata}
+    ;; Keep this action last in the list of actions for
+    ;; the transition
+    {:name :action/cancel-stock-reservation}],
+   :from :state/purchased,
+   :to :state/canceled,
+   :privileged? true}
   {:name :transition/auto-cancel,
    :at
    {:fn/plus
@@ -255,6 +269,14 @@
    :on :transition/cancel,
    :to :actor.role/provider,
    :template :purchase-order-canceled-to-provider}
+  {:name :notification/customer-cancel-to-customer,
+   :on :transition/customer-cancel,
+   :to :actor.role/customer,
+   :template :purchase-cancelled-refund}
+  {:name :notification/customer-cancel-to-provider,
+   :on :transition/customer-cancel,
+   :to :actor.role/provider,
+   :template :purchase-cancelled-by-customer}
   {:name :notification/purchase-order-auto-marked-as-received-customer,
    :on :transition/auto-mark-received,
    :to :actor.role/customer,

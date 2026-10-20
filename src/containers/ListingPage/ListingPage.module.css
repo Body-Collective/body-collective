@@ -635,6 +635,32 @@
   }
 }
 
+.sectionCancellationPolicy {
+  padding: 0 24px;
+  margin-bottom: 36px;
+
+  @media (--viewportMedium) {
+    padding: 0;
+    margin-bottom: 40px;
+  }
+}
+
+.policyList {
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: disc;
+}
+
+.policyItem {
+  composes: p from global;
+  margin: 0 0 6px 0;
+  padding: 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 8px 0;
+  }
+}
+
 .sectionMap {
   padding: 0 24px;
   margin-bottom: 35px;

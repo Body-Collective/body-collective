@@ -11,7 +11,7 @@ import {
   stringifyDateToISO8601,
 } from '../../util/dates';
 import { isTransactionsTransitionInvalidTransition, storableError } from '../../util/errors';
-import { transactionLineItems, transitionPrivileged } from '../../util/api';
+import { cancelTransaction, transactionLineItems, transitionPrivileged } from '../../util/api';
 import * as log from '../../util/log';
 import {
   updatedEntities,
@@ -817,6 +817,42 @@ export const fetchTransactionLineItems = ({ orderData, listingId, isOwnListing }
   return dispatch(fetchLineItemsThunk({ orderData, listingId, isOwnListing }));
 };
 
+///////////////////////
+// cancelTransaction //
+///////////////////////
+
+// Refund that the customer would get when cancelling an accepted booking or a purchased place (see
+// server/api/transaction-cancel.js): { currency, paid, fee, refund } in minor units.
+export const fetchCancelPreviewThunk = createAsyncThunk(
+  'TransactionPage/fetchCancelPreview',
+  ({ txId }, { rejectWithValue }) =>
+    cancelTransaction({ transactionId: txId, action: 'preview' }).catch(e =>
+      rejectWithValue({ ...storableError(e), code: e?.code || null })
+    )
+);
+
+// Cancel with a refund of the payment minus the Stripe fee. The transaction and its next
+// transitions are fetched again afterwards.
+export const cancelTransactionThunk = createAsyncThunk(
+  'TransactionPage/cancelTransaction',
+  ({ txId, txRole, config }, { dispatch, rejectWithValue }) =>
+    cancelTransaction({ transactionId: txId, action: 'cancel' })
+      .then(response =>
+        Promise.all([
+          dispatch(fetchTransactionThunk({ id: txId, txRole, config })),
+          dispatch(fetchTransitionsThunk({ id: txId })),
+          dispatch(fetchCurrentUserNotifications()),
+        ]).then(() => response)
+      )
+      .catch(e => rejectWithValue({ ...storableError(e), code: e?.code || null }))
+);
+
+// Backward compatible wrappers
+export const fetchCancelPreview = params => dispatch =>
+  dispatch(fetchCancelPreviewThunk(params)).unwrap();
+export const cancelTransactionAction = params => dispatch =>
+  dispatch(cancelTransactionThunk(params)).unwrap();
+
 // ================ Slice ================ //
 
 const initialState = {
@@ -859,6 +895,11 @@ const initialState = {
   lineItems: null,
   fetchLineItemsInProgress: false,
   fetchLineItemsError: null,
+  cancelPreview: null,
+  cancelPreviewInProgress: false,
+  cancelPreviewError: null,
+  cancelInProgress: false,
+  cancelError: null,
   fileUploads: {
     // [tempId]: {
     // uploadInProgress: bool,
@@ -955,6 +996,31 @@ const transactionPageSlice = createSlice({
       .addCase(fetchTransitionsThunk.rejected, (state, action) => {
         state.fetchTransitionsInProgress = false;
         state.fetchTransitionsError = action.payload;
+      })
+      // cancelTransaction cases
+      .addCase(fetchCancelPreviewThunk.pending, state => {
+        state.cancelPreview = null;
+        state.cancelPreviewInProgress = true;
+        state.cancelPreviewError = null;
+      })
+      .addCase(fetchCancelPreviewThunk.fulfilled, (state, action) => {
+        state.cancelPreview = action.payload;
+        state.cancelPreviewInProgress = false;
+      })
+      .addCase(fetchCancelPreviewThunk.rejected, (state, action) => {
+        state.cancelPreviewInProgress = false;
+        state.cancelPreviewError = action.payload;
+      })
+      .addCase(cancelTransactionThunk.pending, state => {
+        state.cancelInProgress = true;
+        state.cancelError = null;
+      })
+      .addCase(cancelTransactionThunk.fulfilled, state => {
+        state.cancelInProgress = false;
+      })
+      .addCase(cancelTransactionThunk.rejected, (state, action) => {
+        state.cancelInProgress = false;
+        state.cancelError = action.payload;
       })
       // makeTransition cases
       .addCase(makeTransitionThunk.pending, (state, action) => {

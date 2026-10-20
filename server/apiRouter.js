@@ -9,6 +9,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { deserialize } = require('./api-util/sdk');
+const middleware = require('./middleware');
 
 const initiateLoginAs = require('./api/initiate-login-as');
 const loginAs = require('./api/login-as');
@@ -17,6 +18,7 @@ const initiatePrivileged = require('./api/initiate-privileged');
 const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
 const approveCustomer = require('./api/approve-customer');
+const transactionCancel = require('./api/transaction-cancel');
 const stripeWebhooks = require('./api/stripe/webhooks');
 const createBillingPortalSession = require('./api/stripe/create-billing-portal-session');
 const confirmCheckoutSession = require('./api/stripe/confirm-checkout-session');
@@ -68,6 +70,10 @@ router.post('/delete-account', deleteAccount);
 
 // New customers are approved after the signup and before the login. Practitioners are not.
 router.post('/approve-customer', approveCustomer);
+
+// Customer cancellation with a refund of the payment minus the Stripe fee (bookings after
+// acceptance, seminar places): see server/services/cancellation
+router.post('/transaction-cancel', middleware.auth, transactionCancel);
 
 // Stripe subscriptions
 router.post('/stripe/create-billing-portal-session', createBillingPortalSession);

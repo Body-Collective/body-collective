@@ -171,3 +171,11 @@ export const createBillingPortalSession = () => {
 export const confirmCheckoutSession = body => {
   return post('/api/stripe/confirm-checkout-session', body);
 };
+
+// Customer cancellation of an accepted booking or a purchased place: 'preview' returns the refund
+// (payment minus the Stripe fee), 'cancel' refunds and cancels.
+//
+// See `server/api/transaction-cancel.js` to see what data should be sent in the body.
+export const cancelTransaction = body => {
+  return post('/api/transaction-cancel', body);
+};

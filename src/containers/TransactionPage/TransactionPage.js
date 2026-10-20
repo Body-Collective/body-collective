@@ -74,9 +74,13 @@ import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
 import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal';
 import SendMessageForm from './SendMessageForm/SendMessageForm';
 import TransactionPanel from './TransactionPanel/TransactionPanel';
+import Cancellation from './Cancellation/Cancellation';
+import { getCancellationInfo } from './Cancellation/Cancellation.helpers';
 
 import {
   makeTransition,
+  fetchCancelPreview,
+  cancelTransactionAction,
   sendMessage,
   sendReview,
   fetchMoreMessages,
@@ -379,6 +383,13 @@ export const TransactionPageComponent = props => {
     onDownloadFile,
     fileDownloads,
     fileUploadsDisabled,
+    onFetchCancelPreview,
+    onCancelTransaction,
+    cancelPreview,
+    cancelPreviewInProgress,
+    cancelPreviewError,
+    cancelInProgress,
+    cancelError,
     ...restOfProps
   } = props;
 
@@ -900,6 +911,41 @@ export const TransactionPageComponent = props => {
           isCounterpartyInactive={isCounterpartyInactive}
         />
       )}
+      cancellation={
+        <Cancellation
+          info={getCancellationInfo({ transaction, transactionRole, nextTransitions })}
+          transactionRole={transactionRole}
+          otherUserDisplayName={otherUserDisplayNameString}
+          listingTitle={listing?.attributes?.title || ''}
+          timeZone={listing?.attributes?.availabilityPlan?.timezone || 'Europe/Berlin'}
+          onCancelRequest={() =>
+            // makeTransition resolves with the rejected action when the transition fails
+            onTransition(transaction.id, process?.transitions?.CUSTOMER_CANCEL_REQUEST, {}).then(
+              result => {
+                if (result?.error) {
+                  throw result.payload || result.error;
+                }
+                return result;
+              }
+            )
+          }
+          cancelRequestInProgress={
+            !!transitionInProgress &&
+            transitionInProgress === process?.transitions?.CUSTOMER_CANCEL_REQUEST
+          }
+          cancelRequestError={transitionError}
+          onFetchCancelPreview={() => onFetchCancelPreview({ txId: transaction.id })}
+          cancelPreview={cancelPreview}
+          cancelPreviewInProgress={cancelPreviewInProgress}
+          cancelPreviewError={cancelPreviewError}
+          onCancel={() =>
+            onCancelTransaction({ txId: transaction.id, txRole: transactionRole, config })
+          }
+          cancelInProgress={cancelInProgress}
+          cancelError={cancelError}
+          onManageDisableScrolling={onManageDisableScrolling}
+        />
+      }
       fileAttachments={
         <FileAttachments
           isDownloadProcess={isDownloadProcess(processName)}
@@ -1175,6 +1221,11 @@ const TransactionPage = props => {
     fetchLineItemsError,
     fileUploadsDisabled,
     fileDownloads,
+    cancelPreview,
+    cancelPreviewInProgress,
+    cancelPreviewError,
+    cancelInProgress,
+    cancelError,
   } = useSelector(state => state.TransactionPage, shallowEqual);
 
   const currentUser = useSelector(state => state.user?.currentUser);
@@ -1238,6 +1289,13 @@ const TransactionPage = props => {
     [dispatch]
   );
 
+  const onFetchCancelPreview = useCallback(params => dispatch(fetchCancelPreview(params)), [
+    dispatch,
+  ]);
+  const onCancelTransaction = useCallback(params => dispatch(cancelTransactionAction(params)), [
+    dispatch,
+  ]);
+
   return (
     <TransactionPageComponent
       {...props}
@@ -1278,6 +1336,13 @@ const TransactionPage = props => {
       onClearUploadedFiles={onClearUploadedFiles}
       onDownloadFile={onDownloadFile}
       fileDownloads={fileDownloads}
+      onFetchCancelPreview={onFetchCancelPreview}
+      onCancelTransaction={onCancelTransaction}
+      cancelPreview={cancelPreview}
+      cancelPreviewInProgress={cancelPreviewInProgress}
+      cancelPreviewError={cancelPreviewError}
+      cancelInProgress={cancelInProgress}
+      cancelError={cancelError}
       history={history}
     />
   );

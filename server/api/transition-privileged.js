@@ -19,6 +19,8 @@ const {
   fetchCommission,
 } = require('../api-util/sdk');
 
+const { CANCEL_PRIVILEGED_TRANSITIONS } = require('../services/cancellation');
+
 const { Money } = sharetribeSdk.types;
 
 const transactionPromise = (sdk, id) => sdk.transactions.show({ id, include: ['listing'] });
@@ -117,6 +119,12 @@ const getUpdatedMetadata = (orderData, transition, existingMetadata) => {
 
 module.exports = (req, res) => {
   const { isSpeculative, orderData, bodyParams, queryParams } = req.body || {};
+
+  // Cancellations with a refund are validated and refunded in server/api/transaction-cancel.js: they
+  // can't be made through this generic endpoint, which passes the params through.
+  if (CANCEL_PRIVILEGED_TRANSITIONS.includes(bodyParams?.transition)) {
+    return res.status(403).json({ status: 403, code: 'use-cancel-endpoint' });
+  }
 
   // Share one cookie token store so a refresh during transactions.show is reused for exchangeToken.
   const tokenStore = createCookieTokenStore(req, res);

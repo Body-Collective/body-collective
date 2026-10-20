@@ -114,6 +114,30 @@
     {:name :action/cancel-booking}],
    :from :state/accepted,
    :to :state/cancelled}
+  ;; Before the booking is accepted: free. The card was only authorized, so the payment intent is
+  ;; cancelled (no charge, no Stripe fee).
+  {:name :transition/customer-cancel-request,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/calculate-full-refund}
+    {:name :action/stripe-refund-payment}
+    ;; Keep this action last in the list of actions for
+    ;; the transition
+    {:name :action/decline-booking}],
+   :from :state/preauthorized,
+   :to :state/cancelled}
+  ;; After the booking is accepted, until 7 days before it starts: the customer is refunded the
+  ;; payment minus the Stripe fee. The refund is made on the server with the Stripe API (the
+  ;; Stripe refund action only does full refunds), see server/api/transaction-cancel.js. This
+  ;; transition only cancels the booking and stores the refund details in metadata.
+  {:name :transition/customer-cancel,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/cancel-booking}
+    {:name :action/privileged-update-metadata}],
+   :from :state/accepted,
+   :to :state/cancelled,
+   :privileged? true}
   {:name :transition/review-1-by-provider,
    :actor :actor.role/provider,
    :actions [{:name :action/post-review-by-provider}],
@@ -192,6 +216,22 @@
    :on :transition/expire,
    :to :actor.role/customer,
    :template :booking-expired-request}
+  {:name :notification/booking-request-cancelled-by-customer-to-provider,
+   :on :transition/customer-cancel-request,
+   :to :actor.role/provider,
+   :template :booking-request-cancelled-by-customer}
+  {:name :notification/booking-request-cancelled-by-customer-to-customer,
+   :on :transition/customer-cancel-request,
+   :to :actor.role/customer,
+   :template :booking-request-cancelled-confirmation}
+  {:name :notification/customer-cancel-to-provider,
+   :on :transition/customer-cancel,
+   :to :actor.role/provider,
+   :template :booking-cancelled-by-customer}
+  {:name :notification/customer-cancel-to-customer,
+   :on :transition/customer-cancel,
+   :to :actor.role/customer,
+   :template :booking-cancelled-refund}
   {:name :notification/booking-money-paid,
    :on :transition/complete,
    :to :actor.role/provider,

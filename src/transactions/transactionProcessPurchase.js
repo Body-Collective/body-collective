@@ -46,6 +46,10 @@ export const transitions = {
   // Operator can cancel the purchase before product has been marked as delivered / received
   CANCEL: 'transition/cancel',
 
+  // The customer can cancel their place (Seminars & Events) until 7 days before the event, with a
+  // refund minus the Stripe fee. Privileged: goes through server/api/transaction-cancel.js
+  CUSTOMER_CANCEL: 'transition/customer-cancel',
+
   // If provider has marked the product delivered (e.g. shipped),
   // customer can then mark the product received
   MARK_RECEIVED: 'transition/mark-received',
@@ -155,6 +159,7 @@ export const graph = {
         [transitions.MARK_RECEIVED_FROM_PURCHASED]: states.RECEIVED,
         [transitions.AUTO_CANCEL]: states.CANCELED,
         [transitions.CANCEL]: states.CANCELED,
+        [transitions.CUSTOMER_CANCEL]: states.CANCELED,
       },
     },
 
@@ -215,6 +220,7 @@ export const isRelevantPastTransition = transition => {
     transitions.CONFIRM_PAYMENT,
     transitions.AUTO_CANCEL,
     transitions.CANCEL,
+    transitions.CUSTOMER_CANCEL,
     transitions.MARK_DELIVERED,
     transitions.OPERATOR_MARK_DELIVERED,
     transitions.DISPUTE,
@@ -243,9 +249,11 @@ export const isProviderReview = transition => {
 // should go through the local API endpoints, or if using JS SDK is
 // enough.
 export const isPrivileged = transition => {
-  return [transitions.REQUEST_PAYMENT, transitions.REQUEST_PAYMENT_AFTER_INQUIRY].includes(
-    transition
-  );
+  return [
+    transitions.REQUEST_PAYMENT,
+    transitions.REQUEST_PAYMENT_AFTER_INQUIRY,
+    transitions.CUSTOMER_CANCEL,
+  ].includes(transition);
 };
 
 // Check when transaction is completed (item is received and review notifications sent)

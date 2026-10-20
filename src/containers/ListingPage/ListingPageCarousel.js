@@ -52,6 +52,7 @@ import Notifications from './Notifications/Notifications';
 import SectionReviews from './SectionReviews';
 import SectionAuthorMaybe from './SectionAuthorMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
+import SectionCancellationPolicy from './SectionCancellationPolicy';
 import SectionGallery from './SectionGallery';
 import CustomListingFields from './CustomListingFields';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
@@ -283,6 +284,7 @@ export const ListingPageComponent = props => {
               intl={intl}
             />
 
+            <SectionCancellationPolicy publicData={publicData} />
             <SectionMapMaybe
               geolocation={geolocation}
               publicData={publicData}

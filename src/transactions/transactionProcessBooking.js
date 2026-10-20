@@ -48,6 +48,12 @@ export const transitions = {
   // Admin can also cancel the transition.
   CANCEL: 'transition/cancel',
 
+  // The customer can cancel: for free before the booking is accepted, and after it's accepted
+  // (until 7 days before the start) with a refund minus the Stripe fee. The latter is a
+  // privileged transition that goes through the server: see server/api/transaction-cancel.js
+  CUSTOMER_CANCEL_REQUEST: 'transition/customer-cancel-request',
+  CUSTOMER_CANCEL: 'transition/customer-cancel',
+
   // The backend will mark the transaction completed.
   COMPLETE: 'transition/complete',
   OPERATOR_COMPLETE: 'transition/operator-complete',
@@ -136,6 +142,7 @@ export const graph = {
         [transitions.EXPIRE]: states.EXPIRED,
         [transitions.ACCEPT]: states.ACCEPTED,
         [transitions.OPERATOR_ACCEPT]: states.ACCEPTED,
+        [transitions.CUSTOMER_CANCEL_REQUEST]: states.CANCELED,
       },
     },
 
@@ -144,6 +151,7 @@ export const graph = {
     [states.ACCEPTED]: {
       on: {
         [transitions.CANCEL]: states.CANCELED,
+        [transitions.CUSTOMER_CANCEL]: states.CANCELED,
         [transitions.COMPLETE]: states.DELIVERED,
         [transitions.OPERATOR_COMPLETE]: states.DELIVERED,
       },
@@ -182,6 +190,8 @@ export const isRelevantPastTransition = transition => {
     transitions.ACCEPT,
     transitions.OPERATOR_ACCEPT,
     transitions.CANCEL,
+    transitions.CUSTOMER_CANCEL_REQUEST,
+    transitions.CUSTOMER_CANCEL,
     transitions.COMPLETE,
     transitions.OPERATOR_COMPLETE,
     transitions.CONFIRM_PAYMENT,
@@ -214,9 +224,11 @@ export const isProviderReview = transition => {
 // should go through the local API endpoints, or if using JS SDK is
 // enough.
 export const isPrivileged = transition => {
-  return [transitions.REQUEST_PAYMENT, transitions.REQUEST_PAYMENT_AFTER_INQUIRY].includes(
-    transition
-  );
+  return [
+    transitions.REQUEST_PAYMENT,
+    transitions.REQUEST_PAYMENT_AFTER_INQUIRY,
+    transitions.CUSTOMER_CANCEL,
+  ].includes(transition);
 };
 
 // Check when transaction is completed (booking over)
@@ -242,6 +254,7 @@ export const isRefunded = transition => {
     transitions.EXPIRE_PAYMENT,
     transitions.EXPIRE,
     transitions.CANCEL,
+    transitions.CUSTOMER_CANCEL_REQUEST,
     transitions.DECLINE,
   ];
   return txRefundedTransitions.includes(transition);
