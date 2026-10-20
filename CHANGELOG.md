@@ -14,6 +14,35 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+- [add] Add currently available translations.
+  [#961](https://github.com/sharetribe/web-template/pull/961)
+- [fix] EditListingPage.test.js: add missing id from listingTypeIds.
+  [#959](https://github.com/sharetribe/web-template/pull/959)
+- [change] ListingPage: fetch max 2 images on SSR. CSR will fetch the rest. This also improves the
+  "sizes" attribute for the carousel slide images.
+  [#955](https://github.com/sharetribe/web-template/pull/955)
+
+## [v12.5.0] 2026-10-14
+
+- [add] Set availability in 15 min increments and add custom select component
+  [#896](https://github.com/sharetribe/web-template/pull/896)
+- [add] robots.txt: disallow some AI training bots from causing server load and fetching resources.
+  [#953](https://github.com/sharetribe/web-template/pull/953)
+- [fix] Checkout: reject privileged payment transition when the payin total no longer matches the
+  amount shown on checkout (e.g. provider changed the price after the customer opened the page).
+  [#952](https://github.com/sharetribe/web-template/pull/952)
+- [fix] Align hasMandatoryConfigs and printErrorForInvalidHostedAsset so that they track the same
+  required assets. [#951](https://github.com/sharetribe/web-template/pull/951)
+- [add] Add currently available translations.
+  [#950](https://github.com/sharetribe/web-template/pull/950)
+
+  [v12.5.0]: https://github.com/sharetribe/web-template/compare/v12.4.0...v12.5.0
+
+## [v12.4.0] 2026-10-06
+
+- [fix] Add responsive `sizes` for listing images on Checkout, MakeOffer, RequestQuote, and
+  Transaction pages. Omit MobileListingImage from the DOM on desktop layouts.
+  [#948](https://github.com/sharetribe/web-template/pull/948)
 - [change] ListingCard: lazy load images so that they are reacting to scroll interactions instead of
   loadAfterInitialRendering config. [#947](https://github.com/sharetribe/web-template/pull/947)
 - [change] ListingImageGallery: lazy load thumbnails.
@@ -72,6 +101,8 @@ way to update this template, but currently, we follow a pattern:
 - [fix] Fix to transaction process. [#922](https://github.com/sharetribe/web-template/pull/922)
 - [fix] Fixes to Marketplace and Email texts.
   [#921](https://github.com/sharetribe/web-template/pull/921)
+
+  [v12.4.0]: https://github.com/sharetribe/web-template/compare/v12.3.0...v12.4.0
 
 ## [v12.3.0] 2026-08-31
 
