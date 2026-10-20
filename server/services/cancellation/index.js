@@ -91,9 +91,24 @@ const getTransactionPolicy = (tx, listing) => {
  */
 const withCancellationPolicy = (transitionName, params, listing) => {
   const policy = getListingPolicy(listing);
-  return REQUEST_PAYMENT_TRANSITIONS.includes(transitionName) && policy
-    ? { ...params, protectedData: { ...(params?.protectedData || {}), cancellationPolicy: policy } }
-    : params;
+  if (!REQUEST_PAYMENT_TRANSITIONS.includes(transitionName) || !policy) {
+    return params;
+  }
+  // Seminars & Events: the start of the event is copied too, so that moving the event on the
+  // listing later doesn't change the refund of places already sold
+  const eventStart = listing?.attributes?.publicData?.event_start;
+  const eventStartMaybe =
+    policy !== POLICY_TREATMENT && typeof eventStart === 'number'
+      ? { cancellationStartTime: eventStart }
+      : {};
+  return {
+    ...params,
+    protectedData: {
+      ...(params?.protectedData || {}),
+      cancellationPolicy: policy,
+      ...eventStartMaybe,
+    },
+  };
 };
 
 /**
@@ -135,20 +150,27 @@ const startOfDayInBerlin = yyyymmdd => {
 };
 
 /**
- * When the session or the event of the transaction starts.
+ * When the session or the event of the transaction starts: the start of the booking, or for
+ * Seminars & Events the start copied to the transaction when it was paid (older transactions: the
+ * listing's event_start, or the day of event_date_sort).
  *
  * @param {Object} params
  * @param {string} params.processName
  * @param {Object|null} params.booking Booking entity (booking process)
  * @param {Object|null} params.listing Listing entity (purchase process)
+ * @param {Object} [params.protectedData] Protected data of the transaction
  * @returns {Date|null}
  */
-const getStartTime = ({ processName, booking, listing }) => {
+const getStartTime = ({ processName, booking, listing, protectedData }) => {
   if (processName === BOOKING_PROCESS) {
     const start = booking?.attributes?.start;
     return start ? new Date(start) : null;
   }
   if (processName === PURCHASE_PROCESS) {
+    const copied = protectedData?.cancellationStartTime;
+    if (typeof copied === 'number') {
+      return new Date(copied * 1000);
+    }
     const { event_start, event_date_sort } = listing?.attributes?.publicData || {};
     return typeof event_start === 'number'
       ? new Date(event_start * 1000)

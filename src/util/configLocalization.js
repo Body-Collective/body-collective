@@ -9,6 +9,7 @@
  *   UserFields.{key}.{option}           label of an option of an enum or multi-enum user field
  *   UserFields.{key}.placeholder        placeholder text of the input (optional)
  *   UserFields.{key}.required           message when the field is required (optional)
+ *   UserFields.{key}.helpText           help text under the input (optional)
  *   ListingFields.{key}                 the same for listing fields
  *   ListingFields.{key}.{option}
  *   TransactionFields.{key}             the same for the transaction fields of listing types
@@ -58,6 +59,7 @@ export const localizeField = (field, prefix, messages) => {
   const label = translateOr(messages, baseId, null);
   const placeholder = translateOr(messages, `${baseId}.placeholder`, null);
   const required = translateOr(messages, `${baseId}.required`, null);
+  const helpText = translateOr(messages, `${baseId}.helpText`, null);
 
   const enumOptionsMaybe = Array.isArray(field.enumOptions)
     ? {
@@ -79,6 +81,7 @@ export const localizeField = (field, prefix, messages) => {
   return {
     ...field,
     ...(label ? { label } : {}),
+    ...(helpText ? { helpText } : {}),
     ...enumOptionsMaybe,
     ...(field.saveConfig ? { saveConfig } : {}),
     ...(field.showConfig ? { showConfig: withLabel(field.showConfig, label) } : {}),

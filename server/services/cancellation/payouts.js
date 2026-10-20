@@ -16,10 +16,8 @@ const {
  * (the full amount), so the server pays out what the practitioner keeps. It's paid only when this
  * transaction's own funds are available in the connected account (some days after the payment),
  * never from other funds: until then the payout waits as "pending" in the metadata of the
- * PaymentIntent, and processPendingPayouts pays it later (hourly job, see server/index.js).
+ * PaymentIntent, and processPendingPayouts pays it later (see ./jobs.js).
  */
-
-const HOUR_MS = 60 * 60 * 1000;
 
 // Metadata keys on the PaymentIntent with the payout details
 const AMOUNT_KEY = 'bodycollective-cancellation-payout-amount';
@@ -137,22 +135,7 @@ const processPendingPayouts = async (now = new Date()) => {
   return count;
 };
 
-/**
- * Checks for due payouts every hour. Requires a long-running server process.
- *
- * @returns {Object} The interval timer
- */
-const startPendingPayoutsJob = () => {
-  const run = () =>
-    processPendingPayouts().catch(e => log.error(e, 'cancellation-payouts-job-failed', {}));
-  const timer = setInterval(run, HOUR_MS);
-  // Don't keep the process alive just for this job
-  timer.unref?.();
-  return timer;
-};
-
 module.exports = {
   payOutOrSchedule,
   processPendingPayouts,
-  startPendingPayoutsJob,
 };

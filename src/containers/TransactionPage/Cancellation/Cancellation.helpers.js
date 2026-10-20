@@ -25,6 +25,12 @@ const getStartTime = (processName, transaction) => {
     return transaction?.booking?.attributes?.start || null;
   }
   if (processName === PURCHASE_PROCESS_NAME) {
+    // The start copied to the transaction when it was paid (see withCancellationPolicy on the
+    // server), so that moving the event later doesn't change the refund
+    const copied = transaction?.attributes?.protectedData?.cancellationStartTime;
+    if (typeof copied === 'number') {
+      return new Date(copied * 1000);
+    }
     const { event_start, event_date_sort } = transaction?.listing?.attributes?.publicData || {};
     return typeof event_start === 'number'
       ? new Date(event_start * 1000)

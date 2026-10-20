@@ -1730,5 +1730,6 @@
   "ListingPage.cancellationPolicy.nonRefundable": "Diese Veranstaltung ist nicht erstattungsfähig: Bei einer Stornierung gibt es keine Erstattung.",
   "ListingFields.offers_cancellations": "Bietest du Stornierungen an?",
   "ListingFields.offers_cancellations.yes": "Ja",
-  "ListingFields.offers_cancellations.no": "Nein"
+  "ListingFields.offers_cancellations.no": "Nein",
+  "ListingFields.offers_cancellations.helpText": "Ja: Gäste können bis 14 Tage vor Beginn mit Erstattung stornieren (mehr als 30 Tage vorher der volle Preis, zwischen 30 und 14 Tagen die Hälfte). Spätere Stornierungen werden nicht erstattet, dein Verdienst bleibt dir. Nein: Plätze sind nicht erstattungsfähig."
 }

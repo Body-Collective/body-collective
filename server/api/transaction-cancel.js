@@ -68,6 +68,7 @@ module.exports = async (req, res) => {
       processName,
       booking: findIncluded(tx, included, 'booking'),
       listing,
+      protectedData: tx.attributes.protectedData,
     });
     const now = new Date();
     const error = getCancelError({ role, cancelTransition, policy, startTime, now });

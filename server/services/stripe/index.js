@@ -16,6 +16,12 @@ const PAYOUT_STATUS_KEY = 'bodycollective-cancellation-payout';
 const PAYOUT_PENDING = 'pending';
 const PAYOUT_PAID = 'paid';
 
+// Metadata on the PaymentIntent of a transaction whose cancellation has started: the refund is
+// pending until the money has been moved (see services/cancellation/refund.js)
+const REFUND_STATUS_KEY = 'bodycollective-cancellation-refund';
+const REFUND_PENDING = 'pending';
+const REFUND_DONE = 'done';
+
 /**
  * PaymentIntents of a Sharetribe transaction (normally one). Sharetribe APIs don't return the
  * PaymentIntent id once the payment is confirmed, but Sharetribe stores the transaction id in the
@@ -135,7 +141,23 @@ const findPendingPayouts = async () => {
   return result.data;
 };
 
+/**
+ * PaymentIntents of cancelled transactions whose refund hasn't been finished.
+ *
+ * @returns {Promise<Array<Object>>}
+ */
+const findPendingRefunds = async () => {
+  const result = await getStripe().paymentIntents.search({
+    query: `metadata['${REFUND_STATUS_KEY}']:'${REFUND_PENDING}'`,
+    limit: 100,
+  });
+  return result.data;
+};
+
 module.exports = {
+  REFUND_DONE,
+  REFUND_PENDING,
+  REFUND_STATUS_KEY,
   PAYOUT_PAID,
   PAYOUT_PENDING,
   PAYOUT_STATUS_KEY,
@@ -144,6 +166,7 @@ module.exports = {
   createTransferReversal,
   findPaymentIntentsForTransaction,
   findPendingPayouts,
+  findPendingRefunds,
   getDestinationPaymentAvailability,
   retrievePaymentIntent,
   updatePaymentIntentMetadata,

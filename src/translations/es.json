@@ -1730,5 +1730,6 @@
   "ListingPage.cancellationPolicy.nonRefundable": "This event is non-refundable: there is no refund if you cancel.",
   "ListingFields.offers_cancellations": "Do you offer cancellations?",
   "ListingFields.offers_cancellations.yes": "Yes",
-  "ListingFields.offers_cancellations.no": "No"
+  "ListingFields.offers_cancellations.no": "No",
+  "ListingFields.offers_cancellations.helpText": "Yes: guests can cancel with a refund more than 14 days before the start (the full price more than 30 days before, half of it between 30 and 14 days). Later cancellations are not refunded, so you keep your earnings. No: places are non-refundable."
 }
