@@ -13,6 +13,12 @@ import {
   pickUserFieldsData,
   showCreateListingLinkForUser,
 } from '../../util/userHelpers';
+import {
+  PRACTITIONER_PROFILE_FIELD,
+  PRACTITIONER_USER_TYPE,
+  getPractitionerProfileFormValues,
+  getPractitionerProfilePublicData,
+} from '../../util/practitionerProfile';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
@@ -88,7 +94,14 @@ export const ProfileSettingsPageComponent = props => {
   const publicUserFields = userFields.filter(uf => uf.scope === 'public');
 
   const handleSubmit = (values, userType) => {
-    const { firstName, lastName, displayName, bio: rawBio, ...rest } = values;
+    const {
+      firstName,
+      lastName,
+      displayName,
+      bio: rawBio,
+      [PRACTITIONER_PROFILE_FIELD]: practitionerProfile,
+      ...rest
+    } = values;
 
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -104,6 +117,10 @@ export const ProfileSettingsPageComponent = props => {
       bio,
       publicData: {
         ...pickUserFieldsData(rest, 'public', userType, userFields),
+        // Practitioners: their profile (see util/practitionerProfile.js)
+        ...(userType === PRACTITIONER_USER_TYPE
+          ? getPractitionerProfilePublicData(practitionerProfile)
+          : {}),
       },
     };
     const uploadedImage = props.image;
@@ -141,7 +158,11 @@ export const ProfileSettingsPageComponent = props => {
         bio,
         profileImage: user.profileImage,
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
+        ...(userType === PRACTITIONER_USER_TYPE
+          ? { [PRACTITIONER_PROFILE_FIELD]: getPractitionerProfileFormValues(publicData) }
+          : {}),
       }}
+      isPractitioner={userType === PRACTITIONER_USER_TYPE}
       profileImage={profileImage}
       onImageUpload={e => onImageUploadHandler(e, onImageUpload)}
       uploadInProgress={uploadInProgress}

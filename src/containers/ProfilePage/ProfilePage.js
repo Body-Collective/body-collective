@@ -28,6 +28,7 @@ import {
   isUserAuthorized,
 } from '../../util/userHelpers';
 import { richText } from '../../util/richText';
+import { isPractitioner } from '../../util/practitionerProfile';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -42,6 +43,7 @@ import {
   Reviews,
   ButtonTabNavHorizontal,
   LayoutSideNavigation,
+  LayoutSingleColumn,
   NamedRedirect,
   CustomExtendedDataSection,
 } from '../../components';
@@ -50,6 +52,7 @@ import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 
+import PractitionerProfile from './PractitionerProfile';
 import css from './ProfilePage.module.css';
 
 const MAX_MOBILE_SCREEN_WIDTH = 768;
@@ -464,31 +467,49 @@ export const ProfilePageComponent = props => {
         name: schemaTitle,
       }}
     >
-      <LayoutSideNavigation
-        sideNavClassName={css.aside}
-        topbar={<TopbarContainer />}
-        sideNav={
-          <AsideContent
-            user={profileUser}
-            showLinkToProfileSettingsPage={mounted && isCurrentUser}
+      {isPractitioner(profileUser) ? (
+        // Practitioners have their own profile layout; customers keep the default one
+        <LayoutSingleColumn topbar={<TopbarContainer />} footer={<FooterContainer />}>
+          {userShowError || rest.queryListingsError ? (
+            <p className={css.error}>
+              <FormattedMessage id="ProfilePage.loadingDataFailed" />
+            </p>
+          ) : (
+            <PractitionerProfile
+              user={profileUser}
+              listings={rest.listings}
+              reviews={hasNoViewingRightsOnPrivateMarketplace ? [] : rest.reviews}
+              showLinkToProfileSettingsPage={mounted && isCurrentUser}
+            />
+          )}
+        </LayoutSingleColumn>
+      ) : (
+        <LayoutSideNavigation
+          sideNavClassName={css.aside}
+          topbar={<TopbarContainer />}
+          sideNav={
+            <AsideContent
+              user={profileUser}
+              showLinkToProfileSettingsPage={mounted && isCurrentUser}
+              displayName={displayName}
+            />
+          }
+          footer={<FooterContainer />}
+        >
+          <MainContent
+            bio={bio}
             displayName={displayName}
+            userShowError={userShowError}
+            publicData={publicData}
+            metadata={metadata}
+            userFieldConfig={userFields}
+            hideReviews={hasNoViewingRightsOnPrivateMarketplace}
+            intl={intl}
+            userTypeRoles={userTypeRoles}
+            {...rest}
           />
-        }
-        footer={<FooterContainer />}
-      >
-        <MainContent
-          bio={bio}
-          displayName={displayName}
-          userShowError={userShowError}
-          publicData={publicData}
-          metadata={metadata}
-          userFieldConfig={userFields}
-          hideReviews={hasNoViewingRightsOnPrivateMarketplace}
-          intl={intl}
-          userTypeRoles={userTypeRoles}
-          {...rest}
-        />
-      </LayoutSideNavigation>
+        </LayoutSideNavigation>
+      )}
     </Page>
   );
 };

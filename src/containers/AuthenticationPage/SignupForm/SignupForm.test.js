@@ -233,7 +233,9 @@ describe('SignupForm', () => {
       renderForm();
 
       expect(screen.getByText('Step 1 of 2')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: 'Your details' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Apply to join Body Collective' })
+      ).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Email' })).toBeVisible();
       expect(screen.getByLabelText('Company name')).toBeVisible();
 

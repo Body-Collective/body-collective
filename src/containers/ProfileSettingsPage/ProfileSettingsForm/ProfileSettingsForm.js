@@ -23,6 +23,7 @@ import {
   CustomExtendedDataField,
 } from '../../../components';
 
+import PractitionerProfileFields from './PractitionerProfileFields';
 import css from './ProfileSettingsForm.module.css';
 
 const ACCEPT_IMAGES = 'image/*';
@@ -148,6 +149,7 @@ class ProfileSettingsFormComponent extends Component {
             values,
             userFields,
             userTypeConfig,
+            isPractitioner,
           } = fieldRenderProps;
 
           const user = ensureCurrentUser(currentUser);
@@ -389,6 +391,13 @@ class ProfileSettingsFormComponent extends Component {
                   <FormattedMessage id="ProfileSettingsForm.bioInfo" values={{ marketplaceName }} />
                 </p>
               </div>
+              {isPractitioner ? (
+                <PractitionerProfileFields
+                  formId={formId || 'ProfileSettingsForm'}
+                  intl={intl}
+                  push={form.mutators.push}
+                />
+              ) : null}
               <div className={classNames(css.sectionContainer, css.lastSection)}>
                 {userFieldProps.map(({ key, ...fieldProps }) => (
                   <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />

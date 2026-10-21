@@ -281,3 +281,70 @@
   margin-top: 24px;
   margin-bottom: 56px;
 }
+
+/* Practitioner profile: rows of experience and trainings */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 12px;
+
+  @media (--viewportMedium) {
+    gap: 16px;
+    margin-top: 16px;
+  }
+}
+
+.lineRow,
+.trainingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.lineInput {
+  flex: 1 1 240px;
+}
+
+.trainingRow {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--colorGrey100);
+
+  @media (--viewportMedium) {
+    padding-bottom: 16px;
+  }
+}
+
+.trainingYear {
+  flex: 0 0 120px;
+}
+
+.trainingTitle,
+.trainingTeacher {
+  flex: 1 1 200px;
+}
+
+.removeRow {
+  composes: textSmall from global;
+  margin: 0 0 12px 0;
+  color: var(--colorGrey600);
+}
+
+.addRow {
+  composes: textSmall from global;
+  align-self: flex-start;
+  margin: 0;
+  font-weight: var(--fontWeightSemiBold);
+}
+
+/* Fields of the practitioner profile: same spacing as the name fields */
+.practitionerField {
+  width: 100%;
+  margin-top: 18px;
+
+  @media (--viewportMedium) {
+    margin-top: 24px;
+  }
+}
+

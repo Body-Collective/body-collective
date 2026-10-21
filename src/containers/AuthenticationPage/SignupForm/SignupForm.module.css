@@ -89,28 +89,25 @@
   }
 }
 
-.applyLogin {
+/* Note above the customer signup, with a link to the practitioner application */
+.applyNote {
   composes: textSmall from global;
-  margin: 18px 0 0;
-  font-style: italic;
+  margin: 0 0 18px 0;
   color: var(--colorGrey700);
 
   @media (--viewportMedium) {
-    margin-top: 16px;
+    margin-bottom: 24px;
   }
 }
 
-.applyLoginLink {
+.applyLink {
   color: var(--colorGrey900);
+  font-weight: var(--fontWeightSemiBold);
   text-decoration: underline;
 }
 
-/* Buttons of the application: round, black with white text, like the other buttons of the site */
-.roundButton,
-.roundSecondaryButton {
-  border-radius: 999px;
-}
-
+/* Buttons of the application: black with white text (all buttons are round, see
+   --borderRadiusButton) */
 .roundButton {
   color: var(--colorWhite);
   background-color: rgb(22, 21, 19);

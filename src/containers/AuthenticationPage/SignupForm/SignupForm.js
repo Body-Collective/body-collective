@@ -17,6 +17,8 @@ import {
   CustomExtendedDataField,
 } from '../../../components';
 
+import { APPLY_USER_TYPE } from '../../TopbarContainer/Topbar/transparentHeaderPages';
+
 import FieldSelectUserType from '../FieldSelectUserType';
 import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
@@ -202,25 +204,13 @@ const SignupFormFields = props => {
       {isFirstStep ? (
         // The introduction to the application (text from Body Collective)
         <div className={css.applyIntro}>
-          {['applyIntroThanks', 'applyIntroReview', 'applyIntroInvite', 'applyIntroTellUs'].map(
+          {['applyIntroThanks', 'applyIntroReview', 'applyIntroApproval', 'applyIntroTellUs'].map(
             key => (
               <p key={key} className={css.stepIntro}>
                 <FormattedMessage id={`SignupForm.${key}`} />
               </p>
             )
           )}
-          <p className={css.applyLogin}>
-            <FormattedMessage
-              id="SignupForm.applyHaveAccount"
-              values={{
-                loginLink: (
-                  <NamedLink name="LoginPage" className={css.applyLoginLink}>
-                    <FormattedMessage id="SignupForm.applyLogIn" />
-                  </NamedLink>
-                ),
-              }}
-            />
-          </p>
         </div>
       ) : (
         <p className={css.stepIntro}>
@@ -249,6 +239,26 @@ const SignupFormFields = props => {
       />
 
       {stepHeader}
+
+      {!isTwoStep ? (
+        // Customers sign up here; practitioners apply with their own form
+        <p className={css.applyNote}>
+          <FormattedMessage
+            id="SignupForm.applyNote"
+            values={{
+              applyLink: (
+                <NamedLink
+                  name="SignupForUserTypePage"
+                  params={{ userType: APPLY_USER_TYPE }}
+                  className={css.applyLink}
+                >
+                  <FormattedMessage id="SignupForm.applyAsExpert" />
+                </NamedLink>
+              ),
+            }}
+          />
+        </p>
+      ) : null}
 
       {/* The first step. A user type with only one step has everything here. */}
       <div hidden={!isFirstStep}>
@@ -359,7 +369,7 @@ const SignupFormFields = props => {
             {isTwoStep ? (
               <SecondaryButton
                 type="button"
-                className={classNames(css.backButton, css.roundSecondaryButton)}
+                className={css.backButton}
                 onClick={() => showStep(FIRST_STEP)}
               >
                 <FormattedMessage id="SignupForm.back" />

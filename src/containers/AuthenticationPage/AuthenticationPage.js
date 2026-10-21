@@ -65,6 +65,9 @@ const getTabHeading = ({ messageId, isSelected }) => {
   );
 };
 
+// User type of a signup without a user type in the URL
+const DEFAULT_SIGNUP_USER_TYPE = 'customer';
+
 const getAuthenticationTabs = ({ isLogin, signupRouteName, userTypeMaybe, fromState }) => {
   return [
     {
@@ -255,12 +258,16 @@ export const AuthenticationPageComponent = props => {
   const userType = pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
 
   const { userTypes = [], userFields = [] } = config.user;
-  const preselectedUserType = userTypes.find(conf => conf.userType === userType)?.userType || null;
-  const signupRouteName = !!preselectedUserType ? 'SignupForUserTypePage' : 'SignupPage';
-  const userTypeMaybe = preselectedUserType ? { userType: preselectedUserType } : {};
+  const findUserType = type => userTypes.find(conf => conf.userType === type)?.userType || null;
+  const chosenUserType = findUserType(userType);
+  // Signing up without a user type (/signup) creates a customer, without asking for the type.
+  // Practitioners apply at /signup/practitioner.
+  const preselectedUserType = chosenUserType || findUserType(DEFAULT_SIGNUP_USER_TYPE);
+  const signupRouteName = !!chosenUserType ? 'SignupForUserTypePage' : 'SignupPage';
+  const userTypeMaybe = chosenUserType ? { userType: chosenUserType } : {};
   const fromMaybe = from ? { from } : {};
   const fromState = { state: { ...fromMaybe, ...userTypeMaybe } };
-  const show404 = userType && !preselectedUserType;
+  const show404 = userType && !chosenUserType;
 
   const user = ensureCurrentUser(currentUser);
   const currentUserLoaded = !!user.id;

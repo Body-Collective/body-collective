@@ -146,7 +146,7 @@
   text-decoration: none;
 
   border: 1px solid #d2d2d2;
-  border-radius: var(--borderRadiusMedium);
+  border-radius: var(--borderRadiusButton);
 
   background-color: var(--colorWhite);
   color: var(--colorBlack);

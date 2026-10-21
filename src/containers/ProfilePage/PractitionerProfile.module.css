@@ -1,0 +1,368 @@
+@import '../../styles/customMediaQueries.css';
+
+/* Practitioner profile (see PractitionerProfile.js). Measures from the design of Body Collective:
+   content 1100px wide, Cormorant Garamond headings, Lora text, accent colour for labels. */
+
+.root {
+  width: 100%;
+  padding-top: 30px;
+
+  @media (--viewportMedium) {
+    padding-top: 56px;
+  }
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (--viewportLarge) {
+    padding: 0 32px;
+  }
+}
+
+/* ================ Header ================ */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(32, 31, 29, 0.16);
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+    padding-bottom: 32px;
+  }
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+
+  @media (--viewportMedium) {
+    width: 132px;
+    height: 132px;
+  }
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.professionalTitle {
+  margin: 0 0 10px 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 18px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--colorBrandAccent);
+}
+
+.name {
+  margin: 0 0 8px 0;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.48px;
+  color: rgb(32, 31, 29);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 21px;
+  color: rgb(96, 93, 93);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaIcon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.editLink {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: rgb(32, 31, 29);
+  text-decoration: underline;
+}
+
+/* ================ Quote and bio ================ */
+
+.quote {
+  margin: 36px 0 0 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--colorBrandAccent);
+
+  @media (--viewportMedium) {
+    margin-top: 40px;
+    padding-left: 22px;
+  }
+}
+
+.quoteText {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 29px;
+  color: rgb(32, 31, 29);
+}
+
+.quoteAuthor {
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 21px;
+  color: rgb(96, 93, 93);
+
+  @media (--viewportMedium) {
+    margin-top: 8px;
+  }
+}
+
+.bio {
+  max-width: 760px;
+  margin-top: 30px;
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+  }
+}
+
+.bioParagraph {
+  margin: 0 0 18px 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: rgb(68, 65, 65);
+  white-space: pre-line;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+  }
+}
+
+/* ================ Experience and trainings ================ */
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 42px;
+  margin: 48px 0 60px 0;
+
+  @media (--viewportMedium) {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin: 56px 0 72px 0;
+  }
+}
+
+.column {
+  min-width: 0;
+
+  & + & {
+    margin-top: 42px;
+
+    @media (--viewportMedium) {
+      margin-top: 48px;
+    }
+  }
+}
+
+.trainings {
+  min-width: 0;
+}
+
+.columnTitle {
+  margin: 0 0 12px 0;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.55;
+  color: rgb(32, 31, 29);
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+  }
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(32, 31, 29, 0.16);
+}
+
+.list + .list {
+  border-top: none;
+}
+
+.experienceRow {
+  padding: 12px 0;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: rgb(32, 31, 29);
+  border-bottom: 1px solid rgba(32, 31, 29, 0.16);
+
+  @media (--viewportMedium) {
+    padding: 13px 0;
+  }
+}
+
+.factRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(32, 31, 29, 0.16);
+
+  @media (--viewportMedium) {
+    grid-template-columns: 132px 1fr;
+    gap: 16px;
+    padding: 13px 0;
+  }
+}
+
+.factLabel {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 21px;
+  color: rgb(96, 93, 93);
+}
+
+.factValue {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 21px;
+  color: rgb(32, 31, 29);
+}
+
+.trainingRow {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(32, 31, 29, 0.16);
+
+  @media (--viewportMedium) {
+    grid-template-columns: 96px 1fr;
+    gap: 18px;
+    padding: 14px 0;
+  }
+}
+
+.trainingYear {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--colorBrandAccent);
+}
+
+.trainingText {
+  display: flex;
+  flex-direction: column;
+}
+
+.trainingTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15.5px;
+  line-height: 21px;
+  color: rgb(32, 31, 29);
+}
+
+.trainingTeacher {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 21px;
+  color: rgb(96, 93, 93);
+}
+
+/* ================ Treatments, seminars and reviews ================ */
+
+.listingsSection {
+  padding: 36px 0;
+  background-color: rgb(248, 246, 244);
+
+  & + & {
+    padding-top: 0;
+  }
+
+  @media (--viewportMedium) {
+    padding: 48px 0;
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 24px 0;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.55;
+  color: rgb(32, 31, 29);
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.reviewsSection {
+  padding: 48px 0 60px 0;
+
+  @media (--viewportMedium) {
+    padding: 56px 0 72px 0;
+  }
+}
