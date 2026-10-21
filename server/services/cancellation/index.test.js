@@ -105,20 +105,28 @@ describe('cancellation rules', () => {
         attributes: { processName: 'default-purchase', protectedData: { cancellationPolicy } },
       });
       // A booking policy on a purchase: the listing's counts
-      expect(getTransactionPolicy(purchaseTx('treatment'), listing('default-purchase/release-1'))).toEqual(
-        'seminar'
-      );
+      expect(
+        getTransactionPolicy(purchaseTx('treatment'), listing('default-purchase/release-1'))
+      ).toEqual('seminar');
       // A listing without a policy (e.g. another process): no cancellation
-      expect(getTransactionPolicy(purchaseTx('seminar'), listing('default-inquiry/release-1'))).toBeNull();
+      expect(
+        getTransactionPolicy(purchaseTx('seminar'), listing('default-inquiry/release-1'))
+      ).toBeNull();
     });
 
     it('always writes the start of the event and drops values sent by the client', () => {
       const params = {
-        protectedData: { note: 'x', cancellationPolicy: 'seminar', cancellationStartTime: 4102444800 },
+        protectedData: {
+          note: 'x',
+          cancellationPolicy: 'seminar',
+          cancellationStartTime: 4102444800,
+        },
       };
       // Older listing: only event_date_sort
       const old = listing('default-purchase/release-1', { event_date_sort: 20260912 });
-      expect(withCancellationPolicy('transition/request-payment', params, old).protectedData).toEqual({
+      expect(
+        withCancellationPolicy('transition/request-payment', params, old).protectedData
+      ).toEqual({
         note: 'x',
         cancellationPolicy: 'seminar',
         cancellationStartTime: Date.parse('2026-09-11T22:00:00Z') / 1000,
@@ -126,8 +134,8 @@ describe('cancellation rules', () => {
       // No date on the listing: null replaces anything stored earlier
       const none = listing('default-purchase/release-1');
       expect(
-        withCancellationPolicy('transition/request-payment-after-inquiry', params, none).protectedData
-          .cancellationStartTime
+        withCancellationPolicy('transition/request-payment-after-inquiry', params, none)
+          .protectedData.cancellationStartTime
       ).toBeNull();
       // Other transitions: the server-only keys are removed
       expect(withCancellationPolicy('transition/inquire', params, old).protectedData).toEqual({

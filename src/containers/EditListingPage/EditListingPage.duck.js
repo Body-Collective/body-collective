@@ -15,6 +15,7 @@ import {
 import { uniqueBy } from '../../util/generators';
 import { storableError } from '../../util/errors';
 import * as log from '../../util/log';
+import { translateListing } from '../../util/api';
 import { parse } from '../../util/urlHelpers';
 import { isUserAuthorized } from '../../util/userHelpers';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -222,6 +223,20 @@ const updateStockOfListingMaybe = (listingId, stockTotals, dispatch) => {
 // Create Listing Draft //
 //////////////////////////
 
+// After the title or the description is saved, the server translates them to the other
+// languages of the marketplace (see server/api/translate.js). In the background: a failure only
+// means that the original text is shown.
+const translateListingMaybe = (listingId, data) => {
+  if (listingId && (typeof data?.title === 'string' || typeof data?.description === 'string')) {
+    translateListing({ listingId }).catch(e => {
+      // 503: translations are not set up (no OpenAI key)
+      if (e?.status !== 503) {
+        log.error(e, 'translate-listing-failed', {});
+      }
+    });
+  }
+};
+
 // Create listing in draft state
 // NOTE: we want to keep it possible to include stock management field to the first wizard form.
 // this means that there needs to be a sequence of calls:
@@ -248,6 +263,7 @@ export const createListingDraftThunk = createAsyncThunk(
       .then(response => {
         dispatch(addMarketplaceEntities(response));
         const listingId = response.data.data.id;
+        translateListingMaybe(listingId, rest);
         // If stockUpdate info is passed through, update stock
         return updateStockOfListingMaybe(listingId, stockUpdate, dispatch).then(() => response);
       })
@@ -311,6 +327,7 @@ export const updateListingThunk = createAsyncThunk(
         }
 
         dispatch(addMarketplaceEntities(response));
+        translateListingMaybe(id, rest);
         return { response, tab };
       })
       .catch(e => {

@@ -171,6 +171,11 @@
   }
 }
 
+/* The questions of the second step start right below the step's intro */
+.customFields:first-child {
+  margin-top: 0;
+}
+
 .firstNameRoot {
   width: calc(34% - 9px);
 }
@@ -185,6 +190,11 @@
 
 .bottomWrapper {
   composes: marketplaceModalBottomWrapper from global;
+  margin-top: 36px;
+
+  @media (--viewportMedium) {
+    margin-top: 40px;
+  }
 }
 
 .error {

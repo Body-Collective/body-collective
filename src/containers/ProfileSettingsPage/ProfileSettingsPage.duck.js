@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { denormalisedResponseEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
+import { translateProfile } from '../../util/api';
+import * as log from '../../util/log';
 import { setCurrentUser } from '../../ducks/user.duck';
 
 // ================ Async Thunks ================ //
@@ -58,6 +60,15 @@ export const updateProfileThunk = createAsyncThunk(
 
         // Update current user in state.user.currentUser through user.duck.js
         dispatch(setCurrentUser(currentUser));
+        // The server translates the profile texts to the other languages of the marketplace
+        // (see server/api/translate.js). In the background: a failure only means that the
+        // original texts are shown.
+        translateProfile().catch(e => {
+          // 503: translations are not set up (no OpenAI key)
+          if (e?.status !== 503) {
+            log.error(e, 'translate-profile-failed', {});
+          }
+        });
         return response;
       })
       .catch(e => {

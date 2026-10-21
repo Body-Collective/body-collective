@@ -1,5 +1,6 @@
 import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers';
 import { getListingRating } from '../../util/rating';
+import { getListingTitle } from '../../util/localizedContent';
 import { formatMoney } from '../../util/currency';
 import { richText } from '../../util/richText';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -46,7 +47,9 @@ const priceData = (price, currency, intl) => {
  *   - authorName: "ListingCard.author" string containing author's display name
  */
 export const getListingCardTranslations = (listing, config, intl, { fallbackRating } = {}) => {
-  const { title = '', price, publicData } = listing?.attributes || {};
+  const { price, publicData } = listing?.attributes || {};
+  // Title in the visitor's language (see util/localizedContent.js)
+  const title = getListingTitle(listing, intl);
 
   const authorDisplayName = listing?.author?.attributes?.profile?.displayName;
   const authorName = authorDisplayName

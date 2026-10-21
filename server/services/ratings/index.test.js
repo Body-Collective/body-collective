@@ -61,7 +61,10 @@ describe('aggregate rating', () => {
         listingMetadata: { aggregateRating: 500, numberOfRatings: 1 },
       })
     );
-    const result = await updateAggregateRating({ transactionId: { uuid: 'tx-1' }, userId: CUSTOMER });
+    const result = await updateAggregateRating({
+      transactionId: { uuid: 'tx-1' },
+      userId: CUSTOMER,
+    });
     expect(result).toEqual({ aggregateRating: 450, numberOfRatings: 2 });
     expect(mockIntegrationSdk.transactions.updateMetadata).toHaveBeenCalledWith({
       id: { uuid: 'tx-1' },
@@ -74,7 +77,9 @@ describe('aggregate rating', () => {
   });
 
   it('refuses someone else than the customer', async () => {
-    mockIntegrationSdk.transactions.show.mockResolvedValue(txResponse({ reviews: [customerReview] }));
+    mockIntegrationSdk.transactions.show.mockResolvedValue(
+      txResponse({ reviews: [customerReview] })
+    );
     await expect(
       updateAggregateRating({ transactionId: { uuid: 'tx-1' }, userId: PROVIDER })
     ).rejects.toEqual(expect.objectContaining({ status: 403, code: 'not-allowed' }));
@@ -92,14 +97,18 @@ describe('aggregate rating', () => {
   });
 
   it('needs a review by the customer (not the provider review of the customer)', async () => {
-    mockIntegrationSdk.transactions.show.mockResolvedValue(txResponse({ reviews: [providerReview] }));
+    mockIntegrationSdk.transactions.show.mockResolvedValue(
+      txResponse({ reviews: [providerReview] })
+    );
     await expect(
       updateAggregateRating({ transactionId: { uuid: 'tx-1' }, userId: CUSTOMER })
     ).rejects.toEqual(expect.objectContaining({ code: 'no-review' }));
   });
 
   it('removes the mark again when the listing could not be updated', async () => {
-    mockIntegrationSdk.transactions.show.mockResolvedValue(txResponse({ reviews: [customerReview] }));
+    mockIntegrationSdk.transactions.show.mockResolvedValue(
+      txResponse({ reviews: [customerReview] })
+    );
     mockIntegrationSdk.listings.update.mockRejectedValue(new Error('API down'));
     await expect(
       updateAggregateRating({ transactionId: { uuid: 'tx-1' }, userId: CUSTOMER })

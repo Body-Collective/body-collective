@@ -29,6 +29,7 @@ import {
 } from '../../util/userHelpers';
 import { richText } from '../../util/richText';
 import { isPractitioner } from '../../util/practitionerProfile';
+import { getProfileBio } from '../../util/localizedContent';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -390,7 +391,9 @@ export const ProfilePageComponent = props => {
 
   const isCurrentUser = currentUser?.id && currentUser?.id?.uuid === pathParams.id;
   const profileUser = useCurrentUser ? currentUser : user;
-  const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
+  const { displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
+  // The bio in the visitor's language (see util/localizedContent.js)
+  const bio = getProfileBio(profileUser?.attributes?.profile, intl);
   const { userFields } = config.user;
   const isPrivateMarketplace = config.accessControl.marketplace.private === true;
   const isUnauthorizedUser = currentUser && !isUserAuthorized(currentUser);

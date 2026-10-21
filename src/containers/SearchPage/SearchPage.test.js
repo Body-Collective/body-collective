@@ -296,9 +296,11 @@ const getSearchParams = config => {
       'publicData.shippingEnabled',
       'publicData.priceVariationsEnabled',
       'publicData.priceVariants',
-      // Shown on the cards: the aggregate rating
+      // Shown on the cards: the aggregate rating and the translated titles
       'metadata.aggregateRating',
       'metadata.numberOfRatings',
+      'publicData.title_en',
+      'publicData.title_de',
     ],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
     'fields.image': [

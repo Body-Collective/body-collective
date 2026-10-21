@@ -5,6 +5,7 @@ import { useIntl } from '../../../../util/reactIntl';
 import { createSlug } from '../../../../util/urlHelpers';
 import { formatSeminarSchedule } from '../../../../util/seminarSchedule';
 import { getListingRating } from '../../../../util/rating';
+import { getListingTitle } from '../../../../util/localizedContent';
 
 import { AspectRatioWrapper, NamedLink, ResponsiveImage } from '../../../../components';
 
@@ -47,7 +48,8 @@ const RatingStarIcon = () => (
 );
 
 const getEventCardFields = (listing, intl) => {
-  const { title = '', publicData } = listing?.attributes || {};
+  const { publicData } = listing?.attributes || {};
+  const title = getListingTitle(listing, intl);
   const locationSource = publicData?.location;
   const locationLabel =
     typeof locationSource === 'string'

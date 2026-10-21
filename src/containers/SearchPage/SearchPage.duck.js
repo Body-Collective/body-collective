@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createImageVariantConfig } from '../../util/sdkLoader';
 import { LISTING_RATING_FIELDS } from '../../util/rating';
+import { LISTING_TITLE_TRANSLATION_FIELDS } from '../../util/localizedContent';
 import { isErrorUserPendingApproval, isForbiddenError, storableError } from '../../util/errors';
 import { convertUnitToSubUnit, unitDivisor } from '../../util/currency';
 import {
@@ -450,8 +451,9 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
         'publicData.shippingEnabled',
         'publicData.priceVariationsEnabled',
         'publicData.priceVariants',
-        // Shown on the cards: the aggregate rating
+        // Shown on the cards: the aggregate rating and the translated titles
         ...LISTING_RATING_FIELDS,
+        ...LISTING_TITLE_TRANSLATION_FIELDS,
       ],
       'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
       'fields.image': [

@@ -187,3 +187,17 @@ export const cancelTransaction = body => {
 export const updateAggregateRating = body => {
   return post('/api/update-aggregate-rating', body);
 };
+
+// Translates the title and description of the current user's own listing to the other languages
+// of the marketplace (in the background, after the listing is saved).
+//
+// See `server/api/translate.js` to see what data should be sent in the body.
+export const translateListing = body => {
+  return post('/api/translate/listing', body);
+};
+
+// Translates the current user's profile texts (bio, practitioner profile) to the other languages
+// of the marketplace (in the background, after the profile is saved).
+export const translateProfile = () => {
+  return post('/api/translate/profile', {});
+};

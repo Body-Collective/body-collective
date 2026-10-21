@@ -42,7 +42,11 @@ describe('cancellation payouts', () => {
       currency: 'eur',
     });
     mockStripe.findPayoutForTransaction.mockResolvedValue({ id: 'po_old' });
-    const result = await payOutOrSchedule({ paymentIntentId: 'pi_1', transactionId: 'tx-1', amounts });
+    const result = await payOutOrSchedule({
+      paymentIntentId: 'pi_1',
+      transactionId: 'tx-1',
+      amounts,
+    });
     expect(result).toEqual({ status: 'paid' });
     expect(mockStripe.createPayout).not.toHaveBeenCalled();
     expect(mockStripe.updatePaymentIntentMetadata).toHaveBeenCalledWith(
@@ -56,7 +60,11 @@ describe('cancellation payouts', () => {
       isAvailable: true,
       currency: 'usd',
     });
-    const result = await payOutOrSchedule({ paymentIntentId: 'pi_1', transactionId: 'tx-1', amounts });
+    const result = await payOutOrSchedule({
+      paymentIntentId: 'pi_1',
+      transactionId: 'tx-1',
+      amounts,
+    });
     expect(result.status).toEqual('pending');
     expect(mockStripe.createPayout).not.toHaveBeenCalled();
   });

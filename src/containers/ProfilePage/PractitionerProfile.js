@@ -4,6 +4,11 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { REVIEW_TYPE_OF_PROVIDER } from '../../util/types';
 import { ONGOING, getPractitionerProfile } from '../../util/practitionerProfile';
 import { SEMINAR_LISTING_TYPE } from '../../util/seminarSchedule';
+import {
+  getProfileBio,
+  getProfileTranslation,
+  localizePractitionerProfile,
+} from '../../util/localizedContent';
 
 import { AvatarLarge, ListingCard, NamedLink, Reviews } from '../../components';
 
@@ -92,8 +97,14 @@ const FactRow = ({ labelId, value }) =>
 const PractitionerProfile = props => {
   const intl = useIntl();
   const { user, listings = [], reviews = [], showLinkToProfileSettingsPage } = props;
-  const { displayName, bio, publicData } = user?.attributes?.profile || {};
-  const profile = getPractitionerProfile(publicData);
+  const userProfile = user?.attributes?.profile || {};
+  const { displayName, publicData } = userProfile;
+  // Texts in the visitor's language (see util/localizedContent.js)
+  const bio = getProfileBio(userProfile, intl);
+  const profile = localizePractitionerProfile(
+    getPractitionerProfile(publicData),
+    getProfileTranslation(userProfile, intl)
+  );
   const {
     professionalTitle,
     locations,

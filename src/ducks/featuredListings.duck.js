@@ -6,6 +6,7 @@ import { createImageVariantConfig } from '../util/sdkLoader';
 import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
 import { SEMINAR_LISTING_TYPE } from '../util/seminarSchedule';
 import { LISTING_RATING_FIELDS } from '../util/rating';
+import { LISTING_TITLE_TRANSLATION_FIELDS } from '../util/localizedContent';
 
 const MAX_LISTING_COUNT = 10;
 
@@ -96,6 +97,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.location',
           'publicData.locationName',
           ...LISTING_RATING_FIELDS,
+          ...LISTING_TITLE_TRANSLATION_FIELDS,
           'publicData.seminar_date',
           'publicData.event_start',
           'publicData.event_end',

@@ -7,6 +7,7 @@ import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
 import { requireListingImage } from '../../util/configHelpers';
 import { richText } from '../../util/richText';
+import { getListingDescription, getListingTitle } from '../../util/localizedContent';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
 import {
   ensureListing,
@@ -166,13 +167,14 @@ export const getDerivedRenderData = ({
   const listingTab = isDraftVariant ? 'photos' : 'details';
 
   const {
-    description = '',
     geolocation = null,
     price = null,
-    title = '',
     publicData = {},
     metadata = {},
   } = currentListing.attributes;
+  // Title and description in the visitor's language (see util/localizedContent.js)
+  const title = getListingTitle(currentListing, intl);
+  const description = getListingDescription(currentListing, intl);
 
   const richTitle = (
     <span>
