@@ -8,7 +8,7 @@
  *
  * The language of a visitor is saved in the browser (localStorage), and in a cookie so that the
  * server can render the page in the same language. A user who has logged in has the language saved
- * to the profile too (publicData.language), which is then the one that counts.
+ * to the profile too (privateData.language), which is then the one that counts.
  */
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'];
@@ -59,13 +59,20 @@ export const isSupportedLanguage = language => SUPPORTED_LANGUAGES.includes(lang
 export const normalizeLanguage = language => (isSupportedLanguage(language) ? language : null);
 
 /**
- * The language saved to the profile of a user.
+ * The language saved to the profile of a user: private data (the "Preferred language" user field
+ * is private, Body Collective uses it to communicate with the user), or public data where it was
+ * saved before.
  *
  * @param {Object?} currentUser currentUser API entity
  * @returns {string|null} e.g. "de", or null when the user has not saved a language
  */
-export const getUserLanguage = currentUser =>
-  normalizeLanguage(currentUser?.attributes?.profile?.publicData?.language);
+export const getUserLanguage = currentUser => {
+  const profile = currentUser?.attributes?.profile;
+  return (
+    normalizeLanguage(profile?.privateData?.language) ||
+    normalizeLanguage(profile?.publicData?.language)
+  );
+};
 
 ///////////////////////////////
 // The language of a browser //

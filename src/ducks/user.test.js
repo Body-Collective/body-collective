@@ -95,14 +95,14 @@ describe('saveCurrentUserLanguage', () => {
           state: 'active',
           email: 'user1@example.com',
           emailVerified: true,
-          profile: { firstName: 'A', lastName: 'B', publicData: { language } },
+          profile: { firstName: 'A', lastName: 'B', privateData: { language } },
         },
       },
       included: [],
     },
   });
 
-  it('saves the language to the public data of the profile and updates the current user', async () => {
+  it('saves the language to the private data of the profile and updates the current user', async () => {
     const updateProfile = jest.fn(() => Promise.resolve(updatedUserResponse('de')));
     const sdk = { currentUser: { updateProfile } };
     const dispatch = jest.fn();
@@ -110,10 +110,10 @@ describe('saveCurrentUserLanguage', () => {
     const user = await saveCurrentUserLanguage('de')(dispatch, () => ({}), sdk);
 
     expect(updateProfile).toHaveBeenCalledWith(
-      { publicData: { language: 'de' } },
+      { privateData: { language: 'de' } },
       { expand: true }
     );
-    expect(user.attributes.profile.publicData.language).toEqual('de');
+    expect(user.attributes.profile.privateData.language).toEqual('de');
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch.mock.calls[0][0].type).toEqual('user/setCurrentUser');
   });

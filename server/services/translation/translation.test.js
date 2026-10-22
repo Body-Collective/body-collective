@@ -5,7 +5,10 @@ const { hashTexts, translateTexts } = require('./index');
 const { translateListing } = require('./listing');
 const { getProfileTexts, translateProfile } = require('./profile');
 
-const answer = (sourceLanguage, items) => ({ sourceLanguage, items });
+// The model's answer: every item gets the given language unless it has its own
+const answer = (sourceLanguage, items) => ({
+  items: items.map(item => ({ sourceLanguage, ...item })),
+});
 
 describe('translation', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -35,7 +38,9 @@ describe('translation', () => {
   });
 
   it('refuses an answer without a detected language', async () => {
-    requestJson.mockResolvedValue({ sourceLanguage: 'fr', items: [] });
+    requestJson.mockResolvedValue({
+      items: [{ id: 'bio', sourceLanguage: 'fr', translation: 'x' }],
+    });
     await expect(translateTexts({ bio: 'Bonjour' })).rejects.toEqual(
       expect.objectContaining({ code: 'no-language' })
     );
@@ -46,6 +51,28 @@ describe('translation', () => {
       expect.objectContaining({ code: 'too-long' })
     );
     expect(requestJson).not.toHaveBeenCalled();
+  });
+
+  it('detects the language of each text: a German title in an English profile', async () => {
+    requestJson.mockResolvedValue({
+      items: [
+        { id: 'bio', sourceLanguage: 'en', translation: 'Ich arbeite mit Berührung.' },
+        { id: 'professionalTitle', sourceLanguage: 'de', translation: 'Therapist' },
+      ],
+    });
+    const result = await translateTexts({
+      bio: 'I work with touch, and much more text than the title.',
+      professionalTitle: 'Therapeutin',
+    });
+    expect(result.sourceLanguage).toEqual('en');
+    expect(result.de).toEqual({
+      bio: 'Ich arbeite mit Berührung.',
+      professionalTitle: 'Therapeutin',
+    });
+    expect(result.en).toEqual({
+      bio: 'I work with touch, and much more text than the title.',
+      professionalTitle: 'Therapist',
+    });
   });
 
   describe('listing', () => {

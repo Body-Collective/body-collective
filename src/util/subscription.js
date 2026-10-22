@@ -13,6 +13,25 @@ export const PLAN_PROFESSIONAL = 'professional';
 // Manage subscription tab in account settings.
 export const SUBSCRIPTION_USER_TYPE = 'practitioner';
 
+// Listings a practitioner can have with each plan: Essential one, Professional any number
+const LISTING_LIMITS = { [PLAN_ESSENTIAL]: 1 };
+
+/**
+ * Whether a user can create another listing with their plan. Only practitioners have plans.
+ *
+ * @param {Object} currentUser current user entity
+ * @param {number} ownListingCount the number of the user's own listings
+ * @returns {boolean}
+ */
+export const canCreateAnotherListing = (currentUser, ownListingCount) => {
+  const userType = currentUser?.attributes?.profile?.publicData?.userType;
+  if (userType !== SUBSCRIPTION_USER_TYPE) {
+    return true;
+  }
+  const limit = LISTING_LIMITS[getSubscription(currentUser).plan];
+  return limit == null || ownListingCount < limit;
+};
+
 /**
  * @typedef {Object} Subscription
  * @property {string} plan 'essential' or 'professional'

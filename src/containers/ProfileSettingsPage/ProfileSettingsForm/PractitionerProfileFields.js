@@ -4,11 +4,19 @@ import { FieldArray } from 'react-final-form-arrays';
 import { FormattedMessage } from '../../../util/reactIntl';
 import {
   LANGUAGE_OPTIONS,
-  LOCATION_OPTIONS,
+  MAX_LOCATIONS,
   PRACTITIONER_PROFILE_FIELD,
+  getMaxLocationsForPlan,
 } from '../../../util/practitionerProfile';
+import { getSubscription } from '../../../util/subscription';
 
-import { FieldCheckboxGroup, FieldTextInput, H4, InlineTextButton } from '../../../components';
+import {
+  FieldCheckboxGroup,
+  FieldTextInput,
+  H4,
+  InlineTextButton,
+  NamedLink,
+} from '../../../components';
 
 import css from './ProfileSettingsForm.module.css';
 
@@ -75,6 +83,86 @@ const TrainingRows = props => {
   );
 };
 
+// Locations typed by the practitioner (city, town or island). Essential shows one location,
+// Professional up to MAX_LOCATIONS: with Essential, adding more is shown but disabled, with a
+// link to upgrade.
+const LocationRows = props => {
+  const { formId, intl, push, plan } = props;
+  const t = id => intl.formatMessage({ id: `ProfileSettingsForm.practitioner.${id}` });
+  const maxForPlan = getMaxLocationsForPlan(plan);
+  return (
+    <FieldArray name={field('locations')}>
+      {({ fields }) => {
+        const canAddMore = fields.length < MAX_LOCATIONS;
+        const planAllowsMore = fields.length < maxForPlan;
+        return (
+          <fieldset className={css.practitionerField}>
+            <legend className={css.locationsLabel}>{t('locations')}</legend>
+            <div className={css.rows}>
+              {fields.map((name, index) => (
+                <div key={name} className={css.lineRow}>
+                  <FieldTextInput
+                    id={`${formId}.locations.${index}`}
+                    name={name}
+                    className={css.lineInput}
+                    type="text"
+                    placeholder={t('locationPlaceholder')}
+                    aria-label={t('locations')}
+                    maxLength={60}
+                  />
+                  {index > 0 ? (
+                    <InlineTextButton
+                      type="button"
+                      className={css.removeRow}
+                      onClick={() => fields.remove(index)}
+                    >
+                      <FormattedMessage id="ProfileSettingsForm.practitioner.removeRow" />
+                    </InlineTextButton>
+                  ) : null}
+                </div>
+              ))}
+              {canAddMore ? (
+                <div className={css.addLocation}>
+                  <InlineTextButton
+                    type="button"
+                    className={css.addRow}
+                    disabled={!planAllowsMore}
+                    onClick={() => push(field('locations'), '')}
+                  >
+                    <FormattedMessage id="ProfileSettingsForm.practitioner.addLocation" />
+                  </InlineTextButton>
+                  {!planAllowsMore ? (
+                    <span className={css.planNote}>
+                      <FormattedMessage
+                        id="ProfileSettingsForm.practitioner.locationsProfessionalOnly"
+                        values={{
+                          upgradeLink: (
+                            <NamedLink name="ManageSubscriptionPage">
+                              <FormattedMessage id="ProfileSettingsForm.practitioner.upgrade" />
+                            </NamedLink>
+                          ),
+                        }}
+                      />
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+              {fields.length > maxForPlan ? (
+                <p className={css.planNote}>
+                  <FormattedMessage
+                    id="ProfileSettingsForm.practitioner.locationsHiddenOnEssential"
+                    values={{ count: maxForPlan }}
+                  />
+                </p>
+              ) : null}
+            </div>
+          </fieldset>
+        );
+      }}
+    </FieldArray>
+  );
+};
+
 /**
  * Fields of a practitioner's profile in Profile settings: professional title, locations,
  * languages, quote, experience and trainings. See util/practitionerProfile.js. Only shown to
@@ -85,10 +173,12 @@ const TrainingRows = props => {
  * @param {string} props.formId
  * @param {Object} props.intl
  * @param {Function} props.push Final Form array mutator
+ * @param {Object} props.currentUser The practitioner (their plan decides how many locations)
  * @returns {JSX.Element}
  */
 const PractitionerProfileFields = props => {
-  const { formId, intl, push } = props;
+  const { formId, intl, push, currentUser } = props;
+  const { plan } = getSubscription(currentUser);
   const t = id => intl.formatMessage({ id: `ProfileSettingsForm.practitioner.${id}` });
   const options = (keys, prefix) =>
     keys.map(key => ({
@@ -111,13 +201,7 @@ const PractitionerProfileFields = props => {
           placeholder={t('professionalTitlePlaceholder')}
           maxLength={60}
         />
-        <FieldCheckboxGroup
-          id={`${formId}.locations`}
-          name={field('locations')}
-          className={css.practitionerField}
-          label={t('locations')}
-          options={options(LOCATION_OPTIONS, 'location')}
-        />
+        <LocationRows formId={formId} intl={intl} push={push} plan={plan} />
         <FieldCheckboxGroup
           id={`${formId}.languagesSpoken`}
           name={field('languagesSpoken')}

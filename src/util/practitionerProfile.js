@@ -4,7 +4,8 @@
  *
  * Saved to the user's public data:
  *  - professionalTitle: string, e.g. "Therapist" (shown above the name)
- *  - locations: Array<string>, see LOCATION_OPTIONS
+ *  - locations: Array<string>, places typed by the practitioner (city, town or island), at most
+ *    MAX_LOCATIONS; how many are shown depends on the plan (getVisibleLocations)
  *  - languagesSpoken: Array<string>, see LANGUAGE_OPTIONS
  *  - quote, quoteAuthor: string
  *  - experience: Array<string>, one line each, e.g. "Ayurvedic massage since 2007"
@@ -14,8 +15,13 @@
 
 export const PRACTITIONER_USER_TYPE = 'practitioner';
 
-// The regions of the marketplace (see the region pages)
-export const LOCATION_OPTIONS = ['berlin', 'balearic_islands'];
+// Locations: at most this many, and how many the plans show (Essential one, Professional all)
+export const MAX_LOCATIONS = 3;
+const LOCATIONS_BY_PLAN = { essential: 1, professional: MAX_LOCATIONS };
+const MAX_LOCATION_LENGTH = 60;
+
+// Locations saved when they were chosen from a list, as the place names
+const LEGACY_LOCATION_NAMES = { berlin: 'Berlin', balearic_islands: 'Balearic Islands' };
 
 export const LANGUAGE_OPTIONS = [
   'german',
@@ -50,6 +56,31 @@ const cleanText = (value, maxLength = MAX_TEXT_LENGTH) =>
 const cleanOptions = (values, options) =>
   Array.isArray(values) ? options.filter(o => values.includes(o)) : [];
 
+const cleanLocations = values =>
+  (Array.isArray(values) ? values : [])
+    .map(value => LEGACY_LOCATION_NAMES[value] || cleanText(value, MAX_LOCATION_LENGTH))
+    .filter(Boolean)
+    .slice(0, MAX_LOCATIONS);
+
+/**
+ * How many locations a plan shows on the profile and allows in Profile settings.
+ *
+ * @param {string} plan 'essential' or 'professional' (see util/subscription.js)
+ * @returns {number}
+ */
+export const getMaxLocationsForPlan = plan => LOCATIONS_BY_PLAN[plan] || 1;
+
+/**
+ * The locations shown on the profile: as many as the plan allows. The others stay saved, e.g.
+ * after a change from Professional to Essential.
+ *
+ * @param {Array<string>} locations
+ * @param {string} plan
+ * @returns {Array<string>}
+ */
+export const getVisibleLocations = (locations, plan) =>
+  locations.slice(0, getMaxLocationsForPlan(plan));
+
 const cleanTrainingRows = rows =>
   (Array.isArray(rows) ? rows : [])
     .map(row => ({
@@ -70,7 +101,7 @@ export const getPractitionerProfile = publicData => {
   const data = publicData || {};
   return {
     professionalTitle: cleanText(data.professionalTitle, 60),
-    locations: cleanOptions(data.locations, LOCATION_OPTIONS),
+    locations: cleanLocations(data.locations),
     languagesSpoken: cleanOptions(data.languagesSpoken, LANGUAGE_OPTIONS),
     quote: cleanText(data.quote, 600),
     quoteAuthor: cleanText(data.quoteAuthor, 80),
@@ -94,6 +125,7 @@ export const getPractitionerProfileFormValues = publicData => {
   const withRow = (rows, empty) => (rows.length > 0 ? rows : [empty]);
   return {
     ...profile,
+    locations: withRow(profile.locations, ''),
     experience: withRow(profile.experience, ''),
     training: withRow(profile.training, { year: '', title: '', teacher: '' }),
     furtherTraining: withRow(profile.furtherTraining, { year: '', title: '', teacher: '' }),

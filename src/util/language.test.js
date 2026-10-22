@@ -27,9 +27,20 @@ describe('language', () => {
   });
 
   describe('getUserLanguage', () => {
-    it('is the language in the public data of the profile', () => {
+    it('is the language in the private data of the profile', () => {
+      const user = { attributes: { profile: { privateData: { language: 'de' } } } };
+      expect(getUserLanguage(user)).toEqual('de');
+    });
+
+    it('falls back to the language saved to the public data before', () => {
       const user = { attributes: { profile: { publicData: { language: 'de' } } } };
       expect(getUserLanguage(user)).toEqual('de');
+      const both = {
+        attributes: {
+          profile: { privateData: { language: 'en' }, publicData: { language: 'de' } },
+        },
+      };
+      expect(getUserLanguage(both)).toEqual('en');
     });
 
     it('is null when the user has no valid language', () => {

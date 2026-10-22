@@ -396,6 +396,7 @@ class ProfileSettingsFormComponent extends Component {
                   formId={formId || 'ProfileSettingsForm'}
                   intl={intl}
                   push={form.mutators.push}
+                  currentUser={currentUser}
                 />
               ) : null}
               <div className={classNames(css.sectionContainer, css.lastSection)}>

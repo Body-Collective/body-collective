@@ -2,6 +2,7 @@ import {
   getPractitionerProfile,
   getPractitionerProfileFormValues,
   getPractitionerProfilePublicData,
+  getVisibleLocations,
   isPractitioner,
 } from './practitionerProfile';
 
@@ -15,7 +16,7 @@ describe('practitionerProfile', () => {
 
   it('keeps only known options and trainings with a title', () => {
     const profile = getPractitionerProfile({
-      locations: ['berlin', 'paris'],
+      locations: ['berlin', ' Mallorca ', '', 'Ibiza', 'Lisbon'],
       languagesSpoken: ['english', 'german', 'klingon'],
       experience: ['  20 years of bodywork ', '', 42],
       training: [
@@ -23,7 +24,8 @@ describe('practitionerProfile', () => {
         { year: '2010', title: '   ', teacher: 'nobody' },
       ],
     });
-    expect(profile.locations).toEqual(['berlin']);
+    // Typed places (at most 3); a location chosen from the former list becomes its name
+    expect(profile.locations).toEqual(['Berlin', 'Mallorca', 'Ibiza']);
     // In the order of the options
     expect(profile.languagesSpoken).toEqual(['german', 'english']);
     expect(profile.experience).toEqual(['20 years of bodywork']);
@@ -31,6 +33,12 @@ describe('practitionerProfile', () => {
       { year: '2007', title: 'Tantra massage training', teacher: 'Tantra Zentrum' },
     ]);
     expect(profile.furtherTraining).toEqual([]);
+  });
+
+  it('shows one location with Essential and up to three with Professional', () => {
+    const locations = ['Berlin', 'Mallorca', 'Ibiza'];
+    expect(getVisibleLocations(locations, 'essential')).toEqual(['Berlin']);
+    expect(getVisibleLocations(locations, 'professional')).toEqual(locations);
   });
 
   it('starts the form lists with an empty row and drops empty rows when saving', () => {

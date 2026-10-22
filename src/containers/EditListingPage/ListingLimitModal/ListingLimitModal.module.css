@@ -1,0 +1,31 @@
+@import '../../../styles/customMediaQueries.css';
+
+.modalContainer {
+  composes: marketplaceModalBaseStyles from global;
+  padding-top: 72px;
+
+  @media (--viewportMedium) {
+    flex-basis: 480px;
+  }
+}
+
+.title {
+  composes: marketplaceModalTitleStyles from global;
+}
+
+.message {
+  composes: marketplaceModalParagraphStyles from global;
+}
+
+.subscribeLink {
+  composes: buttonPrimary from global;
+  margin-top: 24px;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+  }
+}

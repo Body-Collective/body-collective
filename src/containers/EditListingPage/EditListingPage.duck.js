@@ -16,6 +16,7 @@ import { uniqueBy } from '../../util/generators';
 import { storableError } from '../../util/errors';
 import * as log from '../../util/log';
 import { translateListing } from '../../util/api';
+import { canCreateAnotherListing } from '../../util/subscription';
 import { parse } from '../../util/urlHelpers';
 import { isUserAuthorized } from '../../util/userHelpers';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -237,13 +238,22 @@ const translateListingMaybe = (listingId, data) => {
   }
 };
 
+// Error code of a draft that the plan of the user doesn't allow (Essential: one listing)
+export const LISTING_LIMIT_ERROR = 'listing-limit';
+
+// The number of the current user's own listings (any state but deleted)
+const fetchOwnListingCount = sdk =>
+  sdk.ownListings
+    .query({ states: ['draft', 'pendingApproval', 'published', 'closed'], perPage: 1 })
+    .then(response => response.data.meta.totalItems);
+
 // Create listing in draft state
 // NOTE: we want to keep it possible to include stock management field to the first wizard form.
 // this means that there needs to be a sequence of calls:
 // create, set stock, show listing (to get updated currentStock entity)
 export const createListingDraftThunk = createAsyncThunk(
   'EditListingPage/createListingDraft',
-  ({ data, config }, { dispatch, rejectWithValue, extra: sdk }) => {
+  ({ data, config }, { dispatch, getState, rejectWithValue, extra: sdk }) => {
     const { stockUpdate, images, ...rest } = data;
 
     // If images should be saved, create array out of the image UUIDs for the API call
@@ -258,8 +268,18 @@ export const createListingDraftThunk = createAsyncThunk(
       ...imageVariantInfo.imageVariants,
     };
 
-    return sdk.ownListings
-      .createDraft(ownListingValues, queryParams)
+    // The plan decides how many listings a practitioner can have (Essential: one): the own
+    // listings are counted right before the draft is created
+    const currentUser = getState().user.currentUser;
+    return fetchOwnListingCount(sdk)
+      .then(ownListingCount => {
+        if (!canCreateAnotherListing(currentUser, ownListingCount)) {
+          const error = new Error('The plan allows no more listings');
+          error.code = LISTING_LIMIT_ERROR;
+          throw error;
+        }
+        return sdk.ownListings.createDraft(ownListingValues, queryParams);
+      })
       .then(response => {
         dispatch(addMarketplaceEntities(response));
         const listingId = response.data.data.id;
@@ -268,6 +288,9 @@ export const createListingDraftThunk = createAsyncThunk(
         return updateStockOfListingMaybe(listingId, stockUpdate, dispatch).then(() => response);
       })
       .catch(e => {
+        if (e.code === LISTING_LIMIT_ERROR) {
+          return rejectWithValue({ code: LISTING_LIMIT_ERROR });
+        }
         log.error(e, 'create-listing-draft-failed', { listingData: data });
         return rejectWithValue(storableError(e));
       });

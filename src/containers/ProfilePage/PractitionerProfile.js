@@ -2,7 +2,12 @@ import React from 'react';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { REVIEW_TYPE_OF_PROVIDER } from '../../util/types';
-import { ONGOING, getPractitionerProfile } from '../../util/practitionerProfile';
+import {
+  ONGOING,
+  getPractitionerProfile,
+  getVisibleLocations,
+} from '../../util/practitionerProfile';
+import { getSubscription } from '../../util/subscription';
 import { SEMINAR_LISTING_TYPE } from '../../util/seminarSchedule';
 import {
   getProfileBio,
@@ -71,6 +76,10 @@ const TrainingList = ({ titleId, rows, intl }) =>
     </section>
   ) : null;
 
+// e.g. "Berlin", "Berlin & Mallorca", "Berlin, Mallorca & Ibiza"
+const joinWithAnd = items =>
+  items.length > 1 ? `${items.slice(0, -1).join(', ')} & ${items[items.length - 1]}` : items[0];
+
 const FactRow = ({ labelId, value }) =>
   value ? (
     <li className={css.factRow}>
@@ -117,7 +126,8 @@ const PractitionerProfile = props => {
   } = profile;
 
   const label = (prefix, key) => intl.formatMessage({ id: `PractitionerProfile.${prefix}.${key}` });
-  const locationLabels = locations.map(key => label('location', key));
+  // As many locations as the practitioner's plan shows (typed by them, not translated)
+  const locationLabels = getVisibleLocations(locations, getSubscription(user).plan);
   const languageLabels = languagesSpoken.map(key => label('language', key));
 
   const seminars = listings.filter(
@@ -154,7 +164,7 @@ const PractitionerProfile = props => {
                 {locationLabels.length > 0 ? (
                   <span className={css.metaItem}>
                     <IconPin />
-                    {locationLabels.join(' & ')}
+                    {joinWithAnd(locationLabels)}
                   </span>
                 ) : null}
                 {languageLabels.length > 0 ? (

@@ -2,6 +2,7 @@ import { createCurrentUser } from './testData';
 import {
   PLAN_ESSENTIAL,
   PLAN_PROFESSIONAL,
+  canCreateAnotherListing,
   getProfessionalPaymentLinkUrl,
   getSubscription,
   showManageSubscriptionForUser,
@@ -81,5 +82,24 @@ describe('subscription util', () => {
       process.env.REACT_APP_STRIPE_PROFESSIONAL_PAYMENT_LINK = '';
       expect(getProfessionalPaymentLinkUrl(createCurrentUser('user1'))).toEqual(null);
     });
+  });
+});
+
+describe('canCreateAnotherListing', () => {
+  const user = (userType, subscriptionPlan) => ({
+    attributes: { profile: { publicData: { userType }, metadata: { subscriptionPlan } } },
+  });
+
+  it('allows one listing with Essential', () => {
+    expect(canCreateAnotherListing(user('practitioner'), 0)).toBe(true);
+    expect(canCreateAnotherListing(user('practitioner'), 1)).toBe(false);
+  });
+
+  it('allows any number of listings with Professional', () => {
+    expect(canCreateAnotherListing(user('practitioner', 'professional'), 5)).toBe(true);
+  });
+
+  it('does not limit users without plans', () => {
+    expect(canCreateAnotherListing(user('customer'), 3)).toBe(true);
   });
 });

@@ -4,12 +4,17 @@ const { requestJson } = require('./openai');
 
 /**
  * Translation of texts written by users (listing titles and descriptions, profiles) between the
- * languages of the marketplace. The model detects the language of the texts and returns only
- * their translation to the other language; the texts in their own language are always the
+ * languages of the marketplace. The model detects the language of each text separately (a
+ * profile can mix languages, e.g. an English bio with the title "Therapeutin") and returns only
+ * its translation to the other language; the texts in their own language are always the
  * originals. Names (people, schools, branded methods) stay as written.
  */
 
 const LANGUAGES = ['en', 'de'];
+
+// Part of the fingerprint of the texts: changing it translates all texts again (once), e.g.
+// after a change of the instructions. 2: the language is detected per text.
+const TRANSLATION_VERSION = 2;
 
 // Limits per request, against oversized input
 const MAX_TEXT_LENGTH = 6000;
@@ -19,9 +24,11 @@ const MAX_ITEMS = 120;
 const INSTRUCTIONS = [
   'You translate texts for Body Collective, a marketplace for bodywork, massage and therapy',
   'practitioners in Berlin and on the Balearic Islands.',
-  'The input is JSON: { items: [{ id, text }] }. Detect the language of the texts (English "en" or',
-  'German "de"; if mixed, the language of most of the text) and translate every text to the other',
-  'language: German texts to English, English texts to German. Return only the translations.',
+  'The input is JSON: { items: [{ id, text }] }. For each text separately, detect its language',
+  '(English "en" or German "de"; if mixed, the language of most of that text) and translate it to',
+  'the other language: German to English, English to German. Texts can be in different languages.',
+  'A single word is in the language it belongs to (e.g. "Therapeutin" is German). Return the',
+  'detected language of each text and only its translation.',
   'Rules:',
   '- Translate naturally and warmly, with the informal "du" in German, keeping the meaning, tone,',
   '  line breaks and paragraphs.',
@@ -34,21 +41,21 @@ const INSTRUCTIONS = [
 const SCHEMA = {
   type: 'object',
   properties: {
-    sourceLanguage: { type: 'string', enum: LANGUAGES },
     items: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
           id: { type: 'string' },
+          sourceLanguage: { type: 'string', enum: LANGUAGES },
           translation: { type: 'string' },
         },
-        required: ['id', 'translation'],
+        required: ['id', 'sourceLanguage', 'translation'],
         additionalProperties: false,
       },
     },
   },
-  required: ['sourceLanguage', 'items'],
+  required: ['items'],
   additionalProperties: false,
 };
 
@@ -62,11 +69,12 @@ const hashTexts = texts =>
   crypto
     .createHash('sha256')
     .update(
-      JSON.stringify(
-        Object.keys(texts)
+      JSON.stringify([
+        TRANSLATION_VERSION,
+        ...Object.keys(texts)
           .sort()
-          .map(id => [id, texts[id]])
-      )
+          .map(id => [id, texts[id]]),
+      ])
     )
     .digest('hex')
     .slice(0, 32);
@@ -103,28 +111,39 @@ const translateTexts = async texts => {
     schema: SCHEMA,
   });
 
-  const sourceLanguage = LANGUAGES.includes(answer?.sourceLanguage) ? answer.sourceLanguage : null;
+  const byId = new Map((answer?.items || []).map(item => [item?.id, item]));
+  const result = {};
+  LANGUAGES.forEach(language => {
+    result[language] = {};
+  });
+  const sourceLengths = {};
+  entries.forEach(([id, original]) => {
+    const item = byId.get(id);
+    const itemLanguage = LANGUAGES.includes(item?.sourceLanguage) ? item.sourceLanguage : null;
+    const translated = item?.translation;
+    const isValid =
+      !!itemLanguage &&
+      typeof translated === 'string' &&
+      translated.trim() !== '' &&
+      translated.length <= Math.max(original.length * 3, 200);
+    if (itemLanguage) {
+      sourceLengths[itemLanguage] = (sourceLengths[itemLanguage] || 0) + original.length;
+    }
+    // The text in its own language is always the original; a missing or odd translation falls
+    // back to the original too
+    LANGUAGES.forEach(language => {
+      result[language][id] = isValid && language !== itemLanguage ? translated : original;
+    });
+  });
+  // The language of most of the text (e.g. for the listing's translationSourceLanguage)
+  const sourceLanguage =
+    Object.keys(sourceLengths).sort((a, b) => sourceLengths[b] - sourceLengths[a])[0] || null;
   if (!sourceLanguage) {
     const error = new Error('No language detected');
     error.code = 'no-language';
     throw error;
   }
-  const targetLanguages = LANGUAGES.filter(language => language !== sourceLanguage);
-  const byId = new Map((answer?.items || []).map(item => [item?.id, item?.translation]));
-  const result = { sourceLanguage };
-  LANGUAGES.forEach(language => {
-    result[language] = {};
-    entries.forEach(([id, original]) => {
-      const translated = byId.get(id);
-      const isValid =
-        typeof translated === 'string' &&
-        translated.trim() !== '' &&
-        translated.length <= Math.max(original.length * 3, 200);
-      // The text in its own language is always the original; a missing or odd translation falls
-      // back to the original too
-      result[language][id] = targetLanguages.includes(language) && isValid ? translated : original;
-    });
-  });
+  result.sourceLanguage = sourceLanguage;
   return result;
 };
 

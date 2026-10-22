@@ -348,3 +348,22 @@
   }
 }
 
+/* Locations of the practitioner profile */
+.locationsLabel {
+  composes: label from global;
+  padding: 0;
+}
+
+.addLocation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+}
+
+.planNote {
+  composes: textSmall from global;
+  margin: 0;
+  color: var(--colorGrey600);
+}
+

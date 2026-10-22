@@ -103,9 +103,8 @@ export const ProfileSettingsPageComponent = props => {
       ...rest
     } = values;
 
-    const displayNameMaybe = displayName
-      ? { displayName: displayName.trim() }
-      : { displayName: null };
+    // Without a display name, it's the first name (Sharetribe's default would be "Jana R.")
+    const displayNameMaybe = { displayName: displayName?.trim() || firstName.trim() };
 
     // Ensure that the optional bio is a string
     const bio = rawBio || '';

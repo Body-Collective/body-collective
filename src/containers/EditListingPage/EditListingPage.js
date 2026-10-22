@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { compose } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -31,6 +31,8 @@ import {
 
 // Import shared components
 import { NamedRedirect, Page } from '../../components';
+
+import ListingLimitModal from './ListingLimitModal/ListingLimitModal';
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 
 // Import modules from this directory
@@ -51,6 +53,7 @@ import {
   uploadFile,
   clearUploadedFiles,
   downloadFile,
+  LISTING_LIMIT_ERROR,
 } from './EditListingPage.duck';
 import EditListingWizard from './EditListingWizard/EditListingWizard';
 import css from './EditListingPage.module.css';
@@ -205,6 +208,16 @@ export const EditListingPageComponent = props => {
   const hasStripeOnboardingDataIfNeeded = returnURLType ? !!currentUser?.id : true;
   const showWizard = hasStripeOnboardingDataIfNeeded && (isNewURI || currentListing.id);
 
+  // Essential practitioners can have one listing: when creating another draft is refused (see
+  // createListingDraftThunk), a modal tells them to subscribe to Professional
+  const isListingLimitError = page.createListingDraftError?.code === LISTING_LIMIT_ERROR;
+  const [isListingLimitModalOpen, setListingLimitModalOpen] = useState(false);
+  useEffect(() => {
+    if (isListingLimitError) {
+      setListingLimitModalOpen(true);
+    }
+  }, [page.createListingDraftError]);
+
   if (!isUserAuthorized(currentUser)) {
     return (
       <NamedRedirect
@@ -260,7 +273,8 @@ export const EditListingPageComponent = props => {
       deleteExceptionError = null,
     } = page;
     const errors = {
-      createListingDraftError,
+      // The listing limit is told in the modal, not as an error of the form
+      createListingDraftError: isListingLimitError ? null : createListingDraftError,
       publishListingError,
       updateListingError,
       showListingsError,
@@ -343,6 +357,11 @@ export const EditListingPageComponent = props => {
           onUploadFile={onUploadFile}
           onClearUploadedFiles={onClearUploadedFiles}
           onDownloadFile={onDownloadFile}
+        />
+        <ListingLimitModal
+          isOpen={isListingLimitModalOpen}
+          onClose={() => setListingLimitModalOpen(false)}
+          onManageDisableScrolling={onManageDisableScrolling}
         />
       </Page>
     );

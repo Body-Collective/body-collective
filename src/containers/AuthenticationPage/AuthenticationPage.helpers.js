@@ -82,7 +82,8 @@ export const getExtendedDataMaybe = (submitValues, userType, userFields, extraDa
  */
 export const getHandleSubmitSignup = ({ submitSignup, userFields, userTypes }) => values => {
   const { userType, email, password, fname, lname, displayName, ...rest } = values;
-  const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
+  // Without a display name, it's the first name (Sharetribe's default would be "Jana R.")
+  const displayNameMaybe = { displayName: displayName?.trim() || fname.trim() };
 
   // Set referral to user private data if it exists and is valid
   const userTypeConfig = getUserTypeConfig(userType, userTypes);
@@ -129,7 +130,13 @@ export const getHandleSubmitConfirm = ({
     ...rest
   } = values;
 
-  const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
+  // Without a display name, it's the first name (Sharetribe's default would be "Jana R.")
+  const defaultDisplayName = (newFirstName || firstName || '').trim();
+  const displayNameMaybe = displayName?.trim()
+    ? { displayName: displayName.trim() }
+    : defaultDisplayName
+    ? { displayName: defaultDisplayName }
+    : {};
 
   // Pass email, fistName or lastName to Marketplace API only if user has edited them
   // and they can't be fetched directly from idp provider (e.g. Facebook)
