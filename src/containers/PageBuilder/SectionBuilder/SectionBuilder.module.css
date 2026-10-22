@@ -4,6 +4,9 @@
 .sectionDetails {
   max-width: var(--contentMaxWidthPages);
   display: grid;
+  /* One column of the whole width: a heading or text centred by a section's styles is centred on
+     the page (not in a column only as wide as the content, at the left) */
+  grid-template-columns: minmax(0, 1fr);
   justify-content: start;
   margin: 0 auto;
   padding: 0 32px;
