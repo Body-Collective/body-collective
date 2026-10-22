@@ -24,7 +24,11 @@ const sections = [
         'All of Berlin',
         '/s?address=Berlin%2C+Deutschland&bounds=52.67%2C13.76%2C52.33%2C13.08'
       ),
-      block('Mitte', '/s?address=Mitte%2C+Berlin&bounds=52.55%2C13.43%2C52.50%2C13.34', 'mitte'),
+      block(
+        'Mitte',
+        '/s?address=Mitte%2C+Berlin&bounds=52.55%2C13.43%2C52.50%2C13.34',
+        'berlin-mitte'
+      ),
       block('Neukölln', '/s?address=Neuk%C3%B6lln%2C+Berlin&bounds=52.50%2C13.50%2C52.40%2C13.40'),
     ],
   },
@@ -59,7 +63,22 @@ describe('regionAreas', () => {
 
     it('uses the block id as the slug and falls back to a slug made from the title', () => {
       const areas = getRegionAreas(sections);
-      expect(areas.map(a => a.slug)).toEqual(['all-of-berlin', 'mitte', 'neukolln']);
+      expect(areas.map(a => a.slug)).toEqual(['all-of-berlin', 'berlin-mitte', 'neukolln']);
+    });
+
+    it('filters a neighbourhood of util/neighbourhoods.js by the listing field, not the link', () => {
+      const withNeighbourhood = [
+        {
+          sectionId: 'region-areas',
+          blocks: [
+            block('All of Berlin', '/s?address=Berlin'),
+            block('Wedding', '/s?address=Wedding%2C+Berlin&bounds=1%2C2%2C3%2C4', 'wedding'),
+          ],
+        },
+      ];
+      const areas = getRegionAreas(withNeighbourhood);
+      expect(areas[0].params).toEqual({ address: 'Berlin' });
+      expect(areas[1].params).toEqual({ pub_neighbourhood: 'wedding' });
     });
 
     it('marks only the first block as the default (whole region)', () => {
@@ -121,7 +140,7 @@ describe('regionAreas', () => {
     const areas = getRegionAreas(sections);
 
     it('finds the neighbourhood from the area param', () => {
-      expect(getSelectedArea(areas, '?area=mitte').name).toEqual('Mitte');
+      expect(getSelectedArea(areas, '?area=berlin-mitte').name).toEqual('Mitte');
       expect(getSelectedArea(areas, '?foo=1&area=neukolln').name).toEqual('Neukölln');
     });
 
@@ -148,6 +167,15 @@ describe('regionAreas', () => {
       expect(result).toEqual({
         address: 'Mitte, Berlin',
         bounds: '52.55,13.43,52.50,13.34',
+        pub_categoryLevel1: 'massage_and_bodywork',
+      });
+    });
+
+    it('filters by the neighbourhood listing field instead of the location', () => {
+      const island = { name: 'Mallorca', params: { pub_neighbourhood: 'mallorca' } };
+      const result = parseSearchQuery(getAreaListingSearchQuery(query, island));
+      expect(result).toEqual({
+        pub_neighbourhood: 'mallorca',
         pub_categoryLevel1: 'massage_and_bodywork',
       });
     });

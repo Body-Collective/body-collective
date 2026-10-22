@@ -20,6 +20,7 @@ import {
   FieldTextInput,
   IconDelete,
   InlineTextButton,
+  LabelTextWithTag,
   ValidationError,
 } from '../../../../components';
 
@@ -68,11 +69,14 @@ export const getInitialValuesForPriceVariants = (props, isUsingBookingPriceVaria
   const variants = hasPriceVariants
     ? priceVariants.map(variant => {
         const nameMaybe = variant.name ? { name: variant.name } : {};
+        // Shown when the treatment is opened on the listing page
+        const descriptionMaybe = variant.description ? { description: variant.description } : {};
         const bookingLengthInMinutes = setDefault(variant.bookingLengthInMinutes, 60);
         const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
         const priceInSubunits = setDefault(variant.priceInSubunits, null);
         return {
           ...nameMaybe,
+          ...descriptionMaybe,
           ...bookingLengthInMinutesMaybe,
           price: priceInSubunits ? new Money(priceInSubunits, price.currency) : null,
         };
@@ -152,11 +156,15 @@ export const handleSubmitValuesForPriceVariants = (
         publicData: {
           ...publicData,
           priceVariants: priceVariants.map(variant => {
-            const { name, bookingLengthInMinutes, price: variantPrice } = variant;
+            const { name, description, bookingLengthInMinutes, price: variantPrice } = variant;
             const nameMaybe = shouldIncludeName && name ? { name } : {};
+            const cleanDescription = typeof description === 'string' ? description.trim() : '';
+            const descriptionMaybe =
+              shouldIncludeName && cleanDescription ? { description: cleanDescription } : {};
             const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
             return {
               ...nameMaybe,
+              ...descriptionMaybe,
               priceInSubunits: variantPrice.amount,
               ...bookingLengthInMinutesMaybe,
             };
@@ -333,6 +341,34 @@ const PriceVariant = props => {
             id: 'EditListingPricingForm.priceVariant.nameInputPlaceholder',
           })}
           validate={validate}
+        />
+      ) : null}
+
+      {isPriceVariationsInUse ? (
+        <FieldTextInput
+          id={`${idPrefix}_description`}
+          name={`${name}.description`}
+          className={css.description}
+          type="textarea"
+          label={
+            <LabelTextWithTag
+              label={intl.formatMessage({
+                id: 'EditListingPricingForm.priceVariant.description',
+              })}
+              isRequired
+            />
+          }
+          placeholder={intl.formatMessage({
+            id: 'EditListingPricingForm.priceVariant.descriptionPlaceholder',
+          })}
+          helpText={intl.formatMessage({
+            id: 'EditListingPricingForm.priceVariant.descriptionHelpText',
+          })}
+          validate={validators.required(
+            intl.formatMessage({
+              id: 'EditListingPricingForm.priceVariant.descriptionRequired',
+            })
+          )}
         />
       ) : null}
 

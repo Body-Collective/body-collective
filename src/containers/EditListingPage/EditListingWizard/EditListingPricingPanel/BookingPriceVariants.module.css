@@ -34,6 +34,10 @@
   gap: 24px;
 }
 
+.description {
+  flex-shrink: 0;
+}
+
 .error {
   color: var(--colorFail);
   margin-bottom: 24px;

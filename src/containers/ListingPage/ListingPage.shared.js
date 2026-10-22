@@ -8,6 +8,7 @@ import { timestampToDate } from '../../util/dates';
 import { requireListingImage } from '../../util/configHelpers';
 import { richText } from '../../util/richText';
 import { getListingDescription, getListingTitle } from '../../util/localizedContent';
+import { stripFormatting } from '../../util/formattedText';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
 import {
   ensureListing,
@@ -175,6 +176,8 @@ export const getDerivedRenderData = ({
   // Title and description in the visitor's language (see util/localizedContent.js)
   const title = getListingTitle(currentListing, intl);
   const description = getListingDescription(currentListing, intl);
+  // For meta tags and schema: without the marks of the formatted text
+  const metaDescription = stripFormatting(description);
 
   const richTitle = (
     <span>
@@ -263,6 +266,7 @@ export const getDerivedRenderData = ({
     listingPathParamType,
     listingTab,
     description,
+    metaDescription,
     geolocation,
     price,
     title,

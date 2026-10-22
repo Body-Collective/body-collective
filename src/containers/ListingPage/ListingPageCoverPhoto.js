@@ -7,6 +7,9 @@ import classNames from 'classnames';
 import { FormattedMessage } from '../../util/reactIntl';
 import { withoutLegacySeminarFields } from '../../util/seminarSchedule';
 import { OFFERS_CANCELLATIONS_KEY } from '../../util/cancellation';
+import { TREATMENT_TEXT_FIELD_KEYS } from '../../util/treatmentDetails';
+import { getListingDirections } from '../../util/localizedContent';
+import { getNeighbourhoodName } from '../../util/neighbourhoods';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
@@ -24,7 +27,7 @@ import {
   NamedLink,
   OrderPanel,
   LayoutSingleColumn,
-  SectionText,
+  FormattedText,
 } from '../../components';
 
 // Related components and modules
@@ -57,6 +60,7 @@ import SectionMapMaybe from './SectionMapMaybe';
 import SectionCancellationPolicy from './SectionCancellationPolicy';
 import CustomListingFields from './CustomListingFields';
 import SectionSeminarSchedule from './SectionSeminarSchedule';
+import SectionTreatmentDetails from './SectionTreatmentDetails';
 import Notifications from './Notifications/Notifications';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
 
@@ -124,6 +128,7 @@ export const ListingPageComponent = props => {
     listingPathParamType,
     listingTab,
     description,
+    metaDescription,
     geolocation,
     price,
     title,
@@ -249,14 +254,14 @@ export const ListingPageComponent = props => {
       title={schemaTitle}
       scrollingDisabled={scrollingDisabled}
       author={authorDisplayName}
-      description={description}
+      description={metaDescription}
       facebookImages={facebookImages}
       twitterImages={twitterImages}
       {...noIndexMaybe}
       schema={{
         '@context': 'http://schema.org',
         '@type': 'Product',
-        description: description,
+        description: metaDescription,
         name: schemaTitle,
         image: schemaImages,
         offers: {
@@ -301,7 +306,13 @@ export const ListingPageComponent = props => {
                 </H3>
               )}
             </div>
-            {showDescription && <SectionText text={description} showAsIngress />}
+            {showDescription && description ? (
+              <section className={css.sectionText}>
+                <FormattedText text={description} />
+              </section>
+            ) : null}
+
+            <SectionTreatmentDetails publicData={publicData} currency={price?.currency} />
 
             <SectionSeminarSchedule publicData={publicData} />
 
@@ -310,7 +321,8 @@ export const ListingPageComponent = props => {
               metadata={metadata}
               // Dates and the cancellation policy have their own sections
               listingFieldConfigs={withoutLegacySeminarFields(listingConfig.listingFields).filter(
-                f => f.key !== OFFERS_CANCELLATIONS_KEY
+                f =>
+                  f.key !== OFFERS_CANCELLATIONS_KEY && !TREATMENT_TEXT_FIELD_KEYS.includes(f.key)
               )}
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
@@ -322,6 +334,8 @@ export const ListingPageComponent = props => {
               publicData={publicData}
               listingId={currentListing.id}
               mapsConfig={config.maps}
+              directions={getListingDirections(currentListing, intl)}
+              neighbourhood={getNeighbourhoodName(publicData, intl)}
             />
             <SectionReviews reviews={reviews} fetchReviewsError={fetchReviewsError} />
             <SectionAuthorMaybe

@@ -1,3 +1,4 @@
+import { textFingerprint } from './textFingerprint';
 import {
   getContentLanguage,
   getListingDescription,
@@ -20,12 +21,49 @@ describe('localizedContent', () => {
       attributes: {
         title: 'Ayurvedische Massage',
         description: 'Original',
-        publicData: { title_en: 'Ayurvedic massage', description_en: '  ' },
+        publicData: {
+          title_en: 'Ayurvedic massage',
+          description_en: '  ',
+          translationSources: { title: textFingerprint('Ayurvedische Massage') },
+        },
       },
     };
     expect(getListingTitle(listing, en)).toEqual('Ayurvedic massage');
     expect(getListingTitle(listing, de)).toEqual('Ayurvedische Massage');
     expect(getListingDescription(listing, en)).toEqual('Original');
+  });
+
+  it('shows the original title in the language the listing was written in', () => {
+    const listing = {
+      attributes: {
+        title: 'Ayurveda Massage',
+        publicData: {
+          translationSourceLanguage: 'en',
+          title_en: 'An older title',
+          title_de: 'Ayurveda-Massage',
+          translationSources: { title: textFingerprint('Ayurveda Massage') },
+        },
+      },
+    };
+    expect(getListingTitle(listing, en)).toEqual('Ayurveda Massage');
+    expect(getListingTitle(listing, de)).toEqual('Ayurveda-Massage');
+  });
+
+  it('shows the original when the translation was made from an older text', () => {
+    const listing = {
+      attributes: {
+        title: 'Ayurveda Massage - Berlin',
+        publicData: {
+          translationSourceLanguage: 'de',
+          title_en: 'Lomi Lomi Ritual',
+          translationSources: { title: textFingerprint('Lomi-Lomi-Ritual') },
+        },
+      },
+    };
+    expect(getListingTitle(listing, en)).toEqual('Ayurveda Massage - Berlin');
+    // Translations saved before the fingerprints can't be checked
+    delete listing.attributes.publicData.translationSources;
+    expect(getListingTitle(listing, en)).toEqual('Ayurveda Massage - Berlin');
   });
 
   it('shows the profile texts in the language, keeping years and lists that changed', () => {

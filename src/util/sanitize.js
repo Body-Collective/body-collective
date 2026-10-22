@@ -240,8 +240,10 @@ export const sanitizeListing = (entity, config = {}) => {
   const { title, description, publicData, metadata, ...restAttributes } = attributes || {};
 
   const sanitizeLocation = location => {
-    const { address, building } = location || {};
-    return { address: sanitizeText(address), building: sanitizeText(building) };
+    const { address, building, directions } = location || {};
+    // directions: how to arrive (doorbell, backyard, floor), set on the Location tab
+    const directionsMaybe = directions ? { directions: sanitizeText(directions) } : {};
+    return { address: sanitizeText(address), building: sanitizeText(building), ...directionsMaybe };
   };
 
   const sanitizePublicData = publicData => {

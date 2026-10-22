@@ -34,6 +34,9 @@ import {
   PRICING_AND_STOCK,
 } from './EditListingWizard/EditListingWizardTab';
 
+// Tiptap doesn't run in jsdom: the editor is a textarea in tests (see __mocks__)
+jest.mock('../../components/FieldRichTextEditor/RichTextEditor');
+
 const { screen, userEvent, waitFor, within } = testingLibrary;
 
 const { Money } = sdkTypes;

@@ -1,6 +1,7 @@
 import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers';
 import { getListingRating } from '../../util/rating';
 import { getListingTitle } from '../../util/localizedContent';
+import { getListingPlaceLine } from '../../util/neighbourhoods';
 import { formatMoney } from '../../util/currency';
 import { richText } from '../../util/richText';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -56,12 +57,13 @@ export const getListingCardTranslations = (listing, config, intl, { fallbackRati
     ? intl.formatMessage({ id: 'ListingCard.author' }, { authorName: authorDisplayName })
     : null;
 
+  // "City or region · Area or town", e.g. "Berlin · Kreuzberg" (see util/neighbourhoods.js)
   const locationSource = publicData?.location;
   const locationLabel =
     typeof locationSource === 'string'
       ? locationSource.trim() || null
       : locationSource?.address
-      ? locationSource.address.split(',')[0].trim()
+      ? getListingPlaceLine(publicData, intl)
       : publicData?.locationName || null;
 
   // Aggregate rating of the listing (see util/rating.js)

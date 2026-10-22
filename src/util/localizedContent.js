@@ -1,9 +1,11 @@
 import { SUPPORTED_LANGUAGES } from './language';
+import { isTranslationCurrent } from './textFingerprint';
 
 /**
  * Texts written by users in the language of the visitor. The server translates them after they
  * are saved (see server/services/translation):
- *  - listings: publicData.title_<language> and description_<language> (searchable)
+ *  - listings: publicData.title_<language> and description_<language> (searchable), shown only
+ *    when made from the current text (publicData.translationSources, see util/textFingerprint.js)
  *  - profiles: publicData.translations.<language> (bio and the practitioner profile)
  * Without a translation, the original text is shown.
  */
@@ -19,12 +21,30 @@ export const getContentLanguage = intl => {
   return SUPPORTED_LANGUAGES.includes(language) ? language : null;
 };
 
-// Listing fields to fetch when listing titles are shown (e.g. on cards)
-export const LISTING_TITLE_TRANSLATION_FIELDS = SUPPORTED_LANGUAGES.map(
-  language => `publicData.title_${language}`
-);
+// Listing fields to fetch when listing titles are shown (e.g. on cards): the translations, and
+// what tells whether they were made from the current title
+export const LISTING_TITLE_TRANSLATION_FIELDS = [
+  ...SUPPORTED_LANGUAGES.map(language => `publicData.title_${language}`),
+  'publicData.translationSources',
+  'publicData.translationSourceLanguage',
+];
 
 const nonEmpty = value => (typeof value === 'string' && value.trim() !== '' ? value : null);
+
+/**
+ * The language to show a listing's translation in, or null when the original is shown: in the
+ * language the listing was written in, the original is always current (its translations may be
+ * older, e.g. after an edit in Console).
+ *
+ * @param {Object} listing
+ * @param {Object} intl
+ * @returns {string|null}
+ */
+export const getListingTranslationLanguage = (listing, intl) => {
+  const language = getContentLanguage(intl);
+  const sourceLanguage = listing?.attributes?.publicData?.translationSourceLanguage;
+  return language && language !== sourceLanguage ? language : null;
+};
 
 /**
  * The title of a listing in the visitor's language.
@@ -35,8 +55,11 @@ const nonEmpty = value => (typeof value === 'string' && value.trim() !== '' ? va
  */
 export const getListingTitle = (listing, intl) => {
   const { title = '', publicData } = listing?.attributes || {};
-  const language = getContentLanguage(intl);
-  return (language && nonEmpty(publicData?.[`title_${language}`])) || title || '';
+  const language = getListingTranslationLanguage(listing, intl);
+  const translated = language ? nonEmpty(publicData?.[`title_${language}`]) : null;
+  return (
+    (translated && isTranslationCurrent(publicData, 'title', title) && translated) || title || ''
+  );
 };
 
 /**
@@ -48,8 +71,26 @@ export const getListingTitle = (listing, intl) => {
  */
 export const getListingDescription = (listing, intl) => {
   const { description = '', publicData } = listing?.attributes || {};
-  const language = getContentLanguage(intl);
-  return (language && nonEmpty(publicData?.[`description_${language}`])) || description || '';
+  const language = getListingTranslationLanguage(listing, intl);
+  const translated = language ? nonEmpty(publicData?.[`description_${language}`]) : null;
+  const isCurrent = isTranslationCurrent(publicData, 'description', description);
+  return (translated && isCurrent && translated) || description || '';
+};
+
+/**
+ * The directions to the listing's place (doorbell, backyard, floor) in the visitor's language.
+ *
+ * @param {Object} listing
+ * @param {Object} intl
+ * @returns {string}
+ */
+export const getListingDirections = (listing, intl) => {
+  const publicData = listing?.attributes?.publicData;
+  const original = publicData?.location?.directions || '';
+  const language = getListingTranslationLanguage(listing, intl);
+  const translated = language ? nonEmpty(publicData?.translations?.[language]?.directions) : null;
+  const isCurrent = isTranslationCurrent(publicData, 'directions', original);
+  return (translated && isCurrent && translated) || original;
 };
 
 /**

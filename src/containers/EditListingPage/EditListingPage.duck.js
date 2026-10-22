@@ -17,6 +17,7 @@ import { storableError } from '../../util/errors';
 import * as log from '../../util/log';
 import { translateListing } from '../../util/api';
 import { canCreateAnotherListing } from '../../util/subscription';
+import { TREATMENT_TEXT_FIELD_KEYS } from '../../util/treatmentDetails';
 import { parse } from '../../util/urlHelpers';
 import { isUserAuthorized } from '../../util/userHelpers';
 import { isBookingProcessAlias } from '../../transactions/transaction';
@@ -224,11 +225,17 @@ const updateStockOfListingMaybe = (listingId, stockTotals, dispatch) => {
 // Create Listing Draft //
 //////////////////////////
 
-// After the title or the description is saved, the server translates them to the other
-// languages of the marketplace (see server/api/translate.js). In the background: a failure only
-// means that the original text is shown.
+// After the title, the description, the formatted texts of treatments, the price variants
+// (treatments) or the location (its directions) are saved, the server translates them to the other languages of the marketplace
+// (see server/api/translate.js). In the background: a failure only means that the original text
+// is shown.
+const TRANSLATED_PUBLIC_DATA_KEYS = [...TREATMENT_TEXT_FIELD_KEYS, 'priceVariants', 'location'];
 const translateListingMaybe = (listingId, data) => {
-  if (listingId && (typeof data?.title === 'string' || typeof data?.description === 'string')) {
+  const hasTranslatedTexts =
+    typeof data?.title === 'string' ||
+    typeof data?.description === 'string' ||
+    TRANSLATED_PUBLIC_DATA_KEYS.some(key => typeof data?.publicData?.[key] !== 'undefined');
+  if (listingId && hasTranslatedTexts) {
     translateListing({ listingId }).catch(e => {
       // 503: translations are not set up (no OpenAI key)
       if (e?.status !== 503) {

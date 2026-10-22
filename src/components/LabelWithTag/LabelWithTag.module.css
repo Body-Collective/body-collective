@@ -1,0 +1,12 @@
+.root {
+}
+
+/* "required" / "optional" next to the label */
+.tag {
+  margin-left: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fontWeightRegular);
+  letter-spacing: 0;
+  color: var(--colorGrey500);
+}

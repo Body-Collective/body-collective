@@ -15,6 +15,8 @@ import {
 } from '../../../../util/fieldHelpers';
 import { maxLength, required, composeValidators } from '../../../../util/validators';
 import { SEMINAR_LISTING_TYPE } from '../../../../util/seminarSchedule';
+import { hasFormattedContent } from '../../../../util/formattedText';
+import { getTreatmentTextField, isTreatmentListingType } from '../../../../util/treatmentDetails';
 
 // Import shared components
 import {
@@ -22,14 +24,67 @@ import {
   Button,
   FieldSelect,
   FieldTextInput,
+  FieldRichTextEditor,
   Heading,
   CustomExtendedDataField,
+  LabelTextWithTag,
 } from '../../../../components';
 // Import modules from this directory
 import SeminarScheduleFields from './SeminarScheduleFields';
 import css from './EditListingDetailsForm.module.css';
 
 const TITLE_MAX_LENGTH = 60;
+const DESCRIPTION_MAX_LENGTH = 5000;
+// Short description of treatment listings: one sentence
+const SHORT_DESCRIPTION_MAX_LENGTH = 150;
+
+// Validator of a formatted text (marks and empty lines alone are not content)
+const requiredFormattedText = message => value =>
+  hasFormattedContent(value) ? undefined : message;
+
+// A formatted text field of treatment listings (see util/treatmentDetails.js): rich text editor
+// with the label and help text in the user's language
+const TreatmentTextField = props => {
+  const { name, fieldConfig, textField, formId, intl } = props;
+  const isRequired = !!fieldConfig?.saveConfig?.isRequired;
+  const messageId = key => `EditListingDetailsForm.${textField.messageKey}.${key}`;
+  const requiredMessage =
+    fieldConfig?.saveConfig?.requiredMessage ||
+    intl.formatMessage({ id: 'EditListingDetailsForm.defaultRequiredMessage' });
+
+  if (textField.isPlainText) {
+    return (
+      <FieldTextInput
+        id={`${formId}.${name}`}
+        name={name}
+        className={css.richTextField}
+        type="textarea"
+        label={
+          <LabelTextWithTag
+            label={intl.formatMessage({ id: messageId('label') })}
+            isRequired={isRequired}
+          />
+        }
+        helpText={intl.formatMessage({ id: messageId('helpText') })}
+        placeholder={intl.formatMessage({ id: messageId('placeholder') })}
+        validate={isRequired ? required(requiredMessage) : undefined}
+      />
+    );
+  }
+
+  return (
+    <FieldRichTextEditor
+      id={`${formId}.${name}`}
+      name={name}
+      className={css.richTextField}
+      label={intl.formatMessage({ id: messageId('label') })}
+      isRequired={isRequired}
+      helpText={intl.formatMessage({ id: messageId('helpText') })}
+      placeholder={intl.formatMessage({ id: messageId('placeholder') })}
+      validate={isRequired ? requiredFormattedText(requiredMessage) : undefined}
+    />
+  );
+};
 
 // Show various error messages
 const ErrorMessage = props => {
@@ -259,19 +314,33 @@ const AddListingFields = props => {
     const isTargetListingType = isFieldForListingType(listingType, fieldConfig);
     const isTargetCategory = isFieldForCategory(targetCategoryIds, fieldConfig);
 
+    const treatmentTextField = getTreatmentTextField(key);
+
     return isKnownSchemaType && isProviderScope && isTargetListingType && isTargetCategory
-      ? [
-          ...pickedFields,
-          <CustomExtendedDataField
-            key={namespacedKey}
-            name={namespacedKey}
-            fieldConfig={fieldConfig}
-            defaultRequiredMessage={intl.formatMessage({
-              id: 'EditListingDetailsForm.defaultRequiredMessage',
-            })}
-            formId={formId}
-          />,
-        ]
+      ? treatmentTextField && schemaType === 'text'
+        ? [
+            ...pickedFields,
+            <TreatmentTextField
+              key={namespacedKey}
+              name={namespacedKey}
+              fieldConfig={fieldConfig}
+              textField={treatmentTextField}
+              formId={formId}
+              intl={intl}
+            />,
+          ]
+        : [
+            ...pickedFields,
+            <CustomExtendedDataField
+              key={namespacedKey}
+              name={namespacedKey}
+              fieldConfig={fieldConfig}
+              defaultRequiredMessage={intl.formatMessage({
+                id: 'EditListingDetailsForm.defaultRequiredMessage',
+              })}
+              formId={formId}
+            />,
+          ]
       : pickedFields;
   }, []);
 
@@ -385,6 +454,9 @@ const EditListingDetailsForm = props => (
 
       const showListingFields = hasCategories ? allCategoriesChosen : listingType;
 
+      // Treatment listings have a short description (one line) and formatted texts of their own
+      const isTreatmentListing = isTreatmentListingType(listingType);
+
       const classes = classNames(css.root, className);
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
@@ -428,7 +500,12 @@ const EditListingDetailsForm = props => (
               name="title"
               className={css.title}
               type="text"
-              label={intl.formatMessage({ id: 'EditListingDetailsForm.title' })}
+              label={
+                <LabelTextWithTag
+                  label={intl.formatMessage({ id: 'EditListingDetailsForm.title' })}
+                  isRequired
+                />
+              }
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.titlePlaceholder',
               })}
@@ -438,23 +515,56 @@ const EditListingDetailsForm = props => (
             />
           )}
 
-          {showDescription && isCompatibleCurrency && (
+          {showDescription && isCompatibleCurrency && isTreatmentListing ? (
             <FieldTextInput
               id={`${formId}description`}
               name="description"
               className={css.description}
-              type="textarea"
+              type="text"
+              label={
+                <LabelTextWithTag
+                  label={intl.formatMessage({
+                    id: 'EditListingDetailsForm.shortDescription.label',
+                  })}
+                  isRequired
+                />
+              }
+              helpText={intl.formatMessage({
+                id: 'EditListingDetailsForm.shortDescription.helpText',
+              })}
+              placeholder={intl.formatMessage({
+                id: 'EditListingDetailsForm.shortDescription.placeholder',
+              })}
+              maxLength={SHORT_DESCRIPTION_MAX_LENGTH}
+              validate={composeValidators(
+                required(intl.formatMessage({ id: 'EditListingDetailsForm.descriptionRequired' })),
+                maxLength(
+                  intl.formatMessage(
+                    { id: 'EditListingDetailsForm.maxLength' },
+                    { maxLength: SHORT_DESCRIPTION_MAX_LENGTH }
+                  ),
+                  SHORT_DESCRIPTION_MAX_LENGTH
+                )
+              )}
+            />
+          ) : showDescription && isCompatibleCurrency ? (
+            <FieldRichTextEditor
+              id={`${formId}description`}
+              name="description"
+              className={css.richTextField}
               label={intl.formatMessage({ id: 'EditListingDetailsForm.description' })}
+              isRequired
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.descriptionPlaceholder',
               })}
-              validate={required(
+              maxLength={DESCRIPTION_MAX_LENGTH}
+              validate={requiredFormattedText(
                 intl.formatMessage({
                   id: 'EditListingDetailsForm.descriptionRequired',
                 })
               )}
             />
-          )}
+          ) : null}
 
           {showListingFields && isCompatibleCurrency && listingType === SEMINAR_LISTING_TYPE && (
             <SeminarScheduleFields formId={formId} intl={intl} />

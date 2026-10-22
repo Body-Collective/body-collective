@@ -451,7 +451,10 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
         'publicData.shippingEnabled',
         'publicData.priceVariationsEnabled',
         'publicData.priceVariants',
-        // Shown on the cards: the aggregate rating and the translated titles
+        // Shown on the cards: the place ("Berlin · Kreuzberg"), the aggregate rating and the
+        // translated titles
+        'publicData.location',
+        'publicData.neighbourhood',
         ...LISTING_RATING_FIELDS,
         ...LISTING_TITLE_TRANSLATION_FIELDS,
       ],

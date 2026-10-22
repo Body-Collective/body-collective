@@ -7,6 +7,9 @@ import { renderWithProviders as render, testingLibrary } from '../../../../util/
 
 import EditListingDetailsForm from './EditListingDetailsForm';
 
+// Tiptap doesn't run in jsdom: the editor is a textarea in tests (see __mocks__)
+jest.mock('../../../../components/FieldRichTextEditor/RichTextEditor');
+
 const { screen, userEvent } = testingLibrary;
 
 const noop = () => null;
@@ -103,8 +106,9 @@ describe('EditListingDetailsForm', () => {
     const title = 'EditListingDetailsForm.title';
     expect(screen.getByText(title)).toBeInTheDocument();
 
+    // The description editor is a loadable component
     const description = 'EditListingDetailsForm.description';
-    expect(screen.getByText(description)).toBeInTheDocument();
+    expect(await screen.findByText(description)).toBeInTheDocument();
 
     // Test that save button is disabled at first
     expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();

@@ -10,12 +10,19 @@ import {
   autocompletePlaceSelected,
   composeValidators,
 } from '../../../../util/validators';
+import {
+  NEIGHBOURHOOD_KEY,
+  NEIGHBOURHOOD_LISTING_TYPES,
+  getNeighbourhoodOptions,
+  getRegionOfOrigin,
+} from '../../../../util/neighbourhoods';
 
 // Import shared components
 import {
   Form,
   FieldLocationAutocompleteInput,
   Button,
+  FieldSelect,
   FieldTextInput,
 } from '../../../../components';
 
@@ -23,6 +30,13 @@ import {
 import css from './EditListingLocationForm.module.css';
 
 const identity = v => v;
+
+// Directions to the place, e.g. doorbell, backyard, floor
+const DIRECTIONS_MAX_LENGTH = 500;
+
+// The neighbourhood is one of the options of the address's region (see util/neighbourhoods.js)
+const neighbourhoodValidator = (options, requiredMessage) => value =>
+  value && options.includes(value) ? undefined : requiredMessage;
 
 /**
  * The EditListingLocationForm component.
@@ -64,9 +78,20 @@ export const EditListingLocationForm = props => (
         updateInProgress = false,
         fetchErrors,
         values,
+        listingType,
       } = formRenderProps;
 
       const intl = useIntl();
+      const addressOrigin = values.location?.selectedPlace?.origin;
+      const neighbourhoodOptions = getNeighbourhoodOptions(addressOrigin);
+      // Treatment listings (see util/neighbourhoods.js)
+      const hasNeighbourhood = NEIGHBOURHOOD_LISTING_TYPES.includes(listingType);
+      // Chosen among the neighbourhoods of the address's region; none outside the regions
+      const showNeighbourhood = hasNeighbourhood && !!getRegionOfOrigin(addressOrigin);
+      // "Neighbourhood" in Berlin, "Island" on the Balearic Islands
+      const region = getRegionOfOrigin(addressOrigin);
+      const neighbourhoodMessageId = key =>
+        `EditListingLocationForm.neighbourhood${key}.${region?.id || 'any'}`;
       const addressRequiredMessage = intl.formatMessage({
         id: 'EditListingLocationForm.addressRequired',
       });
@@ -108,6 +133,8 @@ export const EditListingLocationForm = props => (
             autoFocus={autoFocus}
             name="location"
             id={`${formId}.location`}
+            // As detailed as Mapbox can: street and house number, or a named place
+            preferDetailedAddresses
             label={intl.formatMessage({ id: 'EditListingLocationForm.address' })}
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.addressPlaceholder',
@@ -130,6 +157,46 @@ export const EditListingLocationForm = props => (
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.buildingPlaceholder',
             })}
+          />
+
+          {showNeighbourhood ? (
+            <FieldSelect
+              // Options change with the region of the address
+              key={neighbourhoodOptions.join()}
+              className={css.building}
+              name={NEIGHBOURHOOD_KEY}
+              id={`${formId}${NEIGHBOURHOOD_KEY}`}
+              label={intl.formatMessage({ id: neighbourhoodMessageId('') })}
+              validate={neighbourhoodValidator(
+                neighbourhoodOptions,
+                intl.formatMessage({ id: neighbourhoodMessageId('Required') })
+              )}
+            >
+              <option disabled value="">
+                {intl.formatMessage({ id: neighbourhoodMessageId('Placeholder') })}
+              </option>
+              {neighbourhoodOptions.map(o => (
+                <option key={o} value={o}>
+                  {intl.formatMessage({ id: `Neighbourhood.${o}` })}
+                </option>
+              ))}
+            </FieldSelect>
+          ) : null}
+
+          <FieldTextInput
+            className={css.building}
+            type="textarea"
+            name="directions"
+            id={`${formId}directions`}
+            label={intl.formatMessage(
+              { id: 'EditListingLocationForm.directions' },
+              { optionalText }
+            )}
+            placeholder={intl.formatMessage({
+              id: 'EditListingLocationForm.directionsPlaceholder',
+            })}
+            helpText={intl.formatMessage({ id: 'EditListingLocationForm.directionsHelpText' })}
+            maxLength={DIRECTIONS_MAX_LENGTH}
           />
 
           <Button

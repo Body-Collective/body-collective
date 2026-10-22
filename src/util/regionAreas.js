@@ -1,3 +1,5 @@
+import { NEIGHBOURHOOD_OPTIONS, NEIGHBOURHOOD_SEARCH_PARAM } from './neighbourhoods';
+
 /**
  * Region pages (e.g. /p/berlin or /p/balearic-island) show a region's areas (neighbourhoods,
  * islands...) as pills, and filter the page's listing sections by the selected one.
@@ -7,8 +9,10 @@
  * - block text: how the area is put in a sentence, e.g. "across the city" for the whole region in
  *   "8 practitioners across the city", or "on Mallorca" in "3 practitioners on Mallorca". Without
  *   text an area is "in {title}"
- * - block link address: a search page URL, e.g. "/s?address=Mitte,+Berlin&bounds=52.5,13.4,52.4,13.3".
- *   Search for the area on the search page and copy the URL
+ * - block link address: a search page URL, e.g. "/s?address=Berlin&bounds=52.68,13.77,52.33,13.08".
+ *   Search for the area on the search page and copy the URL. Not used for the neighbourhoods and
+ *   islands of util/neighbourhoods.js (anchor id = option id, e.g. "mitte"): they filter by the
+ *   listing field neighbourhood (pub_neighbourhood), an enum filter
  * - block anchor id: the value of ?area= in the page URL (the title is used when it's empty)
  * The first block is the whole region. It's what the page shows by default.
  *
@@ -32,8 +36,10 @@ export const AREA_PARAM = 'area';
 export const isRegionListingsSectionId = sectionId =>
   sectionId === REGION_PRACTITIONERS_SECTION_ID || sectionId === REGION_EVENTS_SECTION_ID;
 
-// Search params that tell where to look. A neighbourhood replaces these in a section's query.
+// Search params that tell where to look. A neighbourhood replaces these in a section's query:
+// with its listing field neighbourhood (an enum filter) or its location.
 const LOCATION_PARAMS = ['address', 'bounds', 'origin'];
+const AREA_PARAMS = [...LOCATION_PARAMS, NEIGHBOURHOOD_SEARCH_PARAM];
 
 const slugify = text =>
   `${text || ''}`
@@ -79,11 +85,16 @@ export const getRegionAreas = allSections => {
       params: parseSearchQuery(block.callToAction?.href),
     }))
     .filter(area => area.name)
-    .map((area, index) => ({
-      ...area,
-      slug: area.slug || slugify(area.name),
-      isDefault: index === 0,
-    }));
+    .map((area, index) => {
+      const slug = area.slug || slugify(area.name);
+      const isNeighbourhood = NEIGHBOURHOOD_OPTIONS.includes(slug);
+      return {
+        ...area,
+        slug,
+        params: isNeighbourhood ? { [NEIGHBOURHOOD_SEARCH_PARAM]: slug } : area.params,
+        isDefault: index === 0,
+      };
+    });
 };
 
 /**
@@ -123,8 +134,8 @@ export const getAreaListingSearchQuery = (listingSearchQuery, area) => {
     return listingSearchQuery;
   }
   const params = parseSearchQuery(listingSearchQuery);
-  LOCATION_PARAMS.forEach(key => delete params[key]);
-  LOCATION_PARAMS.forEach(key => {
+  AREA_PARAMS.forEach(key => delete params[key]);
+  AREA_PARAMS.forEach(key => {
     if (area.params[key]) {
       params[key] = area.params[key];
     }
@@ -142,7 +153,7 @@ export const getAreaListingSearchQuery = (listingSearchQuery, area) => {
  */
 export const getAreaSearchParams = (areas, area) => {
   const { params = {} } = area || areas[0] || {};
-  return LOCATION_PARAMS.reduce(
+  return AREA_PARAMS.reduce(
     (picked, key) => (params[key] ? { ...picked, [key]: params[key] } : picked),
     {}
   );

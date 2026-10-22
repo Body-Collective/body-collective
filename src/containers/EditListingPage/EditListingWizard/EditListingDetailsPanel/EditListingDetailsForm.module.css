@@ -38,6 +38,12 @@
   flex-shrink: 0;
 }
 
+/* Description and the formatted texts of treatments (rich text editor) */
+.richTextField {
+  composes: formMargins;
+  flex-shrink: 0;
+}
+
 .listingTypeSelect {
   margin-bottom: 24px;
 

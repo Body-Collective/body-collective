@@ -1,0 +1,201 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+}
+
+/* Same frame as the text inputs (see marketplaceDefaults.css) */
+.editor {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #d8dce6;
+  border-radius: 6px;
+  transition: all ease-in-out 100ms;
+
+  &:hover {
+    border-color: #b8bfd1;
+  }
+
+  &:focus-within {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+  }
+}
+
+.editorInvalid {
+  border: var(--borderErrorField);
+
+  &:hover {
+    border: var(--borderErrorField);
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid #e8eaf0;
+
+  @media (--viewportMedium) {
+    padding: 4px 8px;
+  }
+}
+
+.toolButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--colorGrey700);
+  cursor: pointer;
+  transition: background-color ease-in-out 100ms;
+
+  &:hover {
+    background-color: var(--colorGrey50);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  @media (--viewportMedium) {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.toolButtonActive {
+  background-color: rgba(237, 135, 98, 0.14);
+  color: var(--colorBrandAccent);
+
+  &:hover {
+    background-color: rgba(237, 135, 98, 0.2);
+  }
+}
+
+.toolIcon {
+  width: 16px;
+  height: 16px;
+  /* Line icons: global svg styles must not fill them */
+  fill: none;
+  stroke: currentColor;
+}
+
+.toolIconDot {
+  fill: currentColor;
+  stroke: none;
+}
+
+.toolDivider {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background-color: #e8eaf0;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 144px;
+  padding: 12px;
+  cursor: text;
+
+  @media (--viewportMedium) {
+    min-height: 160px;
+    padding: 12px 16px;
+  }
+}
+
+.placeholder {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--colorGrey300);
+  pointer-events: none;
+
+  @media (--viewportMedium) {
+    left: 16px;
+    right: 16px;
+  }
+}
+
+.editorContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.editable {
+  flex: 1;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--colorGrey900);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.divider {
+  height: 0;
+  margin: 16px 0;
+  border: none;
+  border-top: 1px solid #d8dce6;
+}
+
+/* Blocks of the document (classes given to Tiptap's nodes in RichTextEditor.js) */
+.paragraph {
+  margin: 0;
+  padding: 0;
+}
+
+.list,
+.orderedList {
+  margin: 0;
+  padding: 0 0 0 22px;
+}
+
+.list {
+  list-style: disc;
+}
+
+.orderedList {
+  list-style: decimal;
+}
+
+.listItem {
+  margin: 0;
+  padding: 0;
+}
+
+.listItem + .listItem {
+  margin-top: 4px;
+}
+
+.paragraph + .paragraph,
+.paragraph + .list,
+.paragraph + .orderedList,
+.list + .paragraph,
+.orderedList + .paragraph {
+  margin-top: 12px;
+}

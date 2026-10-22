@@ -96,6 +96,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           // Shown on the cards: where the listing is, how it is rated and when a seminar takes place
           'publicData.location',
           'publicData.locationName',
+          'publicData.neighbourhood',
           ...LISTING_RATING_FIELDS,
           ...LISTING_TITLE_TRANSLATION_FIELDS,
           'publicData.seminar_date',

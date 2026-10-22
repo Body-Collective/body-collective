@@ -1,0 +1,53 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  /* Room between paragraphs and lists */
+  & > * + * {
+    margin-top: 12px;
+
+    @media (--viewportMedium) {
+      margin-top: 16px;
+    }
+  }
+}
+
+.divider {
+  height: 0;
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--colorGrey100);
+}
+
+.paragraph {
+  composes: p from global;
+  margin: 0;
+  padding: 0;
+}
+
+.list,
+.orderedList {
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+.list {
+  list-style: disc;
+}
+
+.orderedList {
+  list-style: decimal;
+}
+
+.item {
+  composes: p from global;
+  margin: 0;
+  padding: 0 0 0 2px;
+
+  & + & {
+    margin-top: 6px;
+
+    @media (--viewportMedium) {
+      margin-top: 8px;
+    }
+  }
+}

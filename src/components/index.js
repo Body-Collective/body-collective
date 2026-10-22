@@ -68,6 +68,8 @@ export { default as TimeRange } from './TimeRange/TimeRange';
 export { default as UserDisplayName } from './UserDisplayName/UserDisplayName';
 export { default as ValidationError } from './ValidationError/ValidationError';
 export { default as HelpText } from './HelpText/HelpText';
+export { default as LabelWithTag, LabelTextWithTag } from './LabelWithTag/LabelWithTag';
+export { default as FormattedText } from './FormattedText/FormattedText';
 
 /**
  * Composite components
@@ -117,6 +119,7 @@ export { default as LocationAutocompleteInput, FieldLocationAutocompleteInput } 
 export const FieldDateRangePicker = loadable(() => import(/* webpackChunkName: "FieldDateRangePicker" */ './DatePicker/FieldDateRangePicker/FieldDateRangePicker'));
 export const FieldSingleDatePicker = loadable(() => import(/* webpackChunkName: "FieldSingleDatePicker" */ './DatePicker/FieldSingleDatePicker/FieldSingleDatePicker'));
 export const FieldDateRangeController = loadable(() => import(/* webpackChunkName: "FieldDateRangeController" */ './DatePicker/FieldDateRangeController/FieldDateRangeController'));
+export const FieldRichTextEditor = loadable(() => import(/* webpackChunkName: "FieldRichTextEditor" */ './FieldRichTextEditor/FieldRichTextEditor'));
 
 // Tab navigation
 export { default as TabNav } from './TabNav/TabNav';

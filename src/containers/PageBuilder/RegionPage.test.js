@@ -191,9 +191,10 @@ describe('Region page', () => {
 
     await userEvent.click(getByRole('button', { name: 'Search' }));
     await waitFor(() => {
-      expect(getByTestId('location')).toHaveTextContent('/s?address=Neuk');
+      // A neighbourhood of util/neighbourhoods.js: the enum filter, not its address
+      expect(getByTestId('location')).toHaveTextContent('/s?pub_neighbourhood=neukoelln');
     });
-    expect(getByTestId('location')).toHaveTextContent('bounds=52.49%2C13.47%2C52.45%2C13.40');
+    expect(getByTestId('location')).not.toHaveTextContent('bounds=');
   });
   describe('with islands', () => {
     const renderIslands = options => renderRegionPage({ pageSections: islandSections, ...options });

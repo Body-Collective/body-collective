@@ -20,6 +20,7 @@ import {
   stringifyDateToISO8601,
 } from '../../util/dates';
 import { isFieldForCategory, isFieldForListingType } from '../../util/fieldHelpers';
+import { NEIGHBOURHOOD_SEARCH_PARAM, validNeighbourhoodParam } from '../../util/neighbourhoods';
 
 const validURLParamForCategoryData = (prefix, categories, level, params) => {
   const levelKey = constructQueryParamName(`${prefix}${level}`, 'public');
@@ -235,9 +236,17 @@ export const validFilterParams = (params, filterConfigs, dropNonFilterParams = t
       : { ...validParams, [paramName]: paramValue };
   }, {});
 
+  // The neighbourhood isn't a listing field of the configuration (see util/neighbourhoods.js):
+  // its option ids are kept as they are
+  const neighbourhoodMaybe = validNeighbourhoodParam(params[NEIGHBOURHOOD_SEARCH_PARAM]);
+
   // TODO: Currently this only supports categoryLevel with nested param names.
   //       This needs more work to make other enum fields to understand nested keys.
-  return { ...listingFieldsAndBuiltInFilterParamNames, ...validNestedCategoryParamNames };
+  return {
+    ...listingFieldsAndBuiltInFilterParamNames,
+    ...validNestedCategoryParamNames,
+    ...neighbourhoodMaybe,
+  };
 };
 
 /**

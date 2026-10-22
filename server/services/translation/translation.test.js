@@ -3,6 +3,7 @@ jest.mock('./openai', () => ({ requestJson: jest.fn(), isConfigured: () => true 
 const { requestJson } = require('./openai');
 const { hashTexts, translateTexts } = require('./index');
 const { translateListing } = require('./listing');
+const { textFingerprint } = require('./fingerprint');
 const { getProfileTexts, translateProfile } = require('./profile');
 
 // The model's answer: every item gets the given language unless it has its own
@@ -104,6 +105,51 @@ describe('translation', () => {
           translationSourceHash: hashTexts({ title: 'Lomi Lomi', description: 'A ritual' }),
         }),
       });
+    });
+
+    it('translates the texts of treatments and the price variants', async () => {
+      const s = sdk();
+      const publicData = {
+        about_treatment: '**Ayurveda** is old.',
+        location: { address: 'Liebenwalder Straße 33', directions: 'First backyard' },
+        priceVariants: [
+          { name: 'Abhyanga', description: 'Warm oil', priceInSubunits: 14500 },
+          { name: 'Padabhyanga', priceInSubunits: 9500 },
+        ],
+      };
+      s.ownListings.show.mockResolvedValue(listing('Ayurveda', 'Oil massage', publicData));
+      requestJson.mockResolvedValue(
+        answer('en', [
+          { id: 'title', translation: 'Ayurveda' },
+          { id: 'description', translation: 'Ölmassage' },
+          { id: 'about_treatment', translation: '**Ayurveda** ist alt.' },
+          { id: 'directions', translation: 'Erster Hinterhof' },
+          { id: 'variant_0_name', translation: 'Abhyanga' },
+          { id: 'variant_0_description', translation: 'Warmes Öl' },
+          { id: 'variant_1_name', translation: 'Padabhyanga' },
+        ])
+      );
+      await translateListing({ sdk: s, listingId: { uuid: 'l1' } });
+      const saved = s.ownListings.update.mock.calls[0][0].publicData;
+      expect(saved.translations.de).toEqual({
+        about_treatment: '**Ayurveda** ist alt.',
+        directions: 'Erster Hinterhof',
+        priceVariants: [
+          { name: 'Abhyanga', description: 'Warmes Öl' },
+          { name: 'Padabhyanga', description: '' },
+        ],
+      });
+      expect(saved.translations.en.about_treatment).toEqual('**Ayurveda** is old.');
+      expect(Object.keys(saved.translationSources)).toEqual([
+        'title',
+        'description',
+        'about_treatment',
+        'directions',
+        'variant_0_name',
+        'variant_0_description',
+        'variant_1_name',
+      ]);
+      expect(saved.translationSources.title).toEqual(textFingerprint('Ayurveda'));
     });
 
     it('does not translate unchanged texts again', async () => {

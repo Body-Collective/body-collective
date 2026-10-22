@@ -6,6 +6,10 @@ const { LatLng: SDKLatLng, LatLngBounds: SDKLatLngBounds } = sdkTypes;
 export const CURRENT_LOCATION_ID = 'current-location';
 
 const GENERATED_BOUNDS_DEFAULT_DISTANCE = 500; // meters
+// The most detailed Mapbox place types: street addresses (with a house number when Mapbox knows
+// it) and named places, e.g. a studio or a hotel
+const DETAILED_PLACE_TYPES = ['address', 'poi'];
+
 // Distances for generated bounding boxes for different Mapbox place types
 const PLACE_TYPE_BOUNDS_DISTANCES = {
   address: 500,
@@ -93,29 +97,38 @@ class GeocoderMapbox {
    * Search places with the given name.
    *
    * @param {String} search query for place names
+   * @param {Array<String>} [countryLimit]
+   * @param {String} [locale]
+   * @param {Object} [options]
+   * @param {boolean} [options.preferDetailedAddresses] Street addresses and named places (POIs)
+   * only, or, when Mapbox has none for the search, all place types
    *
    * @return {Promise<{ search: String, predictions: Array<Object>}>}
    * results of the geocoding, should have the original search query
    * and an array of predictions. The format of the predictions is
    * only relevant for the `getPlaceDetails` function below.
    */
-  getPlacePredictions(search, countryLimit, locale) {
+  getPlacePredictions(search, countryLimit, locale, options = {}) {
     const limitCountriesMaybe = countryLimit ? { countries: countryLimit } : {};
+    const geocode = typesMaybe =>
+      this.getClient()
+        .geocoding.forwardGeocode({
+          query: search,
+          limit: 5,
+          ...limitCountriesMaybe,
+          ...typesMaybe,
+          language: [locale],
+        })
+        .send()
+        .then(response => response.body.features);
 
-    return this.getClient()
-      .geocoding.forwardGeocode({
-        query: search,
-        limit: 5,
-        ...limitCountriesMaybe,
-        language: [locale],
-      })
-      .send()
-      .then(response => {
-        return {
-          search,
-          predictions: response.body.features,
-        };
-      });
+    const predictions = options.preferDetailedAddresses
+      ? geocode({ types: DETAILED_PLACE_TYPES }).then(features =>
+          features.length > 0 ? features : geocode({})
+        )
+      : geocode({});
+
+    return predictions.then(features => ({ search, predictions: features }));
   }
 
   /**

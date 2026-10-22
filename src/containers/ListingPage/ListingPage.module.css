@@ -655,6 +655,106 @@
   }
 }
 
+/* Details of treatment listings (SectionTreatmentDetails.js) */
+.treatmentDetails {
+}
+
+.sectionTreatmentText,
+.sectionTreatmentPackages {
+  padding: 0 24px;
+  margin-bottom: 36px;
+
+  @media (--viewportMedium) {
+    padding: 0;
+    margin-bottom: 40px;
+  }
+}
+
+.treatmentPlainText {
+  composes: p from global;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.treatments {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--colorGrey100);
+}
+
+.treatment {
+  border-bottom: 1px solid var(--colorGrey100);
+}
+
+.treatmentHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 18px 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+
+  @media (--viewportMedium) {
+    padding: 16px 0;
+  }
+}
+
+.treatmentToggle {
+  cursor: pointer;
+
+  &:hover .treatmentName {
+    text-decoration: underline;
+  }
+}
+
+.treatmentHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.treatmentName {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: var(--fontWeightSemiBold);
+  line-height: 24px;
+  color: var(--colorGrey900);
+}
+
+.treatmentMeta {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--colorGrey600);
+}
+
+.treatmentArrow {
+  flex-shrink: 0;
+  margin-top: 6px;
+  stroke: var(--colorGrey700);
+  fill: var(--colorGrey700);
+}
+
+.treatmentDescription {
+  composes: p from global;
+  margin: 0;
+  padding: 0 0 18px 0;
+  white-space: pre-line;
+
+  @media (--viewportMedium) {
+    padding: 0 0 16px 0;
+  }
+}
+
 .policyList {
   margin: 0;
   padding: 0 0 0 18px;
@@ -668,6 +768,33 @@
 
   @media (--viewportMedium) {
     margin: 0 0 8px 0;
+  }
+}
+
+/* Address and directions above the map (SectionMapMaybe.js) */
+.locationAddress {
+  margin-bottom: 18px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.locationAddressLine {
+  composes: p from global;
+  margin: 0;
+  padding: 0;
+}
+
+.locationDirections {
+  composes: p from global;
+  margin: 6px 0 0 0;
+  padding: 0;
+  color: var(--colorGrey600);
+  white-space: pre-line;
+
+  @media (--viewportMedium) {
+    margin-top: 8px;
   }
 }
 

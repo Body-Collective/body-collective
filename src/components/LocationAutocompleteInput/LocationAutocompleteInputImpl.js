@@ -364,7 +364,9 @@ class LocationAutocompleteInputImplementation extends Component {
     this.setState({ fetchingPredictions: true });
 
     return this.getGeocoder()
-      .getPlacePredictions(search, config.maps.search.countryLimit, config.localization.locale)
+      .getPlacePredictions(search, config.maps.search.countryLimit, config.localization.locale, {
+        preferDetailedAddresses: !!this.props.preferDetailedAddresses,
+      })
       .then(results => {
         const { search: currentSearch } = currentValue(this.props);
         this.setState({ fetchingPredictions: false });
@@ -617,6 +619,8 @@ class LocationAutocompleteInputImplementation extends Component {
  * @param {boolean} props.closeOnBlur
  * @param {string?} props.placeholder
  * @param {boolean} props.useDefaultPredictions
+ * @param {boolean} [props.preferDetailedAddresses] Suggest street addresses and named places first
+ *   (Mapbox): areas and cities only when there are none, e.g. for a listing's address
  * @param {Object} props.input
  * @param {string} props.input.name
  * @param {string|SearchData} props.input.value

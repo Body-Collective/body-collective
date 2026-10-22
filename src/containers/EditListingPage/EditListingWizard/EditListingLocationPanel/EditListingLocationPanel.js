@@ -4,6 +4,7 @@ import classNames from 'classnames';
 // Import configs and util modules
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { LISTING_STATE_DRAFT } from '../../../../util/types';
+import { NEIGHBOURHOOD_KEY, getRegionOfOrigin } from '../../../../util/neighbourhoods';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -20,10 +21,12 @@ const getInitialValues = props => {
   // TODO bounds are missing - those need to be queried directly from Google Places
   const locationFieldsPresent = publicData?.location?.address && geolocation;
   const location = publicData?.location || {};
-  const { address, building } = location;
+  const { address, building, directions } = location;
 
   return {
     building,
+    directions,
+    [NEIGHBOURHOOD_KEY]: publicData?.[NEIGHBOURHOOD_KEY] || '',
     location: locationFieldsPresent
       ? {
           search: address,
@@ -98,8 +101,15 @@ const EditListingLocationPanel = props => {
       <EditListingLocationForm
         className={css.form}
         initialValues={state.initialValues}
+        listingType={listing?.attributes?.publicData?.listingType}
         onSubmit={values => {
-          const { building = '', location } = values;
+          const { building = '', directions = '', location } = values;
+          // Only for an address in a region (see util/neighbourhoods.js)
+          const neighbourhood = getRegionOfOrigin(location.selectedPlace.origin)
+            ? values[NEIGHBOURHOOD_KEY] || null
+            : null;
+          // Directions to the place (doorbell, backyard, floor), shown with the address
+          const cleanDirections = directions.trim();
           const {
             selectedPlace: { address, origin },
           } = location;
@@ -108,7 +118,9 @@ const EditListingLocationPanel = props => {
           const updateValues = {
             geolocation: origin,
             publicData: {
-              location: { address, building },
+              location: { address, building, directions: cleanDirections },
+              // Enum listing field, a search filter (see util/neighbourhoods.js)
+              [NEIGHBOURHOOD_KEY]: neighbourhood,
             },
           };
           // Save the initialValues to state
@@ -117,6 +129,8 @@ const EditListingLocationPanel = props => {
           setState({
             initialValues: {
               building,
+              directions: cleanDirections,
+              [NEIGHBOURHOOD_KEY]: neighbourhood || '',
               location: { search: address, selectedPlace: { address, origin } },
             },
           });
