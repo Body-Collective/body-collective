@@ -1845,5 +1845,13 @@
   "Neighbourhood.mallorca": "Mallorca",
   "Neighbourhood.ibiza": "Ibiza",
   "Neighbourhood.formentera": "Formentera",
-  "Neighbourhood.menorca": "Menorca"
+  "Neighbourhood.menorca": "Menorca",
+  "EditListingDetailsForm.eventType": "Event type",
+  "EditListingDetailsForm.eventTypePlaceholder": "Choose the type…",
+  "EditListingDetailsForm.eventTypeRequired": "Please choose the type of the event.",
+  "EventType.seminar": "Seminar",
+  "EventType.training": "Training",
+  "EventType.workshop": "Workshop",
+  "EventType.event": "Event",
+  "EventType.retreat": "Retreat"
 }

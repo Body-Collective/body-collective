@@ -1,3 +1,5 @@
+@import '../../../../styles/customMediaQueries.css';
+
 /* "8 practitioners across the city": sits between the neighbourhood pills and the grid */
 .count {
   margin: 0 0 20px;
@@ -15,8 +17,17 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  /* One card per row on phones, 4 on desktop (like the rows of the home page) */
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
   margin: 0;
   padding: 0;
   list-style: none;
@@ -44,9 +55,8 @@
   height: 100%;
 }
 
-/* Listing cards: photo of a fixed height, with the text inset below it */
+/* Listing cards: photo in portrait 4 : 5, with the text inset below it */
 .cardImage {
-  height: 420px;
   background: var(--colorGrey100);
   border-radius: 4px;
 }

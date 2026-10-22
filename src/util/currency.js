@@ -256,6 +256,33 @@ export const formatMoney = (intl, value) => {
 };
 
 /**
+ * Format a price for cards: the amount, then the currency symbol, without cents when there are
+ * none, e.g. "160 €" or "45,50 €" (the number in the format of the page's language).
+ *
+ * @param {Object} intl
+ * @param {Money} value
+ *
+ * @return {String} formatted money value
+ */
+export const formatMoneyAmountFirst = (intl, value) => {
+  if (!(value instanceof Money)) {
+    throw new Error('Value must be a Money type');
+  }
+  const valueAsNumber = convertMoneyToNumber(value);
+  const hasCents = !Number.isInteger(valueAsNumber);
+  const amount = intl.formatNumber(valueAsNumber, {
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
+  const symbol =
+    new Intl.NumberFormat('en', { style: 'currency', currency: value.currency })
+      .formatToParts(0)
+      .find(part => part.type === 'currency')?.value || value.currency;
+  // Narrow no-break space: the symbol stays with the amount
+  return `${amount}\u202f${symbol}`;
+};
+
+/**
  * Format the given major-unit string value as currency. E.g. "10" -> "$10".
  *
  * NOTE: This function should not be used with listing prices or other Money type.

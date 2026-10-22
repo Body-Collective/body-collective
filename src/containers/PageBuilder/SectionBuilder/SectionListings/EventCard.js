@@ -3,9 +3,11 @@ import classNames from 'classnames';
 
 import { useIntl } from '../../../../util/reactIntl';
 import { createSlug } from '../../../../util/urlHelpers';
-import { formatSeminarSchedule } from '../../../../util/seminarSchedule';
+import { EVENT_TYPE, EVENT_TYPES, formatSeminarCardDates } from '../../../../util/seminarSchedule';
 import { getListingRating } from '../../../../util/rating';
 import { getListingTitle } from '../../../../util/localizedContent';
+import { getListingPlaceLine } from '../../../../util/neighbourhoods';
+import { formatMoneyAmountFirst } from '../../../../util/currency';
 
 import { AspectRatioWrapper, NamedLink, ResponsiveImage } from '../../../../components';
 
@@ -48,29 +50,37 @@ const RatingStarIcon = () => (
 );
 
 const getEventCardFields = (listing, intl) => {
-  const { publicData } = listing?.attributes || {};
-  const title = getListingTitle(listing, intl);
+  const { publicData, price } = listing?.attributes || {};
+  const eventType = publicData?.[EVENT_TYPE];
+  const listingRating = getListingRating(listing);
+  const hasReviews = Number(listingRating?.reviewCount) > 0;
   const locationSource = publicData?.location;
-  const locationLabel =
-    typeof locationSource === 'string'
-      ? locationSource.trim() || null
-      : locationSource?.address
-      ? locationSource.address.split(',')[0].trim()
-      : publicData?.locationName || null;
 
   return {
-    title,
-    category: publicData?.eventCategory || publicData?.category || null,
-    dateLabel: publicData?.dateLabel || formatSeminarSchedule(intl, publicData)?.dates || null,
-    locationLabel,
-    rating: getListingRating(listing)?.rating ?? null,
-    reviewCount: getListingRating(listing)?.reviewCount ?? null,
+    title: getListingTitle(listing, intl),
+    // Seminar, Training, Workshop, Event or Retreat (see util/seminarSchedule.js)
+    eventTypeLabel: EVENT_TYPES.includes(eventType)
+      ? intl.formatMessage({ id: `EventType.${eventType}` })
+      : null,
+    // e.g. "27 Dec 26 – 3 Jan 27"
+    dateLabel: formatSeminarCardDates(intl, publicData),
+    // City or region · Area or town, like on treatment cards
+    locationLabel:
+      typeof locationSource === 'string'
+        ? locationSource.trim() || null
+        : locationSource?.address
+        ? getListingPlaceLine(publicData, intl)
+        : publicData?.locationName || null,
+    // Only the star: no number of reviews on seminar cards
+    rating: hasReviews ? listingRating.rating : null,
+    priceLabel: price ? formatMoneyAmountFirst(intl, price) : null,
     authorName: listing?.author?.attributes?.profile?.displayName || null,
   };
 };
 
 /**
- * Card used by the seminars_and_events listings section.
+ * Card of Seminars & Events listings (home page, region pages, profiles): the type of the event
+ * on the image, then the title, the dates, the place, the host, and the price with the rating.
  *
  * @component
  * @param {Object} props
@@ -87,11 +97,11 @@ const EventCard = props => {
 
   const {
     title,
-    category,
+    eventTypeLabel,
     dateLabel,
     locationLabel,
     rating,
-    reviewCount,
+    priceLabel,
     authorName,
   } = getEventCardFields(listing, intl);
 
@@ -103,14 +113,10 @@ const EventCard = props => {
     : [];
   const hasImage = Boolean(firstImage && variants.length);
 
-  const reviewsLabel =
-    reviewCount != null
-      ? intl.formatMessage({ id: 'ListingCard.reviews' }, { count: Number(reviewCount) })
-      : null;
   const withAuthor =
     authorName && intl.formatMessage({ id: 'EventCard.withAuthor' }, { authorName });
-  const photoLabel = category
-    ? intl.formatMessage({ id: 'EventCard.photoPlaceholder' }, { category })
+  const photoLabel = eventTypeLabel
+    ? intl.formatMessage({ id: 'EventCard.photoPlaceholder' }, { category: eventTypeLabel })
     : null;
 
   return (
@@ -137,30 +143,31 @@ const EventCard = props => {
             </div>
           )}
         </AspectRatioWrapper>
-        {category ? <span className={css.badge}>{category}</span> : null}
+        {eventTypeLabel ? <span className={css.badge}>{eventTypeLabel}</span> : null}
       </div>
       <div className={css.info}>
-        <div className={css.titleRow}>
-          <div className={css.title}>{title}</div>
-          {rating != null ? (
-            <div className={css.rating}>
-              <RatingStarIcon />
-              <span>{Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : rating}</span>
-            </div>
-          ) : null}
-        </div>
-        {dateLabel || locationLabel ? (
-          <div className={css.meta}>
-            {dateLabel ? <span>{dateLabel}</span> : null}
-            {dateLabel && locationLabel ? <span className={css.metaDot}>·</span> : null}
-            {locationLabel ? <span>{locationLabel}</span> : null}
-          </div>
-        ) : null}
-        {withAuthor || reviewsLabel ? (
-          <div className={css.meta}>
-            {withAuthor ? <span>{withAuthor}</span> : null}
-            {withAuthor && reviewsLabel ? <span className={css.metaDot}>·</span> : null}
-            {reviewsLabel ? <span className={css.reviewCount}>{reviewsLabel}</span> : null}
+        <div className={css.title}>{title}</div>
+        {dateLabel ? <div className={css.date}>{dateLabel}</div> : null}
+        {locationLabel ? <div className={css.meta}>{locationLabel}</div> : null}
+        {withAuthor ? <div className={css.meta}>{withAuthor}</div> : null}
+        {priceLabel || rating != null ? (
+          <div className={css.priceRow}>
+            {priceLabel ? (
+              <span className={css.price}>
+                <span className={css.pricePrefix}>
+                  {intl.formatMessage({ id: 'ListingCard.priceFromPrefix' })}
+                </span>{' '}
+                <span className={css.priceValue}>{priceLabel}</span>
+              </span>
+            ) : (
+              <span />
+            )}
+            {rating != null ? (
+              <span className={css.rating}>
+                <RatingStarIcon />
+                <span>{Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : rating}</span>
+              </span>
+            ) : null}
           </div>
         ) : null}
       </div>

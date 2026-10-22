@@ -27,6 +27,8 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  /* Grid items can shrink, so that one-line card titles don't widen their column */
+  min-width: 0;
 }
 
 .listingCards {

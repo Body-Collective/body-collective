@@ -2,6 +2,8 @@ import React from 'react';
 
 import { getStartOf } from '../../../../util/dates';
 import {
+  EVENT_TYPE,
+  EVENT_TYPES,
   SEMINAR_DATES,
   SEMINAR_END_TIME,
   SEMINAR_START_TIME,
@@ -38,8 +40,9 @@ const validEndTime = (requiredMessage, endBeforeStartMessage) => (value, allValu
 };
 
 /**
- * Dates and times of a Seminars & Events listing: the first and the last day, and the start and
- * the end time (Berlin time). Stored as unix timestamps: see util/seminarSchedule.js.
+ * Type, dates and times of a Seminars & Events listing: the type of the event (seminar, training,
+ * ...), the first and the last day, and the start and the end time (Berlin time). The dates are
+ * stored as unix timestamps: see util/seminarSchedule.js.
  *
  * @component
  * @param {Object} props
@@ -53,6 +56,22 @@ const SeminarScheduleFields = props => {
 
   return (
     <div className={css.seminarSchedule}>
+      <FieldSelect
+        id={`${formId}.${EVENT_TYPE}`}
+        name={EVENT_TYPE}
+        className={css.seminarEventType}
+        label={t('eventType')}
+        validate={required(t('eventTypeRequired'))}
+      >
+        <option disabled value="">
+          {t('eventTypePlaceholder')}
+        </option>
+        {EVENT_TYPES.map(type => (
+          <option key={type} value={type}>
+            {intl.formatMessage({ id: `EventType.${type}` })}
+          </option>
+        ))}
+      </FieldSelect>
       <FieldDateRangePicker
         className={css.seminarDates}
         name={SEMINAR_DATES}

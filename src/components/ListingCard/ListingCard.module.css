@@ -3,6 +3,7 @@
 .root {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   color: inherit;
 
   &:hover {
@@ -34,6 +35,9 @@
   border-radius: var(--borderRadiusMedium);
   width: 100%;
   height: 100%;
+  /* Cropped, never stretched; faces stay in the frame */
+  object-fit: cover;
+  object-position: center top;
 }
 
 .rootForImage > div > div:last-child {
@@ -106,6 +110,10 @@
   line-height: 1.35;
   color: var(--colorGrey600);
   margin: 0 0 6px 0;
+  /* One line, cut with … */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .meta {

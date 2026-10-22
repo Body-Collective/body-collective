@@ -5,6 +5,7 @@ import {
   getSeminarSchedulePublicData,
   toUnixSeconds,
   withoutLegacySeminarFields,
+  formatSeminarCardDates,
 } from './seminarSchedule';
 
 describe('seminarSchedule', () => {
@@ -32,9 +33,11 @@ describe('seminarSchedule', () => {
       seminarDates: { startDate: new Date(2026, 8, 12), endDate: new Date(2026, 8, 14) },
       seminarStartTime: '10:00',
       seminarEndTime: '17:45',
+      event_type: 'retreat',
     };
     const publicData = getSeminarSchedulePublicData(values);
     expect(publicData).toEqual({
+      event_type: 'retreat',
       event_start: Date.UTC(2026, 8, 12, 8, 0) / 1000,
       event_end: Date.UTC(2026, 8, 14, 15, 45) / 1000,
     });
@@ -63,5 +66,20 @@ describe('seminarSchedule', () => {
   it('hides the Console fields replaced by the date and time selectors', () => {
     const fields = [{ key: 'seminar_date' }, { key: 'event_date_sort' }, { key: 'other' }];
     expect(withoutLegacySeminarFields(fields)).toEqual([{ key: 'other' }]);
+  });
+
+  it('formats the dates of the cards, short', () => {
+    const at = (y, m, d) => Date.UTC(y, m, d, 9, 0) / 1000;
+    const en = { locale: 'en-GB' };
+    const de = { locale: 'de-DE' };
+    const card = (intl, start, end) =>
+      formatSeminarCardDates(intl, { event_start: start, event_end: end });
+    expect(card(en, at(2026, 8, 12), at(2026, 8, 14))).toEqual('12–14 Sep 26');
+    expect(card(de, at(2026, 8, 12), at(2026, 8, 14))).toEqual('12.–14. Sep. 26');
+    expect(card(en, at(2026, 9, 31), at(2026, 10, 5))).toEqual('31 Oct – 5 Nov 26');
+    expect(card(de, at(2026, 9, 31), at(2026, 10, 5))).toEqual('31. Okt. – 5. Nov. 26');
+    expect(card(en, at(2026, 11, 27), at(2027, 0, 3))).toEqual('27 Dec 26 – 3 Jan 27');
+    expect(card(de, at(2026, 11, 27), at(2027, 0, 3))).toEqual('27. Dez. 26 – 3. Jan. 27');
+    expect(card(en, at(2026, 10, 1), at(2026, 10, 1) + 3600)).toEqual('1 Nov 26');
   });
 });

@@ -2,7 +2,7 @@ import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers
 import { getListingRating } from '../../util/rating';
 import { getListingTitle } from '../../util/localizedContent';
 import { getListingPlaceLine } from '../../util/neighbourhoods';
-import { formatMoney } from '../../util/currency';
+import { formatMoneyAmountFirst } from '../../util/currency';
 import { richText } from '../../util/richText';
 import { isBookingProcessAlias } from '../../transactions/transaction';
 
@@ -12,7 +12,8 @@ const MIN_LENGTH_FOR_LONG_WORDS = 10;
 
 const priceData = (price, currency, intl) => {
   if (price && price.currency === currency) {
-    const formattedPrice = formatMoney(intl, price);
+    // "160 €" (see util/currency.js)
+    const formattedPrice = formatMoneyAmountFirst(intl, price);
     return { formattedPrice, priceTooltip: formattedPrice };
   } else if (price) {
     return {
@@ -67,9 +68,11 @@ export const getListingCardTranslations = (listing, config, intl, { fallbackRati
       : publicData?.locationName || null;
 
   // Aggregate rating of the listing (see util/rating.js)
+  // Without reviews, neither the rating nor the number of reviews is shown
   const listingRating = getListingRating(listing) || fallbackRating;
-  const rating = listingRating?.rating ?? null;
-  const reviewCount = listingRating?.reviewCount ?? null;
+  const hasReviews = Number(listingRating?.reviewCount) > 0;
+  const rating = hasReviews ? listingRating?.rating ?? null : null;
+  const reviewCount = hasReviews ? listingRating.reviewCount : null;
 
   const validListingTypes = config.listing.listingTypes || [];
   const { listingType } = publicData || {};

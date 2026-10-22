@@ -4,7 +4,7 @@ import { isForbiddenError, storableError } from '../util/errors';
 import { addMarketplaceEntities } from './marketplaceData.duck';
 import { createImageVariantConfig } from '../util/sdkLoader';
 import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
-import { SEMINAR_LISTING_TYPE } from '../util/seminarSchedule';
+import { SEMINAR_LISTING_TYPE, getUpcomingSeminarsParams } from '../util/seminarSchedule';
 import { LISTING_RATING_FIELDS } from '../util/rating';
 import { LISTING_TITLE_TRANSLATION_FIELDS } from '../util/localizedContent';
 
@@ -26,11 +26,15 @@ const getSectionSearchQuery = (section, allSections, areaSlug) => {
 };
 
 // Seminars & Events sections show the next events first (search schema of pub_event_start), unless
-// the query of the section in Console sets its own order
-const getSortMaybe = query => {
+// the query of the section in Console sets its own order, and leave out the ones that are over
+const getSeminarParamsMaybe = query => {
   const params = new URLSearchParams(query || '');
   const isSeminarQuery = params.get('pub_listingType') === SEMINAR_LISTING_TYPE;
-  return isSeminarQuery && !params.has('sort') ? { sort: '-pub_event_start' } : {};
+  if (!isSeminarQuery) {
+    return {};
+  }
+  const sortMaybe = params.has('sort') ? {} : { sort: '-pub_event_start' };
+  return { ...sortMaybe, ...getUpcomingSeminarsParams() };
 };
 
 // Responses that arrive after a newer request for the same section was sent are ignored,
@@ -75,7 +79,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
       {
         perPage,
         page: 1,
-        ...getSortMaybe(listingSelection === 'queryString' ? listingSearchQuery : null),
+        ...getSeminarParamsMaybe(listingSelection === 'queryString' ? listingSearchQuery : null),
         minStock: 1,
         stockMode: 'match-undefined',
         include: ['images', 'author'],

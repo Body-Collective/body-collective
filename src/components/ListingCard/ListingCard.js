@@ -59,6 +59,9 @@ const RatingStarIcon = () => (
  * @param {Object?} props.style the background color for the listing card with no image
  * @returns {JSX.Element} listing image with fixed aspect ratio or fallback preview
  */
+const CARD_ASPECT_WIDTH = 4;
+const CARD_ASPECT_HEIGHT = 5;
+
 const ListingCardImage = props => {
   const {
     listing,
@@ -161,13 +164,10 @@ export const ListingCard = props => {
   // Render the listing image only if listing images are enabled in the listing type
   const showListingImage = requireListingImage(foundListingTypeConfig);
 
-  const {
-    aspectWidth = 1,
-    aspectHeight = 1,
-    variantPrefix = 'listing-card',
-  } = config.layout.listingImage;
-  const imageAspectWidth = aspectWidthProp || aspectWidth;
-  const imageAspectHeight = aspectHeightProp || aspectHeight;
+  const { variantPrefix = 'listing-card' } = config.layout.listingImage;
+  // Cards are portrait 4 : 5 everywhere (the images are cropped to it)
+  const imageAspectWidth = aspectWidthProp || CARD_ASPECT_WIDTH;
+  const imageAspectHeight = aspectHeightProp || CARD_ASPECT_HEIGHT;
 
   // Sets the listing as active in the search map when hovered (if the search map is enabled)
   const setActivePropsMaybe = setActiveListing

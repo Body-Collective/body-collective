@@ -7,8 +7,11 @@ import moment from 'moment-timezone/builds/moment-timezone-with-data-10-year-ran
  * to the public data of the listing as unix timestamps (seconds), in Berlin time:
  *  - event_start: first day + start time
  *  - event_end: last day + end time
- * event_start has a search schema (long), so listing queries can sort and filter by it, e.g.
- * sort=-pub_event_start (upcoming first) or pub_event_start=<now>, (not started yet).
+ * event_start and event_end have search schemas (long), so listing queries can sort and filter
+ * by them, e.g. sort=-pub_event_start (upcoming first) or pub_event_end=<now>, (not over yet).
+ *
+ * The type of the event (event_type: seminar, training, ...) is chosen with the dates. It has a
+ * search schema (enum) and is shown on the cards; its names are translations EventType.<type>.
  *
  * Older listings have the Console fields seminar_date and seminar_times (free text) and
  * event_date_sort (YYYYMMDD). They are not asked anymore, but still shown when there's no
@@ -20,6 +23,10 @@ export const SEMINAR_TIME_ZONE = 'Europe/Berlin';
 
 // Console fields replaced by the date range and time selectors
 export const LEGACY_SEMINAR_FIELD_KEYS = ['seminar_date', 'seminar_times', 'event_date_sort'];
+
+// Types of events (option ids are stored in listings: don't change them)
+export const EVENT_TYPE = 'event_type';
+export const EVENT_TYPES = ['seminar', 'training', 'workshop', 'event', 'retreat'];
 
 // Form field names
 export const SEMINAR_DATES = 'seminarDates';
@@ -100,10 +107,14 @@ export const fromUnixSeconds = seconds => {
 export const getSeminarScheduleInitialValues = publicData => {
   const start = fromUnixSeconds(publicData?.event_start);
   const end = fromUnixSeconds(publicData?.event_end);
+  const eventTypeMaybe = EVENT_TYPES.includes(publicData?.[EVENT_TYPE])
+    ? { [EVENT_TYPE]: publicData[EVENT_TYPE] }
+    : {};
   if (!start || !end) {
-    return {};
+    return eventTypeMaybe;
   }
   return {
+    ...eventTypeMaybe,
     [SEMINAR_DATES]: { startDate: start.day, endDate: end.day },
     [SEMINAR_START_TIME]: start.time,
     [SEMINAR_END_TIME]: end.time,
@@ -118,7 +129,9 @@ export const getSeminarScheduleInitialValues = publicData => {
  */
 export const getSeminarSchedulePublicData = values => {
   const { startDate, endDate } = values?.[SEMINAR_DATES] || {};
+  const eventType = values?.[EVENT_TYPE];
   return {
+    [EVENT_TYPE]: EVENT_TYPES.includes(eventType) ? eventType : null,
     event_start: toUnixSeconds(startDate, values?.[SEMINAR_START_TIME]),
     event_end: toUnixSeconds(endDate, values?.[SEMINAR_END_TIME]),
   };
@@ -176,3 +189,78 @@ export const formatSeminarSchedule = (intl, publicData) => {
   const times = `${intl.formatTime(start, timeOptions)} – ${intl.formatTime(end, timeOptions)}`;
   return { dates, times };
 };
+
+// Short month names of the cards, e.g. "12–14 Sep 26" or "12.–14. Sep. 26"
+const SHORT_MONTHS = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  de: [
+    'Jan.',
+    'Feb.',
+    'März',
+    'Apr.',
+    'Mai',
+    'Juni',
+    'Juli',
+    'Aug.',
+    'Sep.',
+    'Okt.',
+    'Nov.',
+    'Dez.',
+  ],
+};
+
+/**
+ * The dates of the seminar on its card, short, in the language of the page (Berlin time):
+ *  - one day: "1 Nov 26" / "1. Nov. 26"
+ *  - same month: "12–14 Sep 26" / "12.–14. Sep. 26"
+ *  - different months: "31 Oct – 5 Nov 26" / "31. Okt. – 5. Nov. 26"
+ *  - across the year: "27 Dec 26 – 3 Jan 27" / "27. Dez. 26 – 3. Jan. 27"
+ * Older listings: their seminar_date text.
+ *
+ * @param {Object} intl
+ * @param {Object} publicData
+ * @returns {string|null}
+ */
+export const formatSeminarCardDates = (intl, publicData) => {
+  const schedule = getSeminarSchedule(publicData);
+  if (!schedule) {
+    return publicData?.seminar_date || null;
+  }
+  const isGerman = `${intl?.locale || ''}`.toLowerCase().startsWith('de');
+  const months = isGerman ? SHORT_MONTHS.de : SHORT_MONTHS.en;
+  const parts = date => {
+    const m = moment(date).tz(SEMINAR_TIME_ZONE);
+    return {
+      day: m.date(),
+      month: months[m.month()],
+      year: m.format('YY'),
+      key: m.format('YYYYMMDD'),
+    };
+  };
+  const start = parts(schedule.start);
+  const end = parts(schedule.end);
+  const day = d => (isGerman ? `${d.day}.` : `${d.day}`);
+  const dayMonth = d => `${day(d)} ${d.month}`;
+  const full = d => `${dayMonth(d)} ${d.year}`;
+
+  if (start.key === end.key) {
+    return full(start);
+  }
+  if (start.year !== end.year) {
+    return `${full(start)} – ${full(end)}`;
+  }
+  if (start.month !== end.month) {
+    return `${dayMonth(start)} – ${full(end)}`;
+  }
+  return `${day(start)}–${full(end)}`;
+};
+
+/**
+ * Query params that leave out seminars that are over (their end is in the past).
+ *
+ * @param {Date} [now]
+ * @returns {Object} { pub_event_end: '<now in seconds>,' }
+ */
+export const getUpcomingSeminarsParams = (now = new Date()) => ({
+  pub_event_end: `${Math.floor(now.getTime() / 1000)},`,
+});

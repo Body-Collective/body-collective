@@ -25,8 +25,9 @@ import css from './RegionSectionListings.module.css';
 // A region page shows all the listings of an area at once (up to this many), in a grid
 const REGION_LISTING_COUNT = 24;
 // The card images are portrait. The image variants are cropped to this ratio.
-const CARD_ASPECT_WIDTH = 2;
-const CARD_ASPECT_HEIGHT = 3;
+// Card images: portrait 4 : 5, like on the home page
+const CARD_ASPECT_WIDTH = 4;
+const CARD_ASPECT_HEIGHT = 5;
 const CARD_IMAGE_SIZES = '(max-width: 767px) 100vw, (max-width: 1100px) 33vw, 280px';
 
 /**

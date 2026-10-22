@@ -21,8 +21,9 @@ import EventCard from '../PageBuilder/SectionBuilder/SectionListings/EventCard';
 
 import css from './PractitionerProfile.module.css';
 
-const CARD_ASPECT_WIDTH = 2;
-const CARD_ASPECT_HEIGHT = 3;
+// Card images: portrait 4 : 5, like on the home page
+const CARD_ASPECT_WIDTH = 4;
+const CARD_ASPECT_HEIGHT = 5;
 const CARD_IMAGE_SIZES = '(max-width: 767px) 100vw, (max-width: 1100px) 33vw, 340px';
 
 const IconPin = () => (
@@ -130,8 +131,14 @@ const PractitionerProfile = props => {
   const locationLabels = getVisibleLocations(locations, getSubscription(user).plan);
   const languageLabels = languagesSpoken.map(key => label('language', key));
 
+  // Seminars that are over are left out
+  const nowInSeconds = Date.now() / 1000;
+  const isOver = publicData =>
+    typeof publicData?.event_end === 'number' && publicData.event_end < nowInSeconds;
   const seminars = listings.filter(
-    l => l.attributes?.publicData?.listingType === SEMINAR_LISTING_TYPE
+    l =>
+      l.attributes?.publicData?.listingType === SEMINAR_LISTING_TYPE &&
+      !isOver(l.attributes.publicData)
   );
   const treatments = listings.filter(
     l => l.attributes?.publicData?.listingType !== SEMINAR_LISTING_TYPE
