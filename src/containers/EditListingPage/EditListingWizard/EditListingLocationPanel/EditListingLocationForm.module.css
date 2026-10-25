@@ -65,3 +65,16 @@
     margin-top: 100px;
   }
 }
+
+/* Mobile booking: what the location of the listing is for */
+.serviceAreaHelp {
+  margin: -12px 0 24px 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--colorGrey500);
+
+  @media (--viewportMedium) {
+    margin: -16px 0 32px 0;
+  }
+}

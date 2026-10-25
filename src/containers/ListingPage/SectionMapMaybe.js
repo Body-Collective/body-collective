@@ -18,6 +18,8 @@ import css from './ListingPage.module.css';
  * @param {propTypes.uuid} props.listingId - The listing id
  * @param {string} [props.directions] - Directions to the place in the visitor's language
  * @param {string} [props.neighbourhood] - Name of the listing's neighbourhood or island
+ * @param {string} [props.serviceArea] - Mobile booking: the area served, e.g. "Berlin · Kreuzberg".
+ *   Shown instead of the address, with a note that the therapist comes to the client
  * @returns {JSX.Element} section map maybe component
  */
 class SectionMapMaybe extends Component {
@@ -36,6 +38,7 @@ class SectionMapMaybe extends Component {
       mapsConfig,
       directions,
       neighbourhood,
+      serviceArea,
     } = this.props;
 
     if (!geolocation) {
@@ -67,7 +70,14 @@ class SectionMapMaybe extends Component {
         <Heading as="h2" rootClassName={css.sectionHeadingWithExtraMargin}>
           <FormattedMessage id="ListingPage.locationTitle" />
         </Heading>
-        {address ? (
+        {serviceArea ? (
+          <div className={css.locationAddress}>
+            <p className={css.locationAddressLine}>{serviceArea}</p>
+            <p className={css.locationDirections}>
+              <FormattedMessage id="ListingPage.mobileServiceArea" />
+            </p>
+          </div>
+        ) : address ? (
           <div className={css.locationAddress}>
             <p className={css.locationAddressLine}>{street}</p>
             {building ? <p className={css.locationAddressLine}>{building}</p> : null}

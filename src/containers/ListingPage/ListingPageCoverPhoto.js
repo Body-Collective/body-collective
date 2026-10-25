@@ -9,7 +9,8 @@ import { withoutLegacySeminarFields } from '../../util/seminarSchedule';
 import { OFFERS_CANCELLATIONS_KEY } from '../../util/cancellation';
 import { TREATMENT_TEXT_FIELD_KEYS } from '../../util/treatmentDetails';
 import { getListingDirections } from '../../util/localizedContent';
-import { getNeighbourhoodName } from '../../util/neighbourhoods';
+import { getListingPlaceLine, getNeighbourhoodName } from '../../util/neighbourhoods';
+import { isMobileBookingListingType } from '../../util/mobileBookingQuestions';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
@@ -336,6 +337,12 @@ export const ListingPageComponent = props => {
               mapsConfig={config.maps}
               directions={getListingDirections(currentListing, intl)}
               neighbourhood={getNeighbourhoodName(publicData, intl)}
+              // Mobile booking: the area served instead of an address
+              serviceArea={
+                isMobileBookingListingType(publicData?.listingType)
+                  ? getListingPlaceLine(publicData, intl)
+                  : null
+              }
             />
             <SectionReviews reviews={reviews} fetchReviewsError={fetchReviewsError} />
             <SectionAuthorMaybe

@@ -1,0 +1,124 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+}
+
+.title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--colorGrey900);
+}
+
+.question {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.legend {
+  margin: 0 0 12px 0;
+  padding: 0;
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+/* Options of a select question as round chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 9px 18px;
+  border: 1px solid var(--colorGrey200);
+  border-radius: 999px;
+  background-color: var(--colorWhite);
+  color: var(--colorGrey900);
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--colorGrey600);
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--colorBrandAccent);
+    outline-offset: 2px;
+  }
+}
+
+.chipSelected {
+  border-color: #161513;
+  background-color: #161513;
+  color: #f6f3ee;
+
+  &:hover {
+    border-color: #161513;
+  }
+}
+
+/* The radio input stays for keyboards and screen readers; the chip shows the state */
+.chipInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.conditional {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Hotel bookings: what to confirm with the reception */
+.note {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background-color: rgba(237, 135, 98, 0.1);
+  border: 1px solid rgba(237, 135, 98, 0.35);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--colorGrey800);
+}
+
+.confirmations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.privacyNote {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--colorGrey500);
+}

@@ -27,3 +27,54 @@
   padding: 0px;
   margin-bottom: 24px;
 }
+
+/* Answers of a Mobile booking checkout (MobileBookingAnswers.js) */
+.mobileBookingAnswers {
+  margin-bottom: 24px;
+}
+
+.mobileBookingTitle {
+  composes: p from global;
+  font-weight: var(--fontWeightBold);
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.answerList {
+  margin: 0;
+  padding: 0;
+}
+
+.answerRow {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--colorGrey100);
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.answerLabel {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--colorGrey600);
+}
+
+.answerValue {
+  composes: p from global;
+  margin: 2px 0 0 0;
+  padding: 0;
+  white-space: pre-line;
+}
+
+.confirmationList {
+  margin: 12px 0 0 0;
+  padding: 0 0 0 18px;
+  list-style: disc;
+}
+
+.confirmation {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--colorGrey600);
+}

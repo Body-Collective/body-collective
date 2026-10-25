@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
 // Import contexts and util modules
+import {
+  getConfirmationsProtectedData,
+  hasMobileBookingQuestions,
+  withoutHiddenAnswers,
+} from '../../util/mobileBookingQuestions';
 import { FormattedMessage, intlShape } from '../../util/reactIntl';
 import { pathByRouteName } from '../../util/routes';
 import {
@@ -275,8 +280,18 @@ const handleSubmit = (values, process, props, stripe, submitting, setSubmitting)
   const { card, message, paymentMethod: selectedPaymentMethod, formValues } = values;
   const { saveAfterOnetimePayment: saveAfterOnetimePaymentRaw } = formValues;
 
+  // Mobile booking: answers of questions that aren't shown are left out, and the confirmations of
+  // the checkout are added (see util/mobileBookingQuestions.js)
   const transactionFieldsProtectedData = {
-    ...pickTransactionFieldsData(formValues, 'protected', true, transactionFieldConfigs),
+    ...pickTransactionFieldsData(
+      withoutHiddenAnswers(formValues),
+      'protected',
+      true,
+      transactionFieldConfigs
+    ),
+    ...(hasMobileBookingQuestions(transactionFieldConfigs)
+      ? getConfirmationsProtectedData(formValues)
+      : {}),
   };
 
   const saveAfterOnetimePayment =

@@ -5,6 +5,7 @@ import {
   pickCustomFieldProps,
   getPrefixedKey,
 } from '../../../util/fieldHelpers.js';
+import { hasMobileBookingQuestions } from '../../../util/mobileBookingQuestions';
 
 import CustomExtendedDataSection from '../../../components/CustomExtendedDataSection/CustomExtendedDataSection.js';
 
@@ -18,6 +19,7 @@ import {
   isNegotiationProcess as isNegotiationProcessFn,
 } from '../../../transactions/transaction';
 
+import MobileBookingAnswers from './MobileBookingAnswers';
 import css from './TransactionFields.module.css';
 /**
  * Split transaction field configs to role based arrays
@@ -285,15 +287,24 @@ const TransactionFields = props => {
 
   return showFields && (!!defaultMessageContent || hasCustomTransactionFieldData) ? (
     <div className={css.transactionFieldsContainer}>
-      <CustomTransactionFields
-        protectedData={protectedData}
-        role={role}
-        transactionFieldConfigs={transactionFieldConfigs}
-        isCustomerBanned={isCustomerBanned}
-        isProviderBanned={isProviderBanned}
-        bannedUserMessage={bannedUserMessage}
-        intl={intl}
-      />
+      {role === 'customer' && hasMobileBookingQuestions(transactionFieldConfigs) ? (
+        <MobileBookingAnswers
+          protectedData={protectedData}
+          transactionFieldConfigs={transactionFieldConfigs}
+          isCustomerBanned={isCustomerBanned}
+          bannedUserMessage={bannedUserMessage}
+        />
+      ) : (
+        <CustomTransactionFields
+          protectedData={protectedData}
+          role={role}
+          transactionFieldConfigs={transactionFieldConfigs}
+          isCustomerBanned={isCustomerBanned}
+          isProviderBanned={isProviderBanned}
+          bannedUserMessage={bannedUserMessage}
+          intl={intl}
+        />
+      )}
       <SectionText
         heading={intl.formatMessage({
           id: initialMessageHeadingId,

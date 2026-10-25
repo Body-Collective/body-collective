@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { LISTING_STATE_DRAFT } from '../../../../util/types';
 import { NEIGHBOURHOOD_KEY, getRegionOfOrigin } from '../../../../util/neighbourhoods';
+import { isMobileBookingListingType } from '../../../../util/mobileBookingQuestions';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -103,7 +104,13 @@ const EditListingLocationPanel = props => {
         initialValues={state.initialValues}
         listingType={listing?.attributes?.publicData?.listingType}
         onSubmit={values => {
-          const { building = '', directions = '', location } = values;
+          // Mobile booking: the location is the area served, without building or directions
+          const isMobileBooking = isMobileBookingListingType(
+            listing?.attributes?.publicData?.listingType
+          );
+          const { location } = values;
+          const building = isMobileBooking ? '' : values.building || '';
+          const directions = isMobileBooking ? '' : values.directions || '';
           // Only for an address in a region (see util/neighbourhoods.js)
           const neighbourhood = getRegionOfOrigin(location.selectedPlace.origin)
             ? values[NEIGHBOURHOOD_KEY] || null

@@ -8,6 +8,7 @@ import { Form as FinalForm } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
 import classNames from 'classnames';
 
+import { hasMobileBookingQuestions } from '../../../util/mobileBookingQuestions';
 import { FormattedMessage, injectIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { ensurePaymentMethodCard } from '../../../util/data';
@@ -29,6 +30,7 @@ import {
 
 import ShippingDetails from '../ShippingDetails/ShippingDetails';
 
+import MobileBookingQuestions from './MobileBookingQuestions';
 import css from './StripePaymentForm.module.css';
 
 /**
@@ -503,6 +505,8 @@ class StripePaymentForm extends Component {
 
     this.finalFormAPI = formApi;
     const hasTransactionFieldConfigs = transactionFieldConfigs.length > 0;
+    // Mobile booking: its questions in order, with conditions and confirmations
+    const isMobileBooking = hasMobileBookingQuestions(transactionFieldConfigs);
     const transactionFieldsProps = getPropsForCustomTransactionFieldInputs(
       transactionFieldConfigs,
       true
@@ -690,7 +694,13 @@ class StripePaymentForm extends Component {
             <FormattedMessage id="StripePaymentForm.messageHeading" />
           </Heading>
         ) : null}
-        {hasTransactionFieldConfigs && showTransactionFields ? (
+        {hasTransactionFieldConfigs && showTransactionFields && isMobileBooking ? (
+          <MobileBookingQuestions
+            formId={formId}
+            transactionFieldConfigs={transactionFieldConfigs}
+            values={values}
+          />
+        ) : hasTransactionFieldConfigs && showTransactionFields ? (
           <div className={css.transactionFieldsContainer}>
             {transactionFieldsProps.map(({ key, ...fieldProps }) => (
               <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />

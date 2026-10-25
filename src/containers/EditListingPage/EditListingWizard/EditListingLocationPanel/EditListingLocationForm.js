@@ -16,6 +16,7 @@ import {
   getNeighbourhoodOptions,
   getRegionOfOrigin,
 } from '../../../../util/neighbourhoods';
+import { isMobileBookingListingType } from '../../../../util/mobileBookingQuestions';
 
 // Import shared components
 import {
@@ -86,6 +87,8 @@ export const EditListingLocationForm = props => (
       const neighbourhoodOptions = getNeighbourhoodOptions(addressOrigin);
       // Treatment listings (see util/neighbourhoods.js)
       const hasNeighbourhood = NEIGHBOURHOOD_LISTING_TYPES.includes(listingType);
+      // Mobile booking: the therapist comes to the client, so no address, building or directions
+      const isMobileBooking = isMobileBookingListingType(listingType);
       // Chosen among the neighbourhoods of the address's region; none outside the regions
       const showNeighbourhood = hasNeighbourhood && !!getRegionOfOrigin(addressOrigin);
       // "Neighbourhood" in Berlin, "Island" on the Balearic Islands
@@ -133,11 +136,18 @@ export const EditListingLocationForm = props => (
             autoFocus={autoFocus}
             name="location"
             id={`${formId}.location`}
-            // As detailed as Mapbox can: street and house number, or a named place
-            preferDetailedAddresses
-            label={intl.formatMessage({ id: 'EditListingLocationForm.address' })}
+            // As detailed as Mapbox can: street and house number, or a named place. Mobile
+            // booking: the area where treatments are offered (a town or district is enough)
+            preferDetailedAddresses={!isMobileBooking}
+            label={intl.formatMessage({
+              id: isMobileBooking
+                ? 'EditListingLocationForm.serviceArea'
+                : 'EditListingLocationForm.address',
+            })}
             placeholder={intl.formatMessage({
-              id: 'EditListingLocationForm.addressPlaceholder',
+              id: isMobileBooking
+                ? 'EditListingLocationForm.serviceAreaPlaceholder'
+                : 'EditListingLocationForm.addressPlaceholder',
             })}
             useDefaultPredictions={false}
             format={identity}
@@ -148,16 +158,25 @@ export const EditListingLocationForm = props => (
             )}
           />
 
-          <FieldTextInput
-            className={css.building}
-            type="text"
-            name="building"
-            id={`${formId}building`}
-            label={intl.formatMessage({ id: 'EditListingLocationForm.building' }, { optionalText })}
-            placeholder={intl.formatMessage({
-              id: 'EditListingLocationForm.buildingPlaceholder',
-            })}
-          />
+          {isMobileBooking ? (
+            <p className={css.serviceAreaHelp}>
+              {intl.formatMessage({ id: 'EditListingLocationForm.serviceAreaHelpText' })}
+            </p>
+          ) : (
+            <FieldTextInput
+              className={css.building}
+              type="text"
+              name="building"
+              id={`${formId}building`}
+              label={intl.formatMessage(
+                { id: 'EditListingLocationForm.building' },
+                { optionalText }
+              )}
+              placeholder={intl.formatMessage({
+                id: 'EditListingLocationForm.buildingPlaceholder',
+              })}
+            />
+          )}
 
           {showNeighbourhood ? (
             <FieldSelect
@@ -183,21 +202,23 @@ export const EditListingLocationForm = props => (
             </FieldSelect>
           ) : null}
 
-          <FieldTextInput
-            className={css.building}
-            type="textarea"
-            name="directions"
-            id={`${formId}directions`}
-            label={intl.formatMessage(
-              { id: 'EditListingLocationForm.directions' },
-              { optionalText }
-            )}
-            placeholder={intl.formatMessage({
-              id: 'EditListingLocationForm.directionsPlaceholder',
-            })}
-            helpText={intl.formatMessage({ id: 'EditListingLocationForm.directionsHelpText' })}
-            maxLength={DIRECTIONS_MAX_LENGTH}
-          />
+          {isMobileBooking ? null : (
+            <FieldTextInput
+              className={css.building}
+              type="textarea"
+              name="directions"
+              id={`${formId}directions`}
+              label={intl.formatMessage(
+                { id: 'EditListingLocationForm.directions' },
+                { optionalText }
+              )}
+              placeholder={intl.formatMessage({
+                id: 'EditListingLocationForm.directionsPlaceholder',
+              })}
+              helpText={intl.formatMessage({ id: 'EditListingLocationForm.directionsHelpText' })}
+              maxLength={DIRECTIONS_MAX_LENGTH}
+            />
+          )}
 
           <Button
             className={css.submitButton}
