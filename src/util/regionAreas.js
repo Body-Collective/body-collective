@@ -1,4 +1,9 @@
-import { NEIGHBOURHOOD_OPTIONS, NEIGHBOURHOOD_SEARCH_PARAM } from './neighbourhoods';
+import {
+  AREA_SEARCH_PARAM,
+  NEIGHBOURHOOD_OPTIONS,
+  NEIGHBOURHOOD_SEARCH_PARAM,
+  getIslandAreas,
+} from './neighbourhoods';
 
 /**
  * Region pages (e.g. /p/berlin or /p/balearic-island) show a region's areas (neighbourhoods,
@@ -39,7 +44,7 @@ export const isRegionListingsSectionId = sectionId =>
 // Search params that tell where to look. A neighbourhood replaces these in a section's query:
 // with its listing field neighbourhood (an enum filter) or its location.
 const LOCATION_PARAMS = ['address', 'bounds', 'origin'];
-const AREA_PARAMS = [...LOCATION_PARAMS, NEIGHBOURHOOD_SEARCH_PARAM];
+const AREA_PARAMS = [...LOCATION_PARAMS, NEIGHBOURHOOD_SEARCH_PARAM, AREA_SEARCH_PARAM];
 
 const slugify = text =>
   `${text || ''}`
@@ -71,13 +76,16 @@ export const parseSearchQuery = value => {
 
 /**
  * The neighbourhoods defined in the "region-areas" section of a page.
+ * The areas of an island (util/neighbourhoods.js, e.g. Tramuntana on Mallorca) are added after it,
+ * with its slug as parentSlug.
  *
  * @param {Array<Object>?} allSections sections of the page asset
- * @returns {Array<{slug: string, name: string, description: string, params: Object, isDefault: boolean}>}
+ * @param {Function} [getSubAreaName] id => name of an area of an island
+ * @returns {Array<{slug: string, name: string, description: string, params: Object, isDefault: boolean, parentSlug?: string}>}
  */
-export const getRegionAreas = allSections => {
+export const getRegionAreas = (allSections, getSubAreaName = id => id) => {
   const section = (allSections || []).find(s => s.sectionId === REGION_AREAS_SECTION_ID);
-  return (section?.blocks || [])
+  const areas = (section?.blocks || [])
     .map(block => ({
       name: (block.title?.content || block.blockName || '').trim(),
       description: (block.text?.content || '').trim(),
@@ -95,6 +103,18 @@ export const getRegionAreas = allSections => {
         isDefault: index === 0,
       };
     });
+  // The areas of an island (e.g. Tramuntana on Mallorca) follow it, as areas within it
+  return areas.flatMap(area => [
+    area,
+    ...getIslandAreas(area.slug).map(id => ({
+      name: getSubAreaName(id),
+      description: '',
+      slug: id,
+      params: { [NEIGHBOURHOOD_SEARCH_PARAM]: area.slug, [AREA_SEARCH_PARAM]: id },
+      parentSlug: area.slug,
+      isDefault: false,
+    })),
+  ]);
 };
 
 /**

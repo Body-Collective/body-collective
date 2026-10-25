@@ -1,5 +1,13 @@
-/* A row of pills that scrolls sideways when the neighbourhoods don't fit (phones) */
+/* The pills of the areas, and below them the areas of a chosen island (e.g. Mallorca) */
 .root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* A row of pills that scrolls sideways when the neighbourhoods don't fit (phones) */
+.list,
+.subList {
   display: flex;
   gap: 8px;
   margin: 0;
@@ -47,6 +55,13 @@
     outline: 2px solid #7f4a5c;
     outline-offset: 2px;
   }
+}
+
+/* Areas of the chosen island: smaller pills */
+.subPill {
+  composes: pill;
+  padding: 6px 14px;
+  font-size: 13px;
 }
 
 .active {

@@ -113,6 +113,19 @@
    :from :state/purchased,
    :to :state/canceled,
    :privileged? true}
+;; Seminars & Events: the organiser (provider) cancels a booked place, e.g. when the event
+  ;; doesn't take place. The customer gets the full payment back (Sharetribe's full refund, as
+  ;; with the operator's cancel) and the place is released.
+  {:name :transition/provider-cancel,
+   :actor :actor.role/provider,
+   :actions
+   [{:name :action/calculate-full-refund}
+    {:name :action/stripe-refund-payment}
+    ;; Keep this action last in the list of actions for
+    ;; the transition
+    {:name :action/cancel-stock-reservation}],
+   :from :state/purchased,
+   :to :state/canceled}
   {:name :transition/auto-cancel,
    :at
    {:fn/plus
@@ -269,6 +282,14 @@
    :template :purchase-order-canceled-to-customer}
   {:name :notification/order-canceled,
    :on :transition/cancel,
+   :to :actor.role/provider,
+   :template :purchase-order-canceled-to-provider}
+  {:name :notification/provider-cancel-to-customer,
+   :on :transition/provider-cancel,
+   :to :actor.role/customer,
+   :template :purchase-order-canceled-to-customer}
+  {:name :notification/provider-cancel-to-provider,
+   :on :transition/provider-cancel,
    :to :actor.role/provider,
    :template :purchase-order-canceled-to-provider}
   {:name :notification/customer-cancel-to-customer,

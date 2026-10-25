@@ -37,6 +37,11 @@ exports[`ListingCard matches snapshot 1`] = `
       >
         ListingCard.author
       </div>
+      <div
+        class="newLabel"
+      >
+        ListingCard.new
+      </div>
     </div>
     <div
       class="title"
@@ -98,6 +103,11 @@ exports[`ListingCard matches snapshot without price 1`] = `
         class="authorName"
       >
         ListingCard.author
+      </div>
+      <div
+        class="newLabel"
+      >
+        ListingCard.new
       </div>
     </div>
     <div

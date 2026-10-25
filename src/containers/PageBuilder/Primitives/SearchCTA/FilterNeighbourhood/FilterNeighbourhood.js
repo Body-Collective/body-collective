@@ -128,7 +128,8 @@ const FilterNeighbourhood = props => {
     <Field
       name="neighbourhood"
       component={NeighbourhoodDropdown}
-      areas={regionArea.areas}
+      // Islands and neighbourhoods; the areas of an island are filters of the page only
+      areas={regionArea.areas.filter(area => !area.parentSlug)}
       areaLabel={regionArea.areaLabel}
       {...props}
     />

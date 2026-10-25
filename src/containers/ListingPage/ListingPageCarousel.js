@@ -5,8 +5,8 @@ import classNames from 'classnames';
 
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
-import { withoutLegacySeminarFields } from '../../util/seminarSchedule';
-import { OFFERS_CANCELLATIONS_KEY } from '../../util/cancellation';
+import { SEMINAR_LISTING_TYPE, withoutLegacySeminarFields } from '../../util/seminarSchedule';
+import { CANCELLATION_POLICY_KEY, OFFERS_CANCELLATIONS_KEY } from '../../util/cancellation';
 import { TREATMENT_TEXT_FIELD_KEYS } from '../../util/treatmentDetails';
 import { getListingDirections } from '../../util/localizedContent';
 import { getListingPlaceLine, getNeighbourhoodName } from '../../util/neighbourhoods';
@@ -63,6 +63,7 @@ import SectionGallery from './SectionGallery';
 import CustomListingFields from './CustomListingFields';
 import SectionSeminarSchedule from './SectionSeminarSchedule';
 import SectionTreatmentDetails from './SectionTreatmentDetails';
+import SectionSeminarDetails, { SeminarKicker } from './SectionSeminarDetails';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
 
 import css from './ListingPage.module.css';
@@ -283,6 +284,7 @@ export const ListingPageComponent = props => {
                 </H3>
               )}
             </div>
+            <SeminarKicker publicData={publicData} />
             {showDescription && description ? (
               <section className={css.sectionText}>
                 <FormattedText text={description} />
@@ -290,6 +292,7 @@ export const ListingPageComponent = props => {
             ) : null}
 
             <SectionTreatmentDetails publicData={publicData} currency={price?.currency} />
+            <SectionSeminarDetails publicData={publicData} />
 
             <SectionSeminarSchedule publicData={publicData} />
 
@@ -299,13 +302,18 @@ export const ListingPageComponent = props => {
               // Dates, the cancellation policy and the details of treatments have their own sections
               listingFieldConfigs={withoutLegacySeminarFields(listingConfig.listingFields).filter(
                 f =>
-                  f.key !== OFFERS_CANCELLATIONS_KEY && !TREATMENT_TEXT_FIELD_KEYS.includes(f.key)
+                  f.key !== OFFERS_CANCELLATIONS_KEY &&
+                  f.key !== CANCELLATION_POLICY_KEY &&
+                  !TREATMENT_TEXT_FIELD_KEYS.includes(f.key)
               )}
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
             />
 
-            <SectionCancellationPolicy publicData={publicData} />
+            {/* Seminars & Events have the policy as a dropdown in SectionSeminarDetails */}
+            {publicData?.listingType !== SEMINAR_LISTING_TYPE ? (
+              <SectionCancellationPolicy publicData={publicData} />
+            ) : null}
             <SectionMapMaybe
               geolocation={geolocation}
               publicData={publicData}

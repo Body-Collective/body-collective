@@ -50,6 +50,10 @@ export const transitions = {
   // refund of the cancellation policy. Privileged: goes through server/api/transaction-cancel.js
   CUSTOMER_CANCEL: 'transition/customer-cancel',
 
+  // The organiser (provider) cancels a place of their Seminars & Events listing, e.g. when the
+  // event doesn't take place: the customer gets the full payment back
+  PROVIDER_CANCEL: 'transition/provider-cancel',
+
   // If provider has marked the product delivered (e.g. shipped),
   // customer can then mark the product received
   MARK_RECEIVED: 'transition/mark-received',
@@ -160,6 +164,7 @@ export const graph = {
         [transitions.AUTO_CANCEL]: states.CANCELED,
         [transitions.CANCEL]: states.CANCELED,
         [transitions.CUSTOMER_CANCEL]: states.CANCELED,
+        [transitions.PROVIDER_CANCEL]: states.CANCELED,
       },
     },
 
@@ -221,6 +226,7 @@ export const isRelevantPastTransition = transition => {
     transitions.AUTO_CANCEL,
     transitions.CANCEL,
     transitions.CUSTOMER_CANCEL,
+    transitions.PROVIDER_CANCEL,
     transitions.MARK_DELIVERED,
     transitions.OPERATOR_MARK_DELIVERED,
     transitions.DISPUTE,

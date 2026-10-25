@@ -26,28 +26,65 @@ const RegionAreaPills = props => {
   }
 
   const { areas, areaLabel, selectedArea, selectArea } = regionArea;
+  // Islands with their own areas (e.g. Mallorca) show them in a second row once chosen
+  const mainAreas = areas.filter(area => !area.parentSlug);
+  const activeMainSlug = selectedArea?.parentSlug || selectedArea?.slug || null;
+  const activeMainArea = mainAreas.find(area => area.slug === activeMainSlug) || null;
+  const subAreas = activeMainSlug ? areas.filter(area => area.parentSlug === activeMainSlug) : [];
 
   return (
-    <ul
-      className={classNames(css.root, className)}
-      aria-label={intl.formatMessage({ id: 'RegionAreaPills.ariaLabel' }, { label: areaLabel })}
-    >
-      {areas.map(area => {
-        const isActive = selectedArea ? selectedArea.slug === area.slug : area.isDefault;
-        return (
-          <li key={area.slug} className={css.item}>
-            <button
-              type="button"
-              className={classNames(css.pill, { [css.active]: isActive })}
-              aria-pressed={isActive}
-              onClick={() => selectArea(area)}
-            >
-              {area.name}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div className={classNames(css.root, className)}>
+      <ul
+        className={css.list}
+        aria-label={intl.formatMessage({ id: 'RegionAreaPills.ariaLabel' }, { label: areaLabel })}
+      >
+        {mainAreas.map(area => {
+          const isActive = activeMainSlug ? activeMainSlug === area.slug : area.isDefault;
+          return (
+            <li key={area.slug} className={css.item}>
+              <button
+                type="button"
+                className={classNames(css.pill, { [css.active]: isActive })}
+                aria-pressed={isActive}
+                onClick={() => selectArea(area)}
+              >
+                {area.name}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {subAreas.length > 0 && activeMainArea ? (
+        <ul
+          className={css.subList}
+          aria-label={intl.formatMessage(
+            { id: 'RegionAreaPills.subAreasAriaLabel' },
+            { area: activeMainArea.name }
+          )}
+        >
+          {[activeMainArea, ...subAreas].map(area => {
+            const isActive = selectedArea?.slug === area.slug;
+            return (
+              <li key={area.slug} className={css.item}>
+                <button
+                  type="button"
+                  className={classNames(css.subPill, { [css.active]: isActive })}
+                  aria-pressed={isActive}
+                  onClick={() => selectArea(area)}
+                >
+                  {area.parentSlug
+                    ? area.name
+                    : intl.formatMessage(
+                        { id: 'RegionAreaPills.allOfArea' },
+                        { area: activeMainArea.name }
+                      )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
   );
 };
 

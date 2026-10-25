@@ -9,10 +9,13 @@ import {
 // payout of the provider, but there is no payout: the cancellation card explains it instead.
 const hasCustomerCancellation = transaction => !!transaction?.attributes?.metadata?.cancellation;
 
-// Activity feed messages for the customer cancellations: the default (state based) message
-// doesn't say who cancelled.
+// Activity feed messages for the cancellations by the customer or the organiser: the default
+// (state based) message doesn't say who cancelled.
 const getCancelTransitionMessages = transitions =>
-  [[transitions.CUSTOMER_CANCEL, 'customerCancelled']]
+  [
+    [transitions.CUSTOMER_CANCEL, 'customerCancelled'],
+    [transitions.PROVIDER_CANCEL, 'providerCancelled'],
+  ]
     .filter(([transition]) => !!transition)
     .map(([transition, key]) => ({
       transition,

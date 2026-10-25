@@ -131,3 +131,13 @@
     margin-top: 8px;
   }
 }
+
+/* Terms of the chosen cancellation policy (Seminars & Events) */
+.policyTerms {
+  margin: 12px 0 0 0;
+  padding: 0 0 0 18px;
+  list-style: disc;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--colorGrey600);
+}

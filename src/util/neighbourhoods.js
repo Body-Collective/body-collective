@@ -11,8 +11,12 @@
 
 export const NEIGHBOURHOOD_KEY = 'neighbourhood';
 export const NEIGHBOURHOOD_SEARCH_PARAM = `pub_${NEIGHBOURHOOD_KEY}`;
-// Listing types that have a neighbourhood (treatments, with an address)
-export const NEIGHBOURHOOD_LISTING_TYPES = ['daily_booking', 'mobile_service'];
+// Listing types that have a neighbourhood (treatments and Seminars & Events, with an address)
+export const NEIGHBOURHOOD_LISTING_TYPES = [
+  'daily_booking',
+  'mobile_service',
+  'seminar_event_booking',
+];
 
 // Regions with their area (north, east, south, west) and their neighbourhoods (option ids are
 // stored in listings: don't change them)
@@ -43,6 +47,26 @@ export const REGIONS = [
 // Option ids; their names are translations: Neighbourhood.<option id>
 export const NEIGHBOURHOOD_OPTIONS = REGIONS.flatMap(region => region.neighbourhoods);
 
+// Areas of an island, for the filters of the region page only (cards show the town of the
+// address): public data "area" (an option id, search schema enum). Names are translations:
+// NeighbourhoodArea.<option id>. A new island or region just needs its short list here.
+export const AREA_KEY = 'area';
+export const AREA_SEARCH_PARAM = `pub_${AREA_KEY}`;
+export const ISLAND_AREAS = {
+  mallorca: ['palma', 'tramuntana', 'southwest', 'north', 'east', 'south', 'centre'].map(
+    area => `mallorca-${area}`
+  ),
+};
+export const AREA_OPTIONS = Object.values(ISLAND_AREAS).flat();
+
+/**
+ * The areas of an island (or neighbourhood), e.g. the seven areas of Mallorca.
+ *
+ * @param {string} neighbourhood Option id, e.g. 'mallorca'
+ * @returns {Array<string>} option ids
+ */
+export const getIslandAreas = neighbourhood => ISLAND_AREAS[neighbourhood] || [];
+
 /**
  * The neighbourhood search param, if it has known option ids, e.g. "mitte" or "mallorca,ibiza".
  *
@@ -53,6 +77,18 @@ export const validNeighbourhoodParam = value => {
   const options = typeof value === 'string' ? value.split(',').filter(Boolean) : [];
   const isValid = options.length > 0 && options.every(o => NEIGHBOURHOOD_OPTIONS.includes(o));
   return isValid ? { [NEIGHBOURHOOD_SEARCH_PARAM]: value } : {};
+};
+
+/**
+ * The area search param, if it has known option ids, e.g. "mallorca-tramuntana".
+ *
+ * @param {string?} value
+ * @returns {Object} { pub_area: value } or an empty object
+ */
+export const validAreaParam = value => {
+  const options = typeof value === 'string' ? value.split(',').filter(Boolean) : [];
+  const isValid = options.length > 0 && options.every(o => AREA_OPTIONS.includes(o));
+  return isValid ? { [AREA_SEARCH_PARAM]: value } : {};
 };
 
 const isInBounds = (origin, bounds) =>

@@ -20,7 +20,13 @@ import {
   stringifyDateToISO8601,
 } from '../../util/dates';
 import { isFieldForCategory, isFieldForListingType } from '../../util/fieldHelpers';
-import { NEIGHBOURHOOD_SEARCH_PARAM, validNeighbourhoodParam } from '../../util/neighbourhoods';
+import {
+  AREA_SEARCH_PARAM,
+  NEIGHBOURHOOD_SEARCH_PARAM,
+  validAreaParam,
+  validNeighbourhoodParam,
+} from '../../util/neighbourhoods';
+import { validEventTypeParam } from '../../util/seminarSchedule';
 
 const validURLParamForCategoryData = (prefix, categories, level, params) => {
   const levelKey = constructQueryParamName(`${prefix}${level}`, 'public');
@@ -238,7 +244,11 @@ export const validFilterParams = (params, filterConfigs, dropNonFilterParams = t
 
   // The neighbourhood isn't a listing field of the configuration (see util/neighbourhoods.js):
   // its option ids are kept as they are
-  const neighbourhoodMaybe = validNeighbourhoodParam(params[NEIGHBOURHOOD_SEARCH_PARAM]);
+  const neighbourhoodMaybe = {
+    ...validNeighbourhoodParam(params[NEIGHBOURHOOD_SEARCH_PARAM]),
+    ...validAreaParam(params[AREA_SEARCH_PARAM]),
+    ...validEventTypeParam(params.pub_event_type),
+  };
 
   // TODO: Currently this only supports categoryLevel with nested param names.
   //       This needs more work to make other enum fields to understand nested keys.

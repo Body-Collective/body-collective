@@ -2,9 +2,10 @@ import { getContentLanguage } from './localizedContent';
 import { isTranslationCurrent } from './textFingerprint';
 
 /**
- * Details of treatment listings (listing types Studio and Mobile Service): formatted texts
- * written with the rich text editor (see util/formattedText.js) and the treatments with their
- * descriptions, durations and prices (the listing's price variants).
+ * Details of treatment listings (listing types Studio and Mobile Service) and of Seminars & Events:
+ * formatted texts written with the rich text editor (see util/formattedText.js) and, for
+ * treatments, the treatments with their descriptions, durations and prices (the listing's price
+ * variants).
  *
  * The text fields are listing fields in Console (public data, text). Their labels and help texts
  * come from translations here, so that the form is in the user's language. The server translates
@@ -19,14 +20,27 @@ export const TREATMENT_LISTING_TYPES = ['daily_booking', 'mobile_service'];
 export const ABOUT_TREATMENT = { key: 'about_treatment', messageKey: 'aboutTreatment' };
 export const TREATMENT_APPROACH = { key: 'treatment_approach', messageKey: 'treatmentApproach' };
 export const TREATMENT_SUPPORTS = { key: 'treatment_supports', messageKey: 'treatmentSupports' };
-// Plain multi-line text (no formatting toolbar)
+// Plain multi-line text (no formatting toolbar). Treatments and Seminars & Events.
 export const GOOD_TO_KNOW = { key: 'good_to_know', messageKey: 'goodToKnow', isPlainText: true };
+
+// Seminars & Events: about the event (open text on the listing, its heading follows the event
+// type: "About this retreat"), and the programme, who it is for and what's included (dropdowns)
+export const ABOUT_EVENT = { key: 'about_event', messageKey: 'aboutEvent' };
+export const SCHEDULE = { key: 'schedule', messageKey: 'schedule' };
+export const FOR_WHOM = { key: 'for_whom', messageKey: 'forWhom' };
+export const INCLUDED = { key: 'included', messageKey: 'included' };
+
 export const TREATMENT_TEXT_FIELDS = [
   ABOUT_TREATMENT,
   TREATMENT_APPROACH,
   TREATMENT_SUPPORTS,
+  ABOUT_EVENT,
+  SCHEDULE,
+  FOR_WHOM,
+  INCLUDED,
   GOOD_TO_KNOW,
 ];
+// Keys of all formatted text fields (treatments and Seminars & Events)
 export const TREATMENT_TEXT_FIELD_KEYS = TREATMENT_TEXT_FIELDS.map(f => f.key);
 
 /**

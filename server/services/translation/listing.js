@@ -16,11 +16,16 @@ const { textFingerprint } = require('./fingerprint');
 
 const FIELDS = ['title', 'description'];
 
-// Texts of treatment listings, see TREATMENT_TEXT_FIELDS in src/util/treatmentDetails.js
+// Texts of treatment and Seminars & Events listings, see TREATMENT_TEXT_FIELDS in
+// src/util/treatmentDetails.js
 const TREATMENT_TEXT_KEYS = [
   'about_treatment',
   'treatment_approach',
   'treatment_supports',
+  'about_event',
+  'schedule',
+  'for_whom',
+  'included',
   'good_to_know',
 ];
 const MAX_VARIANTS = 20;

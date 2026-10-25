@@ -11,8 +11,10 @@ import {
   composeValidators,
 } from '../../../../util/validators';
 import {
+  AREA_KEY,
   NEIGHBOURHOOD_KEY,
   NEIGHBOURHOOD_LISTING_TYPES,
+  getIslandAreas,
   getNeighbourhoodOptions,
   getRegionOfOrigin,
 } from '../../../../util/neighbourhoods';
@@ -91,6 +93,9 @@ export const EditListingLocationForm = props => (
       const isMobileBooking = isMobileBookingListingType(listingType);
       // Chosen among the neighbourhoods of the address's region; none outside the regions
       const showNeighbourhood = hasNeighbourhood && !!getRegionOfOrigin(addressOrigin);
+      // Islands with areas (e.g. Mallorca): the area, for the filters of the region page
+      const selectedNeighbourhood = values[NEIGHBOURHOOD_KEY];
+      const islandAreas = getIslandAreas(selectedNeighbourhood);
       // "Neighbourhood" in Berlin, "Island" on the Balearic Islands
       const region = getRegionOfOrigin(addressOrigin);
       const neighbourhoodMessageId = key =>
@@ -197,6 +202,32 @@ export const EditListingLocationForm = props => (
               {neighbourhoodOptions.map(o => (
                 <option key={o} value={o}>
                   {intl.formatMessage({ id: `Neighbourhood.${o}` })}
+                </option>
+              ))}
+            </FieldSelect>
+          ) : null}
+
+          {showNeighbourhood && islandAreas.length > 0 ? (
+            <FieldSelect
+              key={islandAreas.join()}
+              className={css.building}
+              name={AREA_KEY}
+              id={`${formId}${AREA_KEY}`}
+              label={intl.formatMessage(
+                { id: 'EditListingLocationForm.area' },
+                { island: intl.formatMessage({ id: `Neighbourhood.${selectedNeighbourhood}` }) }
+              )}
+              validate={neighbourhoodValidator(
+                islandAreas,
+                intl.formatMessage({ id: 'EditListingLocationForm.areaRequired' })
+              )}
+            >
+              <option disabled value="">
+                {intl.formatMessage({ id: 'EditListingLocationForm.areaPlaceholder' })}
+              </option>
+              {islandAreas.map(o => (
+                <option key={o} value={o}>
+                  {intl.formatMessage({ id: `NeighbourhoodArea.${o}` })}
                 </option>
               ))}
             </FieldSelect>

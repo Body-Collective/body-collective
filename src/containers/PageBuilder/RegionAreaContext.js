@@ -29,7 +29,11 @@ export const RegionAreaProvider = props => {
   const intl = useIntl();
   const { pathname, search, hash } = useLocation();
 
-  const areas = useMemo(() => getRegionAreas(sections), [sections]);
+  // The areas of an island (e.g. Tramuntana on Mallorca) are named in the user's language
+  const areas = useMemo(
+    () => getRegionAreas(sections, id => intl.formatMessage({ id: `NeighbourhoodArea.${id}` })),
+    [sections, intl]
+  );
   const selectedArea = getSelectedArea(areas, search);
   // What the areas are called on this page: "Island", "Neighbourhood"...
   const areaLabel =

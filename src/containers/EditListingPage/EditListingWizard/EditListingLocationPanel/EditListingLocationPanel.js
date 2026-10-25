@@ -4,7 +4,12 @@ import classNames from 'classnames';
 // Import configs and util modules
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { LISTING_STATE_DRAFT } from '../../../../util/types';
-import { NEIGHBOURHOOD_KEY, getRegionOfOrigin } from '../../../../util/neighbourhoods';
+import {
+  AREA_KEY,
+  NEIGHBOURHOOD_KEY,
+  getIslandAreas,
+  getRegionOfOrigin,
+} from '../../../../util/neighbourhoods';
 import { isMobileBookingListingType } from '../../../../util/mobileBookingQuestions';
 
 // Import shared components
@@ -28,6 +33,7 @@ const getInitialValues = props => {
     building,
     directions,
     [NEIGHBOURHOOD_KEY]: publicData?.[NEIGHBOURHOOD_KEY] || '',
+    [AREA_KEY]: publicData?.[AREA_KEY] || '',
     location: locationFieldsPresent
       ? {
           search: address,
@@ -71,6 +77,7 @@ const EditListingLocationPanel = props => {
     errors,
     updatePageTitle: UpdatePageTitle,
     intl,
+    asPickupLocation = false,
   } = props;
 
   const classes = classNames(rootClassName || css.root, className);
@@ -115,6 +122,9 @@ const EditListingLocationPanel = props => {
           const neighbourhood = getRegionOfOrigin(location.selectedPlace.origin)
             ? values[NEIGHBOURHOOD_KEY] || null
             : null;
+          const area = getIslandAreas(neighbourhood).includes(values[AREA_KEY])
+            ? values[AREA_KEY]
+            : null;
           // Directions to the place (doorbell, backyard, floor), shown with the address
           const cleanDirections = directions.trim();
           const {
@@ -125,9 +135,13 @@ const EditListingLocationPanel = props => {
           const updateValues = {
             geolocation: origin,
             publicData: {
+              // Seminars & Events (purchase process): the address is the pickup location
+              ...(asPickupLocation ? { pickupEnabled: true, shippingEnabled: false } : {}),
               location: { address, building, directions: cleanDirections },
               // Enum listing field, a search filter (see util/neighbourhoods.js)
               [NEIGHBOURHOOD_KEY]: neighbourhood,
+              // The area of an island with areas (e.g. Mallorca), for the region page filters
+              [AREA_KEY]: area,
             },
           };
           // Save the initialValues to state
@@ -138,6 +152,7 @@ const EditListingLocationPanel = props => {
               building,
               directions: cleanDirections,
               [NEIGHBOURHOOD_KEY]: neighbourhood || '',
+              [AREA_KEY]: area || '',
               location: { search: address, selectedPlace: { address, origin } },
             },
           });

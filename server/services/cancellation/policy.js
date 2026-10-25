@@ -5,9 +5,11 @@
  *
  *  - treatment (Studio and Mobile Service, default-booking): more than 24 hours before the start,
  *    the refund share is 100%; later 0%.
- *  - seminar (Seminars & Events, default-purchase, listing field offers_cancellations = yes):
+ *  - seminar (Seminars & Events, default-purchase, listing field cancellation_policy = standard;
+ *    older listings: offers_cancellations = yes):
  *    more than 30 days before the start 100%, 30 to 14 days 50%, later 0%.
- *  - seminar-non-refundable (offers_cancellations = no): always 0%.
+ *  - seminar-non-refundable (cancellation_policy = non_refundable; offers_cancellations = no):
+ *    always 0%. Cancelled by the organiser: a full refund (transition/provider-cancel).
  *
  * A booking request that isn't accepted yet can always be cancelled for free (the card was only
  * authorized). After that, the Stripe fee is never refunded: the customer gets back the refund

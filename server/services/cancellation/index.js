@@ -44,11 +44,19 @@ const REQUEST_PAYMENT_TRANSITIONS = [
 ];
 
 // Listing field of Seminars & Events (Console): does the event offer cancellations?
+// Listing field cancellation_policy: standard or non_refundable. Older listings have the field
+// offers_cancellations (yes / no) instead.
+const CANCELLATION_POLICY_KEY = 'cancellation_policy';
 const OFFERS_CANCELLATIONS_KEY = 'offers_cancellations';
+const isNonRefundable = publicData =>
+  publicData[CANCELLATION_POLICY_KEY]
+    ? publicData[CANCELLATION_POLICY_KEY] === 'non_refundable'
+    : publicData[OFFERS_CANCELLATIONS_KEY] === 'no';
 
 /**
  * The cancellation policy of a listing: by its transaction process and, for Seminars & Events,
- * the listing field offers_cancellations (no value: cancellations are offered).
+ * the listing field cancellation_policy (or offers_cancellations of older listings; no value: the
+ * standard policy).
  *
  * @param {Object} listing Listing entity
  * @returns {string|null} 'treatment', 'seminar', 'seminar-non-refundable' or null
@@ -60,9 +68,7 @@ const getListingPolicy = listing => {
     return POLICY_TREATMENT;
   }
   if (processName === PURCHASE_PROCESS) {
-    return publicData[OFFERS_CANCELLATIONS_KEY] === 'no'
-      ? POLICY_SEMINAR_NON_REFUNDABLE
-      : POLICY_SEMINAR;
+    return isNonRefundable(publicData) ? POLICY_SEMINAR_NON_REFUNDABLE : POLICY_SEMINAR;
   }
   return null;
 };

@@ -1,28 +1,16 @@
 import React from 'react';
 
 import { FormattedMessage } from '../../util/reactIntl';
-import {
-  POLICY_SEMINAR,
-  POLICY_SEMINAR_NON_REFUNDABLE,
-  POLICY_TREATMENT,
-  getListingPolicy,
-} from '../../util/cancellation';
+import { CANCELLATION_POLICY_ITEMS, getListingPolicy } from '../../util/cancellation';
 
 import { Heading } from '../../components';
 
 import css from './ListingPage.module.css';
 
-// The lines of each customer cancellation policy (see src/util/cancellation.js)
-const POLICY_ITEMS = {
-  [POLICY_TREATMENT]: ['treatmentFree', 'treatmentRefund', 'treatmentNoRefund'],
-  [POLICY_SEMINAR]: ['seminarRefund', 'seminarHalf', 'seminarNoRefund'],
-  [POLICY_SEMINAR_NON_REFUNDABLE]: ['nonRefundable'],
-};
-
 /**
  * Cancellation policy of the listing: Studio and Mobile Service listings (booking process) and
- * Seminars & Events (purchase process; with or without cancellations, listing field
- * offers_cancellations). Nothing for other processes.
+ * Seminars & Events (purchase process; listing field cancellation_policy, standard or
+ * non-refundable). Nothing for other processes.
  *
  * @component
  * @param {Object} props
@@ -31,7 +19,7 @@ const POLICY_ITEMS = {
  */
 const SectionCancellationPolicy = props => {
   const { publicData } = props;
-  const items = POLICY_ITEMS[getListingPolicy(publicData)];
+  const items = CANCELLATION_POLICY_ITEMS[getListingPolicy(publicData)];
   if (!items) {
     return null;
   }

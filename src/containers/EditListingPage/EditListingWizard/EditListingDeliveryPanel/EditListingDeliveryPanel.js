@@ -11,11 +11,13 @@ import {
 } from '../../../../util/types';
 import { displayDeliveryPickup, displayDeliveryShipping } from '../../../../util/configHelpers';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
+import { SEMINAR_LISTING_TYPE } from '../../../../util/seminarSchedule';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
 
 // Import modules from this directory
+import EditListingLocationPanel from '../EditListingLocationPanel/EditListingLocationPanel';
 import EditListingDeliveryForm from './EditListingDeliveryForm';
 import css from './EditListingDeliveryPanel.module.css';
 
@@ -116,6 +118,12 @@ const EditListingDeliveryPanel = props => {
     updatePageTitle: UpdatePageTitle,
     intl,
   } = props;
+
+  // Seminars & Events: the location of the event (pickup), with the neighbourhood and directions
+  // of the Location tab of treatments
+  if (listing?.attributes?.publicData?.listingType === SEMINAR_LISTING_TYPE) {
+    return <EditListingLocationPanel {...props} asPickupLocation />;
+  }
 
   const classes = classNames(rootClassName || css.root, className);
   const isPublished = listing?.id && listing?.attributes.state !== LISTING_STATE_DRAFT;

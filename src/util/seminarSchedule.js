@@ -28,6 +28,18 @@ export const LEGACY_SEMINAR_FIELD_KEYS = ['seminar_date', 'seminar_times', 'even
 export const EVENT_TYPE = 'event_type';
 export const EVENT_TYPES = ['seminar', 'training', 'workshop', 'event', 'retreat'];
 
+/**
+ * The event type search param, if it has known types, e.g. "retreat" or "seminar,workshop".
+ *
+ * @param {string?} value
+ * @returns {Object} { pub_event_type: value } or an empty object
+ */
+export const validEventTypeParam = value => {
+  const types = typeof value === 'string' ? value.split(',').filter(Boolean) : [];
+  const isValid = types.length > 0 && types.every(t => EVENT_TYPES.includes(t));
+  return isValid ? { [`pub_${EVENT_TYPE}`]: value } : {};
+};
+
 // Form field names
 export const SEMINAR_DATES = 'seminarDates';
 export const SEMINAR_START_TIME = 'seminarStartTime';
@@ -133,7 +145,8 @@ export const getSeminarSchedulePublicData = values => {
   return {
     [EVENT_TYPE]: EVENT_TYPES.includes(eventType) ? eventType : null,
     event_start: toUnixSeconds(startDate, values?.[SEMINAR_START_TIME]),
-    event_end: toUnixSeconds(endDate, values?.[SEMINAR_END_TIME]),
+    // One-day events have no last day: they end on the first day
+    event_end: toUnixSeconds(endDate || startDate, values?.[SEMINAR_END_TIME]),
   };
 };
 

@@ -670,6 +670,29 @@
   }
 }
 
+.seminarKicker {
+  margin: 0 0 8px 0;
+  padding: 0 24px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 18px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--colorBrandAccent);
+
+  @media (--viewportMedium) {
+    padding: 0;
+  }
+}
+
+.seminarDropdownContent {
+  padding: 0 0 18px 0;
+
+  @media (--viewportMedium) {
+    padding: 0 0 16px 0;
+  }
+}
+
 .treatmentPlainText {
   composes: p from global;
   margin: 0;

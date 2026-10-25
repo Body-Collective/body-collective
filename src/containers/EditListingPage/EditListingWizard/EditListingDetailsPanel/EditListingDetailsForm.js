@@ -17,6 +17,11 @@ import { maxLength, required, composeValidators } from '../../../../util/validat
 import { SEMINAR_LISTING_TYPE } from '../../../../util/seminarSchedule';
 import { hasFormattedContent } from '../../../../util/formattedText';
 import { getTreatmentTextField, isTreatmentListingType } from '../../../../util/treatmentDetails';
+import {
+  CANCELLATION_POLICY_ITEMS,
+  CANCELLATION_POLICY_KEY,
+  getListingPolicy,
+} from '../../../../util/cancellation';
 
 // Import shared components
 import {
@@ -301,11 +306,71 @@ const FieldSelectCategory = props => {
 };
 
 // Add collect data for listing fields (both publicData and privateData) based on configuration
+// Order of the fields in the form (the others keep the order of Console, before these)
+const FIELD_ORDER = [
+  'about_treatment',
+  'treatment_approach',
+  'treatment_supports',
+  'about_event',
+  'schedule',
+  'for_whom',
+  'included',
+  CANCELLATION_POLICY_KEY,
+  'good_to_know',
+];
+const byFieldOrder = (a, b) => FIELD_ORDER.indexOf(a.key) - FIELD_ORDER.indexOf(b.key);
+
+// Cancellation policy of Seminars & Events (listing field cancellation_policy): the options in
+// the user's language, with the terms of the chosen policy below
+const CancellationPolicyField = props => {
+  const { name, fieldConfig, formId, intl } = props;
+  const isRequired = !!fieldConfig?.saveConfig?.isRequired;
+  const t = id => intl.formatMessage({ id: `EditListingDetailsForm.cancellationPolicy.${id}` });
+  return (
+    <div className={css.richTextField}>
+      <FieldSelect
+        id={`${formId}.${name}`}
+        name={name}
+        label={<LabelTextWithTag label={t('label')} isRequired={isRequired} />}
+        validate={isRequired ? required(t('required')) : undefined}
+      >
+        <option disabled value="">
+          {t('placeholder')}
+        </option>
+        {(fieldConfig.enumOptions || []).map(o => (
+          <option key={o.option} value={o.option}>
+            {intl.messages?.[`EditListingDetailsForm.cancellationPolicy.option.${o.option}`]
+              ? t(`option.${o.option}`)
+              : o.label}
+          </option>
+        ))}
+      </FieldSelect>
+      <Field name={name} subscription={{ value: true }}>
+        {({ input }) => {
+          const policy = getListingPolicy({
+            transactionProcessAlias: 'default-purchase',
+            [CANCELLATION_POLICY_KEY]: input.value,
+          });
+          return input.value ? (
+            <ul className={css.policyTerms}>
+              {(CANCELLATION_POLICY_ITEMS[policy] || []).map(item => (
+                <li key={item}>
+                  {intl.formatMessage({ id: `ListingPage.cancellationPolicy.${item}` })}
+                </li>
+              ))}
+            </ul>
+          ) : null;
+        }}
+      </Field>
+    </div>
+  );
+};
+
 const AddListingFields = props => {
   const { listingType, listingFieldsConfig, selectedCategories, formId, intl } = props;
   const targetCategoryIds = Object.values(selectedCategories);
 
-  const fields = listingFieldsConfig.reduce((pickedFields, fieldConfig) => {
+  const fields = [...listingFieldsConfig].sort(byFieldOrder).reduce((pickedFields, fieldConfig) => {
     const { key, schemaType, scope } = fieldConfig || {};
     const namespacedKey = scope === 'public' ? `pub_${key}` : `priv_${key}`;
 
@@ -315,6 +380,20 @@ const AddListingFields = props => {
     const isTargetCategory = isFieldForCategory(targetCategoryIds, fieldConfig);
 
     const treatmentTextField = getTreatmentTextField(key);
+    if (key === CANCELLATION_POLICY_KEY && schemaType === 'enum') {
+      return isKnownSchemaType && isProviderScope && isTargetListingType && isTargetCategory
+        ? [
+            ...pickedFields,
+            <CancellationPolicyField
+              key={namespacedKey}
+              name={namespacedKey}
+              fieldConfig={fieldConfig}
+              formId={formId}
+              intl={intl}
+            />,
+          ]
+        : pickedFields;
+    }
 
     return isKnownSchemaType && isProviderScope && isTargetListingType && isTargetCategory
       ? treatmentTextField && schemaType === 'text'
@@ -455,7 +534,9 @@ const EditListingDetailsForm = props => (
       const showListingFields = hasCategories ? allCategoriesChosen : listingType;
 
       // Treatment listings have a short description (one line) and formatted texts of their own
-      const isTreatmentListing = isTreatmentListingType(listingType);
+      // Seminars & Events have the same one-line short description as treatments
+      const isTreatmentListing =
+        isTreatmentListingType(listingType) || listingType === SEMINAR_LISTING_TYPE;
 
       const classes = classNames(css.root, className);
       const submitReady = (updated && pristine) || ready;

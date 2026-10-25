@@ -89,6 +89,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+.newLabel {
+  flex-shrink: 0;
+  color: var(--colorBrandAccent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+}
+
 .ratingStar {
   display: block;
 }

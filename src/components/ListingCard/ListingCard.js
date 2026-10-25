@@ -230,7 +230,10 @@ export const ListingCard = props => {
                 {Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : rating}
               </span>
             </div>
-          ) : null}
+          ) : (
+            // No reviews yet: the rating appears with the first review
+            <div className={css.newLabel}>{intl.formatMessage({ id: 'ListingCard.new' })}</div>
+          )}
         </div>
         {showListingImage ? (
           <div className={classNames(css.title, { [css.lightText]: darkMode })}>

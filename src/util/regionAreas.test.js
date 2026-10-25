@@ -117,6 +117,34 @@ describe('regionAreas', () => {
   });
 
   describe('getRegionAreas descriptions', () => {
+    it('adds the areas of an island after it, filtered by island and area', () => {
+      const islands = [
+        {
+          sectionId: 'region-areas',
+          blocks: [
+            block('All islands', '/s?address=A'),
+            block('Mallorca', '/s?address=M', 'mallorca'),
+            block('Ibiza', '/s?address=I', 'ibiza'),
+          ],
+        },
+      ];
+      const areas = getRegionAreas(islands, id => `name of ${id}`);
+      const tramuntana = areas.find(a => a.slug === 'mallorca-tramuntana');
+      expect(areas.map(a => a.slug).slice(0, 3)).toEqual([
+        'all-islands',
+        'mallorca',
+        'mallorca-palma',
+      ]);
+      expect(tramuntana).toEqual(
+        expect.objectContaining({
+          name: 'name of mallorca-tramuntana',
+          parentSlug: 'mallorca',
+          params: { pub_neighbourhood: 'mallorca', pub_area: 'mallorca-tramuntana' },
+        })
+      );
+      expect(areas.filter(a => a.parentSlug === 'ibiza')).toEqual([]);
+    });
+
     it('reads the text of the blocks as the description of the areas', () => {
       const withText = [
         {
@@ -128,11 +156,8 @@ describe('regionAreas', () => {
           ],
         },
       ];
-      expect(getRegionAreas(withText).map(a => a.description)).toEqual([
-        'across the islands',
-        'on Mallorca',
-        '',
-      ]);
+      const islands = getRegionAreas(withText).filter(a => !a.parentSlug);
+      expect(islands.map(a => a.description)).toEqual(['across the islands', 'on Mallorca', '']);
     });
   });
 

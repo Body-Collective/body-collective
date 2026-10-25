@@ -76,6 +76,7 @@ import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal
 import SendMessageForm from './SendMessageForm/SendMessageForm';
 import TransactionPanel from './TransactionPanel/TransactionPanel';
 import Cancellation from './Cancellation/Cancellation';
+import OrganiserCancel from './Cancellation/OrganiserCancel';
 import { getCancellationInfo } from './Cancellation/Cancellation.helpers';
 
 import {
@@ -952,6 +953,32 @@ export const TransactionPageComponent = props => {
           }
           cancelInProgress={cancelInProgress}
           cancelError={cancelError}
+          onManageDisableScrolling={onManageDisableScrolling}
+        />
+      }
+      organiserCancel={
+        <OrganiserCancel
+          canCancel={
+            isProviderRole &&
+            !!process?.transitions?.PROVIDER_CANCEL &&
+            (nextTransitions || []).some(
+              t => t?.attributes?.name === process.transitions.PROVIDER_CANCEL
+            )
+          }
+          customerName={otherUserDisplayNameString}
+          listingTitle={listing?.attributes?.title || ''}
+          onCancel={() =>
+            // makeTransition resolves with the rejected action when the transition fails
+            onTransition(transaction.id, process.transitions.PROVIDER_CANCEL, {}).then(result => {
+              if (result?.error) {
+                throw result.payload || result.error;
+              }
+              return result;
+            })
+          }
+          inProgress={
+            !!transitionInProgress && transitionInProgress === process?.transitions?.PROVIDER_CANCEL
+          }
           onManageDisableScrolling={onManageDisableScrolling}
         />
       }

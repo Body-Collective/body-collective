@@ -5,10 +5,10 @@
  *  - treatment (Studio and Mobile Service, default-booking): a booking request can be cancelled
  *    for free before it's accepted. After that: more than 24 hours before the start, the payment
  *    minus the card processing (Stripe) fee is refunded; later nothing.
- *  - seminar (Seminars & Events, default-purchase, listing field offers_cancellations = yes):
+ *  - seminar (Seminars & Events, default-purchase, listing field cancellation_policy = standard):
  *    more than 30 days before the start the payment minus the Stripe fee, 30 to 14 days half of
  *    it, later nothing.
- *  - seminar-non-refundable (offers_cancellations = no): nothing.
+ *  - seminar-non-refundable (cancellation_policy = non_refundable): nothing.
  * The customer can always cancel until the start; the policy only decides the refund.
  */
 
@@ -20,7 +20,14 @@ export const POLICY_SEMINAR = 'seminar';
 export const POLICY_SEMINAR_NON_REFUNDABLE = 'seminar-non-refundable';
 
 // Listing field of Seminars & Events (Console): does the event offer cancellations?
+// Listing field of Seminars & Events: standard or non_refundable. Older listings have the field
+// offers_cancellations (yes / no) instead.
+export const CANCELLATION_POLICY_KEY = 'cancellation_policy';
 export const OFFERS_CANCELLATIONS_KEY = 'offers_cancellations';
+const isNonRefundable = publicData =>
+  publicData?.[CANCELLATION_POLICY_KEY]
+    ? publicData[CANCELLATION_POLICY_KEY] === 'non_refundable'
+    : publicData?.[OFFERS_CANCELLATIONS_KEY] === 'no';
 
 // Refund shares by how long before the start the customer cancels: the first rule whose time is
 // shorter than the time left applies; none: 0
@@ -35,9 +42,18 @@ export const POLICIES = {
 
 const TIME_ZONE = 'Europe/Berlin';
 
+// The lines of each customer cancellation policy, as shown on the listing and in the listing
+// form: translations ListingPage.cancellationPolicy.<line>
+export const CANCELLATION_POLICY_ITEMS = {
+  [POLICY_TREATMENT]: ['treatmentFree', 'treatmentRefund', 'treatmentNoRefund'],
+  [POLICY_SEMINAR]: ['seminarRefund', 'seminarHalf', 'seminarNoRefund', 'organiserCancel'],
+  [POLICY_SEMINAR_NON_REFUNDABLE]: ['nonRefundable', 'organiserCancel'],
+};
+
 /**
  * The cancellation policy of a listing: by its transaction process and, for Seminars & Events,
- * the listing field offers_cancellations (no value: cancellations are offered).
+ * the listing field cancellation_policy (or offers_cancellations of older listings; no value: the
+ * standard policy).
  *
  * @param {Object} publicData Public data of the listing
  * @returns {string|null}
@@ -48,9 +64,7 @@ export const getListingPolicy = publicData => {
     return POLICY_TREATMENT;
   }
   if (processName === 'default-purchase') {
-    return publicData?.[OFFERS_CANCELLATIONS_KEY] === 'no'
-      ? POLICY_SEMINAR_NON_REFUNDABLE
-      : POLICY_SEMINAR;
+    return isNonRefundable(publicData) ? POLICY_SEMINAR_NON_REFUNDABLE : POLICY_SEMINAR;
   }
   return null;
 };

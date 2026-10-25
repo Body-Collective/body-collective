@@ -25,8 +25,8 @@ const isOutsideRange = day => {
   return day < today || day > last;
 };
 
-const requiredDates = message => value =>
-  value?.startDate && value?.endDate ? undefined : message;
+// The first day is required; without a last day, the event takes one day
+const requiredDates = message => value => (value?.startDate ? undefined : message);
 
 // Required, and the seminar must end after it starts (e.g. not 18:00 – 10:00 on one day)
 const validEndTime = (requiredMessage, endBeforeStartMessage) => (value, allValues) => {

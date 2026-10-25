@@ -150,26 +150,27 @@ const EventCard = props => {
         {dateLabel ? <div className={css.date}>{dateLabel}</div> : null}
         {locationLabel ? <div className={css.meta}>{locationLabel}</div> : null}
         {withAuthor ? <div className={css.meta}>{withAuthor}</div> : null}
-        {priceLabel || rating != null ? (
-          <div className={css.priceRow}>
-            {priceLabel ? (
-              <span className={css.price}>
-                <span className={css.pricePrefix}>
-                  {intl.formatMessage({ id: 'ListingCard.priceFromPrefix' })}
-                </span>{' '}
-                <span className={css.priceValue}>{priceLabel}</span>
-              </span>
-            ) : (
-              <span />
-            )}
-            {rating != null ? (
-              <span className={css.rating}>
-                <RatingStarIcon />
-                <span>{Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : rating}</span>
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+        <div className={css.priceRow}>
+          {priceLabel ? (
+            <span className={css.price}>
+              <span className={css.pricePrefix}>
+                {intl.formatMessage({ id: 'ListingCard.priceFromPrefix' })}
+              </span>{' '}
+              <span className={css.priceValue}>{priceLabel}</span>
+            </span>
+          ) : (
+            <span />
+          )}
+          {rating != null ? (
+            <span className={css.rating}>
+              <RatingStarIcon />
+              <span>{Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : rating}</span>
+            </span>
+          ) : (
+            // No reviews yet: the rating appears with the first review
+            <span className={css.rating}>{intl.formatMessage({ id: 'ListingCard.new' })}</span>
+          )}
+        </div>
       </div>
     </NamedLink>
   );
