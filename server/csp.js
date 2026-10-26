@@ -73,10 +73,6 @@ const defaultDirectives = {
     'sentry.io',
     '*.sentry.io',
     '*.stripe.com',
-
-    // CookieYes consent banner
-    'cdn-cookieyes.com',
-    '*.cookieyes.com',
   ],
   fontSrc: [self, data, 'assets-sharetribecom.sharetribe.com', 'fonts.gstatic.com'],
   formAction: [self],
@@ -121,10 +117,6 @@ const defaultDirectives = {
 
     // Stripe
     '*.stripe.com',
-
-    // CookieYes consent banner
-    'cdn-cookieyes.com',
-    '*.cookieyes.com',
   ],
   scriptSrc: [
     self,
@@ -139,9 +131,6 @@ const defaultDirectives = {
     'js.stripe.com',
     // Plausible analytics
     'plausible.io',
-    // CookieYes consent banner
-    'cdn-cookieyes.com',
-    '*.cookieyes.com',
   ],
   styleSrc: [self, unsafeInline, 'fonts.googleapis.com', 'api.mapbox.com'],
 };
