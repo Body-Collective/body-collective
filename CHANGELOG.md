@@ -14,6 +14,24 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+## [v12.6.0] 2026-10-26
+
+- [add] Limit the number of attached images per listing (through listing type config).
+  [#960](https://github.com/sharetribe/web-template/pull/960)
+- [change] Update Node.js to v24.22.1
+
+  - Next LTS version from v22
+  - Important security fixes on v24.22.1
+
+  [#967](https://github.com/sharetribe/web-template/pull/967)
+
+- [fix] configHelpers: pass all four arguments to mergeSortConfig when there is no hosted search
+  config. Listing fields without saved search settings made every server-side render fail.
+  [#965](https://github.com/sharetribe/web-template/pull/965)
+- [change] Update several dependencies (mostly patches, minors and simple majors).
+  [#963](https://github.com/sharetribe/web-template/pull/963)
+- [fix] Fix a bug with cache eviction on each [[set]] call.
+  [#962](https://github.com/sharetribe/web-template/pull/962)
 - [add] Add currently available translations.
   [#961](https://github.com/sharetribe/web-template/pull/961)
 - [fix] EditListingPage.test.js: add missing id from listingTypeIds.
@@ -21,6 +39,8 @@ way to update this template, but currently, we follow a pattern:
 - [change] ListingPage: fetch max 2 images on SSR. CSR will fetch the rest. This also improves the
   "sizes" attribute for the carousel slide images.
   [#955](https://github.com/sharetribe/web-template/pull/955)
+
+  [v12.6.0]: https://github.com/sharetribe/web-template/compare/v12.5.0...v12.6.0
 
 ## [v12.5.0] 2026-10-14
 
