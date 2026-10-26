@@ -1990,5 +1990,7 @@
   "VatIdForm.error.invalid": "Das sieht nicht nach einer USt-IdNr. aus. Sie beginnt mit dem Ländercode, z. B. ES12345678A.",
   "VatIdForm.error.failed": "Speichern hat nicht geklappt. Bitte versuche es noch einmal.",
   "VatIdForm.save": "USt-IdNr. speichern",
-  "VatIdForm.status.validWithName": "In der EU-Datenbank VIES geprüft: gültig ({name})."
+  "VatIdForm.status.validWithName": "In der EU-Datenbank VIES geprüft: gültig ({name}).",
+  "Neighbourhood.friedrichshain": "Friedrichshain",
+  "Neighbourhood.schoeneberg": "Schöneberg"
 }

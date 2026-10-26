@@ -1990,5 +1990,7 @@
   "VatIdForm.error.invalid": "This doesn't look like a VAT ID. It starts with the country code, e.g. ES12345678A.",
   "VatIdForm.error.failed": "Saving didn't work. Please try again.",
   "VatIdForm.save": "Save VAT ID",
-  "VatIdForm.status.validWithName": "Checked in the EU's VIES database: valid ({name})."
+  "VatIdForm.status.validWithName": "Checked in the EU's VIES database: valid ({name}).",
+  "Neighbourhood.friedrichshain": "Friedrichshain",
+  "Neighbourhood.schoeneberg": "Schöneberg"
 }

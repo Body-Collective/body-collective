@@ -16,7 +16,7 @@ describe('neighbourhoods', () => {
     expect(options(wedding)).toContain('wedding');
     expect(options(wedding)).not.toContain('mallorca');
     expect(options(palma)).toEqual(['mallorca', 'ibiza', 'formentera', 'menorca']);
-    expect(options(null)).toHaveLength(10);
+    expect(options(null)).toHaveLength(12);
   });
 
   it('shows the place on cards: city or region, then area or town', () => {

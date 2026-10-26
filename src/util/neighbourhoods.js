@@ -29,9 +29,11 @@ export const REGIONS = [
     neighbourhoods: [
       'mitte',
       'kreuzberg',
+      'friedrichshain',
       'prenzlauer-berg',
       'neukoelln',
       'wedding',
+      'schoeneberg',
       'charlottenburg',
     ],
   },
