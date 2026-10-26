@@ -5,6 +5,12 @@
   min-height: 100vh;
 }
 
+/* Pages with the mobile bottom navigation (Topbar): room for it at the bottom of every page, so
+   it never covers links or buttons. --bottomNavOffset is 0 from the large breakpoint up. */
+.root:has([data-bottom-nav]) {
+  padding-bottom: var(--bottomNavOffset);
+}
+
 .content {
   display: flex;
   flex-direction: column;

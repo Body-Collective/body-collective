@@ -1,0 +1,56 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  margin: 24px 0 36px 0;
+
+  @media (--viewportMedium) {
+    margin: 32px 0 48px 0;
+  }
+}
+
+.heading {
+  margin: 0 0 6px 0;
+}
+
+.help {
+  margin: 0 0 24px 0;
+  color: var(--colorGrey700);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checkbox {
+  margin-top: 18px;
+
+  @media (--viewportMedium) {
+    margin-top: 24px;
+  }
+}
+
+.status {
+  margin: 18px 0 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--colorGrey700);
+}
+
+.statusValid {
+  color: var(--colorSuccess);
+}
+
+.statusInvalid {
+  color: var(--colorFail);
+}
+
+.error {
+  margin: 18px 0 0 0;
+  color: var(--colorFail);
+}
+
+.submitButton {
+  margin-top: 36px;
+
+  @media (--viewportMedium) {
+    margin-top: 48px;
+  }
+}

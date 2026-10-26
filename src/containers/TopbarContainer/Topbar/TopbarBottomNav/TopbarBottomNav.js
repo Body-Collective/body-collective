@@ -116,6 +116,7 @@ const TopbarBottomNav = props => {
   return (
     <nav
       className={css.root}
+      data-bottom-nav
       aria-label={intl.formatMessage({ id: 'TopbarBottomNav.screenreader.navigation' })}
     >
       <NavItem

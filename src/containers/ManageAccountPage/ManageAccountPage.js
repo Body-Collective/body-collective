@@ -17,7 +17,10 @@ import {
 import { showManageSubscriptionForUser } from '../../util/subscription';
 import { pathByRouteName } from '../../util/routes';
 
+import { PRACTITIONER_USER_TYPE } from '../../util/practitionerProfile';
+
 import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { fetchCurrentUser } from '../../ducks/user.duck';
 
 import { H3, H4, Page, UserNav, LayoutSideNavigation } from '../../components';
 
@@ -29,6 +32,7 @@ import DeleteAccountForm from './DeleteAccountForm/DeleteAccountForm';
 import { deleteAccount, resetPassword, updateProfile } from './ManageAccountPage.duck';
 import css from './ManageAccountPage.module.css';
 import PrivateDetailsForm from './PrivateDetailsForm/PrivateDetailsForm';
+import VatIdForm from './VatIdForm/VatIdForm';
 
 /**
  * @param {Object} props
@@ -58,6 +62,7 @@ export const ManageAccountPageComponent = props => {
     resetPasswordError,
     updateProfileInProgress = false,
     updateProfileError,
+    onFetchCurrentUser,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
@@ -143,6 +148,12 @@ export const ManageAccountPageComponent = props => {
           <H3 as="h1">
             <FormattedMessage id="ManageAccountPage.heading" />
           </H3>
+          {user.id && userType === PRACTITIONER_USER_TYPE ? (
+            <>
+              <VatIdForm privateData={privateData} onSaved={onFetchCurrentUser} />
+              {hasUserTypeFields ? <hr className={css.accountPageDivider} /> : null}
+            </>
+          ) : null}
           {hasUserTypeFields ? (
             <>
               <PrivateDetailsForm
@@ -160,6 +171,13 @@ export const ManageAccountPageComponent = props => {
                 userTypeConfig={userTypeConfig}
                 intl={intl}
               />
+              <hr className={css.accountPageDivider} />
+              <H4 as="h3" className={css.deleteAccountSubtitle}>
+                <FormattedMessage id="ManageAccountPage.deleteAccountSubtitle" />
+              </H4>
+            </>
+          ) : user.id && userType === PRACTITIONER_USER_TYPE ? (
+            <>
               <hr className={css.accountPageDivider} />
               <H4 as="h3" className={css.deleteAccountSubtitle}>
                 <FormattedMessage id="ManageAccountPage.deleteAccountSubtitle" />
@@ -214,6 +232,7 @@ const mapDispatchToProps = dispatch => ({
   onSubmitDeleteAccount: values => dispatch(deleteAccount(values)),
   onResetPassword: values => dispatch(resetPassword(values)),
   onUpdateProfile: values => dispatch(updateProfile(values)),
+  onFetchCurrentUser: () => dispatch(fetchCurrentUser()),
 });
 
 const ManageAccountPage = compose(

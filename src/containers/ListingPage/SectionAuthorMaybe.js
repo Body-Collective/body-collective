@@ -1,10 +1,5 @@
 import React from 'react';
 import { FormattedMessage } from '../../util/reactIntl';
-import {
-  isInquiryProcessAlias,
-  isNegotiationProcessAlias,
-  OFFER,
-} from '../../transactions/transaction';
 
 import { Heading, Modal } from '../../components';
 import UserCard from './UserCard/UserCard';
@@ -33,11 +28,8 @@ const SectionAuthorMaybe = props => {
     return null;
   }
 
-  const transactionProcessAlias = listing?.attributes?.publicData?.transactionProcessAlias || '';
-  const unitType = listing?.attributes?.publicData?.unitType || '';
-  const isInquiryProcess = isInquiryProcessAlias(transactionProcessAlias);
-  const isNegotiationProcess = isNegotiationProcessAlias(transactionProcessAlias);
-  const showContact = !(isInquiryProcess || (isNegotiationProcess && unitType === OFFER));
+  // No "Contact" link: clients can message the practitioner only after booking
+  const showContact = false;
 
   return (
     <section id="author" className={css.sectionAuthor}>

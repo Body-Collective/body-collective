@@ -178,22 +178,24 @@
   --marketplaceButtonSmallDesktopPadding: 9px 16px 9px 16px;
 
   /* ================ DatePicker ================ */
-  --datepickerFgColor: var(--colorWhite);
-  --datepickerBgColor: var(--marketplaceColor);
-  --datepickerBorderColor: var(--colorGrey50);
-  --datepickerDisabledFgColor: var(--marketplaceColorDark);
-  --datepickerDisabledTextDeco: unset;
+  /* White calendars everywhere, like the date filter of the home page search (theme "light") */
+  --datepickerFgColor: var(--colorGrey700);
+  --datepickerBgColor: var(--colorWhite);
+  --datepickerBorderColor: var(--colorGrey100);
+  --datepickerDisabledFgColor: var(--colorGrey300);
+  --datepickerDisabledTextDeco: line-through;
   --datepickerHoveredFgColor: inherit;
-  --datepickerHoveredBgColor: rgba(255, 255, 255, 0.2);
-  --datepickerHeaderFgColor: var(--colorWhite);
-  --datepickerHeaderFgColorDisabled: var(--colorGrey100);
-  --datepickerHeaderArrowColor: var(--colorWhite);
-  --datepickerDateOutline: white solid 1px;
-  --datepickerButtonOutlineColor: var(--colorGrey50);
+  --datepickerHoveredBgColor: var(--colorGrey100);
+  --datepickerHeaderFgColor: var(--colorGrey700);
+  --datepickerHeaderFgColorDisabled: var(--colorGrey300);
+  --datepickerHeaderArrowColor: var(--marketplaceColor);
+  --datepickerDateOutline: auto;
+  --datepickerButtonOutlineColor: var(--colorGrey600);
   --datepickerSelectedFgColor: var(--colorWhite);
   --datepickerSelectedBgColor: var(--colorSuccess);
-  --datepickerSelectedHoveredFgColor: inherit;
-  --datepickerSelectedHoveredBgColor: rgba(255, 255, 255, 0.2);
+  --datepickerSelectedBorder: solid 1px var(--colorSuccess);
+  --datepickerSelectedHoveredFgColor: var(--colorWhite);
+  --datepickerSelectedHoveredBgColor: var(--colorSuccess);
 
   /* ================ SectionHero ================ */
   --SectionHero_desktopTitleMaxWidth: 625px;

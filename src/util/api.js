@@ -201,3 +201,10 @@ export const translateListing = body => {
 export const translateProfile = () => {
   return post('/api/translate/profile', {});
 };
+
+// Saves the VAT ID of the current user (private data), checked in the EU's VIES database.
+//
+// See `server/api/vat-id.js` to see what data should be sent in the body.
+export const saveVatId = body => {
+  return post('/api/vat-id', body);
+};

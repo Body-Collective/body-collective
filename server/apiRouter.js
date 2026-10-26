@@ -20,6 +20,7 @@ const deleteAccount = require('./api/delete-account');
 const approveCustomer = require('./api/approve-customer');
 const transactionCancel = require('./api/transaction-cancel');
 const updateAggregateRating = require('./api/update-aggregate-rating');
+const saveVatId = require('./api/vat-id');
 const translate = require('./api/translate');
 const stripeWebhooks = require('./api/stripe/webhooks');
 const createBillingPortalSession = require('./api/stripe/create-billing-portal-session');
@@ -77,6 +78,7 @@ router.post('/approve-customer', approveCustomer);
 // acceptance, seminar places): see server/services/cancellation
 router.post('/transaction-cancel', middleware.auth, transactionCancel);
 router.post('/update-aggregate-rating', middleware.auth, updateAggregateRating);
+router.post('/vat-id', middleware.auth, saveVatId);
 router.post('/translate/listing', middleware.auth, translate.listing);
 router.post('/translate/profile', middleware.auth, translate.profile);
 

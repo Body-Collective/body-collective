@@ -228,7 +228,7 @@ describe('ListingPage variants', () => {
     const listingRouteConfig = routeConfiguration.find(conf => conf.name === 'ListingPage');
     const ListingPage = listingRouteConfig.component;
 
-    const { getByPlaceholderText, getByRole, queryAllByRole, getByText } = render(
+    const { getByPlaceholderText, getByRole, queryByRole, queryAllByRole, getByText } = render(
       <ListingPage {...props} />,
       {
         initialState,
@@ -271,8 +271,8 @@ describe('ListingPage variants', () => {
       expect(getByRole('heading', { name: 'ListingPage.aboutProviderTitle' })).toBeInTheDocument();
       // Has link to provider's profile
       expect(getByRole('link', { name: 'UserCard.viewProfileLink' })).toBeInTheDocument();
-      // Has button to contact provider
-      expect(getByRole('button', { name: 'UserCard.contactUser' })).toBeInTheDocument();
+      // No contact link: clients message the practitioner after booking
+      expect(queryByRole('button', { name: 'UserCard.contactUser' })).not.toBeInTheDocument();
     });
   });
 
@@ -284,7 +284,7 @@ describe('ListingPage variants', () => {
     const listingRouteConfig = routeConfiguration.find(conf => conf.name === 'ListingPage');
     const ListingPage = listingRouteConfig.component;
 
-    const { getByPlaceholderText, getByRole, queryAllByRole, getByText } = render(
+    const { getByPlaceholderText, getByRole, queryByRole, queryAllByRole, getByText } = render(
       <ListingPage {...props} />,
       {
         initialState,
@@ -326,8 +326,8 @@ describe('ListingPage variants', () => {
       expect(getByRole('heading', { name: 'ListingPage.aboutProviderTitle' })).toBeInTheDocument();
       // Has link to provider's profile
       expect(getByRole('link', { name: 'UserCard.viewProfileLink' })).toBeInTheDocument();
-      // Has button to contact provider
-      expect(getByRole('button', { name: 'UserCard.contactUser' })).toBeInTheDocument();
+      // No contact link: clients message the practitioner after booking
+      expect(queryByRole('button', { name: 'UserCard.contactUser' })).not.toBeInTheDocument();
     });
   });
 });
