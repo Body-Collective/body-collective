@@ -66,6 +66,8 @@ const SeminarScheduleFields = props => {
         name={BOOKING_FOR}
         className={css.seminarEventType}
         label={t('bookingFor')}
+        // New listings whose type is chosen in this form get no initial value: individuals
+        defaultValue={BOOKING_FOR_OPTIONS[0]}
         validate={required(t('bookingForRequired'))}
       >
         {BOOKING_FOR_OPTIONS.map(option => (
