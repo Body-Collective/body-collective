@@ -58,6 +58,15 @@ const listingTypes = [
     unitType: 'item',
     stockType: 'multipleItems',
   },
+  {
+    id: 'seminar_event_booking',
+    transactionProcess: {
+      name: 'default-purchase',
+      alias: 'default-purchase/release-1',
+    },
+    unitType: 'item',
+    stockType: 'multipleItems',
+  },
 ];
 
 const listingFields = [
@@ -497,6 +506,74 @@ describe('OrderPanel', () => {
       expect(getByText('ProductOrderForm.ctaButton')).toBeInTheDocument();
       expect(getByText('ProductOrderForm.finePrint')).toBeInTheDocument();
       expect(getByText('OrderPanel.ctaButtonMessagePurchase')).toBeInTheDocument();
+    });
+  });
+
+  it('Purchase: seminar booked by couples', async () => {
+    const listing = createListing(
+      'listing-seminar',
+      {
+        title: 'the seminar',
+        description: 'Lorem ipsum',
+        price: new Money(35000, 'USD'),
+        publicData: {
+          listingType: 'seminar_event_booking',
+          transactionProcessAlias: 'default-purchase/release-1',
+          unitType: 'item',
+          booking_for: 'couples',
+          pickupEnabled: true,
+        },
+      },
+      {
+        currentStock: createStock('stock-id', { quantity: 4 }),
+      }
+    );
+
+    const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
+    const { getByText, queryByText, getByLabelText } = render(<OrderPanel {...props} />, {
+      config,
+      routeConfiguration,
+    });
+
+    await waitFor(() => {
+      // One spot per booking: no quantity select
+      expect(queryByText('ProductOrderForm.quantityLabel')).not.toBeInTheDocument();
+      expect(getByText('ProductOrderForm.oneSpot.couples')).toBeInTheDocument();
+      expect(getByText('ProductOrderForm.spotsLeft.couples')).toBeInTheDocument();
+      expect(getByLabelText('ProductOrderForm.partnerNameLabel')).toBeInTheDocument();
+      expect(getByText('ProductOrderForm.finePrintSeminar.couples')).toBeInTheDocument();
+      expect(getByText('ProductOrderForm.ctaButton')).toBeInTheDocument();
+    });
+  });
+
+  it('Purchase: seminar fully booked', async () => {
+    const listing = createListing(
+      'listing-seminar',
+      {
+        title: 'the seminar',
+        description: 'Lorem ipsum',
+        price: new Money(35000, 'USD'),
+        publicData: {
+          listingType: 'seminar_event_booking',
+          transactionProcessAlias: 'default-purchase/release-1',
+          unitType: 'item',
+          pickupEnabled: true,
+        },
+      },
+      {
+        currentStock: createStock('stock-id', { quantity: 0 }),
+      }
+    );
+
+    const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
+    const { getByText, queryByText } = render(<OrderPanel {...props} />, {
+      config,
+      routeConfiguration,
+    });
+
+    await waitFor(() => {
+      expect(queryByText('ProductOrderForm.oneSpot.individuals')).not.toBeInTheDocument();
+      expect(getByText('ProductOrderForm.ctaButtonNoStock').closest('button')).toBeDisabled();
     });
   });
 

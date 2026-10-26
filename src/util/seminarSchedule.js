@@ -28,6 +28,30 @@ export const LEGACY_SEMINAR_FIELD_KEYS = ['seminar_date', 'seminar_times', 'even
 export const EVENT_TYPE = 'event_type';
 export const EVENT_TYPES = ['seminar', 'training', 'workshop', 'event', 'retreat'];
 
+// Who one booking is for (booking_for): one person, or a couple. For couples, the price is per
+// couple and the spots (stock) are couples; a booking takes one spot either way.
+export const BOOKING_FOR = 'booking_for';
+export const BOOKING_FOR_INDIVIDUALS = 'individuals';
+export const BOOKING_FOR_COUPLES = 'couples';
+export const BOOKING_FOR_OPTIONS = [BOOKING_FOR_INDIVIDUALS, BOOKING_FOR_COUPLES];
+
+/**
+ * Who one booking of the listing is for: 'individuals' (also older listings) or 'couples'.
+ *
+ * @param {Object} publicData
+ * @returns {string}
+ */
+export const getBookingFor = publicData =>
+  publicData?.[BOOKING_FOR] === BOOKING_FOR_COUPLES ? BOOKING_FOR_COUPLES : BOOKING_FOR_INDIVIDUALS;
+
+/**
+ * Whether one booking of the listing is for a couple.
+ *
+ * @param {Object} publicData
+ * @returns {boolean}
+ */
+export const isCouplesListing = publicData => getBookingFor(publicData) === BOOKING_FOR_COUPLES;
+
 /**
  * The event type search param, if it has known types, e.g. "retreat" or "seminar,workshop".
  *
@@ -40,25 +64,12 @@ export const validEventTypeParam = value => {
   return isValid ? { [`pub_${EVENT_TYPE}`]: value } : {};
 };
 
+// Seminars take whole days (Berlin time): from the start of the first to the end of the last
+const DAY_START = '00:00';
+const DAY_END = '23:59';
+
 // Form field names
 export const SEMINAR_DATES = 'seminarDates';
-export const SEMINAR_START_TIME = 'seminarStartTime';
-export const SEMINAR_END_TIME = 'seminarEndTime';
-
-const TIME_STEP_MINUTES = 15;
-
-/**
- * Times of day for the time selectors: '00:00', '00:15', ... '23:45'.
- */
-export const SEMINAR_TIME_OPTIONS = Array.from(
-  { length: (24 * 60) / TIME_STEP_MINUTES },
-  (_, i) => {
-    const minutes = i * TIME_STEP_MINUTES;
-    const hh = `${Math.floor(minutes / 60)}`.padStart(2, '0');
-    const mm = `${minutes % 60}`.padStart(2, '0');
-    return `${hh}:${mm}`;
-  }
-);
 
 /**
  * Listing fields without the Console fields that the date range and time selectors replace.
@@ -122,14 +133,16 @@ export const getSeminarScheduleInitialValues = publicData => {
   const eventTypeMaybe = EVENT_TYPES.includes(publicData?.[EVENT_TYPE])
     ? { [EVENT_TYPE]: publicData[EVENT_TYPE] }
     : {};
+  const bookingForMaybe = { [BOOKING_FOR]: getBookingFor(publicData) };
   if (!start || !end) {
-    return eventTypeMaybe;
+    return { ...eventTypeMaybe, ...bookingForMaybe };
   }
+  // One-day events: no last day in the form
+  const isOneDay = start.day.getTime() === end.day.getTime();
   return {
     ...eventTypeMaybe,
-    [SEMINAR_DATES]: { startDate: start.day, endDate: end.day },
-    [SEMINAR_START_TIME]: start.time,
-    [SEMINAR_END_TIME]: end.time,
+    ...bookingForMaybe,
+    [SEMINAR_DATES]: { startDate: start.day, endDate: isOneDay ? null : end.day },
   };
 };
 
@@ -144,9 +157,13 @@ export const getSeminarSchedulePublicData = values => {
   const eventType = values?.[EVENT_TYPE];
   return {
     [EVENT_TYPE]: EVENT_TYPES.includes(eventType) ? eventType : null,
-    event_start: toUnixSeconds(startDate, values?.[SEMINAR_START_TIME]),
-    // One-day events have no last day: they end on the first day
-    event_end: toUnixSeconds(endDate || startDate, values?.[SEMINAR_END_TIME]),
+    [BOOKING_FOR]: BOOKING_FOR_OPTIONS.includes(values?.[BOOKING_FOR])
+      ? values[BOOKING_FOR]
+      : BOOKING_FOR_INDIVIDUALS,
+    // The event takes the whole days: the daily times are in the programme (listing field
+    // schedule). One-day events have no last day: they end on the first day.
+    event_start: toUnixSeconds(startDate, DAY_START),
+    event_end: toUnixSeconds(endDate || startDate, DAY_END),
   };
 };
 
@@ -162,45 +179,6 @@ export const getSeminarSchedule = publicData => {
     return null;
   }
   return { start: new Date(event_start * 1000), end: new Date(event_end * 1000) };
-};
-
-/**
- * The dates and times of the seminar as text, in the language of the page, e.g.
- * "Sat, Sep 12 – Mon, Sep 14, 2026 · 10:00 – 18:00". Older listings: their seminar_date text.
- *
- * @param {Object} intl
- * @param {Object} publicData
- * @returns {Object|null} { dates, times }
- */
-export const formatSeminarSchedule = (intl, publicData) => {
-  const schedule = getSeminarSchedule(publicData);
-  if (!schedule) {
-    const legacyDates = publicData?.seminar_date;
-    return legacyDates ? { dates: legacyDates, times: publicData?.seminar_times || null } : null;
-  }
-
-  const { start, end } = schedule;
-  const dateOptions = {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: SEMINAR_TIME_ZONE,
-  };
-  const timeOptions = { hour: '2-digit', minute: '2-digit', timeZone: SEMINAR_TIME_ZONE };
-  const isSameDay =
-    moment(start)
-      .tz(SEMINAR_TIME_ZONE)
-      .format('YYYYMMDD') ===
-    moment(end)
-      .tz(SEMINAR_TIME_ZONE)
-      .format('YYYYMMDD');
-
-  const dates = isSameDay
-    ? intl.formatDate(start, dateOptions)
-    : `${intl.formatDate(start, dateOptions)} – ${intl.formatDate(end, dateOptions)}`;
-  const times = `${intl.formatTime(start, timeOptions)} – ${intl.formatTime(end, timeOptions)}`;
-  return { dates, times };
 };
 
 // Short month names of the cards, e.g. "12–14 Sep 26" or "12.–14. Sep. 26"

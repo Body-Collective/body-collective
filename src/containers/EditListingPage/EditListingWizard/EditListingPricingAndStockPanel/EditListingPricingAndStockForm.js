@@ -102,6 +102,7 @@ const UpdateStockToInfinityCheckboxMaybe = ({ hasInfiniteStock, currentStock, fo
  * @param {propTypes.ownListing} props.listing - The listing object
  * @param {propTypes.listingType} props.listingType - The listing types config
  * @param {string} props.unitType - The unit type (e.g. 'item')
+ * @param {boolean} [props.isCouples] - Seminars booked by couples: the price and the spots are per couple
  * @param {string} props.marketplaceCurrency - The marketplace currency (e.g. 'USD')
  * @param {number} props.listingMinimumPriceSubUnits - The listing minimum price sub units
  * @param {boolean} [props.autoFocus] - Whether the form should autofocus
@@ -133,6 +134,7 @@ export const EditListingPricingAndStockForm = props => (
         pristine,
         marketplaceCurrency,
         unitType,
+        isCouples = false,
         listingMinimumPriceSubUnits = 0,
         listingType,
         saveActionMsg,
@@ -185,10 +187,14 @@ export const EditListingPricingAndStockForm = props => (
             name="price"
             className={css.input}
             autoFocus={autoFocus}
-            label={intl.formatMessage(
-              { id: 'EditListingPricingAndStockForm.pricePerProduct' },
-              { unitType }
-            )}
+            label={
+              isCouples
+                ? intl.formatMessage({ id: 'EditListingPricingAndStockForm.pricePerCouple' })
+                : intl.formatMessage(
+                    { id: 'EditListingPricingAndStockForm.pricePerProduct' },
+                    { unitType }
+                  )
+            }
             placeholder={intl.formatMessage({
               id: 'EditListingPricingAndStockForm.priceInputPlaceholder',
             })}
@@ -208,9 +214,15 @@ export const EditListingPricingAndStockForm = props => (
               className={css.input}
               id={`${formId}.stock`}
               name="stock"
-              label={intl.formatMessage({ id: 'EditListingPricingAndStockForm.stockLabel' })}
+              label={intl.formatMessage({
+                id: isCouples
+                  ? 'EditListingPricingAndStockForm.stockLabelCouples'
+                  : 'EditListingPricingAndStockForm.stockLabel',
+              })}
               placeholder={intl.formatMessage({
-                id: 'EditListingPricingAndStockForm.stockPlaceholder',
+                id: isCouples
+                  ? 'EditListingPricingAndStockForm.stockPlaceholderCouples'
+                  : 'EditListingPricingAndStockForm.stockPlaceholder',
               })}
               type="number"
               min={0}

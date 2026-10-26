@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { numberAtLeast, required } from '../../../util/validators';
 import { PURCHASE_PROCESS_NAME } from '../../../transactions/transaction';
+import { BOOKING_FOR_COUPLES } from '../../../util/seminarSchedule';
 
 import {
   Form,
@@ -51,6 +52,49 @@ const handleFetchLineItems = ({
       isOwnListing,
     });
   }
+};
+
+/**
+ * Seminars & Events: one booking is one spot, for one person or for a couple. Shows what the
+ * booking covers, how many spots are left and, for couples, asks the partner's name.
+ *
+ * @param {Object} props
+ * @param {string} props.formId
+ * @param {Object} props.intl
+ * @param {boolean} props.isCouples
+ * @param {number} props.currentStock
+ * @returns {JSX.Element}
+ */
+const SeminarSpotFields = props => {
+  const { formId, intl, isCouples, currentStock } = props;
+  const forWhom = isCouples ? 'couples' : 'individuals';
+  return (
+    <div className={css.spotFields}>
+      <p className={css.spotSummary}>
+        <span className={css.spotText}>
+          <FormattedMessage id={`ProductOrderForm.oneSpot.${forWhom}`} />
+        </span>
+        <span className={css.spotsLeft}>
+          <FormattedMessage
+            id={`ProductOrderForm.spotsLeft.${forWhom}`}
+            values={{ count: currentStock }}
+          />
+        </span>
+      </p>
+      {isCouples ? (
+        <FieldTextInput
+          id={`${formId}.partnerName`}
+          name="partnerName"
+          className={css.partnerNameField}
+          type="text"
+          autoComplete="off"
+          label={intl.formatMessage({ id: 'ProductOrderForm.partnerNameLabel' })}
+          placeholder={intl.formatMessage({ id: 'ProductOrderForm.partnerNamePlaceholder' })}
+          validate={required(intl.formatMessage({ id: 'ProductOrderForm.partnerNameRequired' }))}
+        />
+      ) : null}
+    </div>
+  );
 };
 
 const DeliveryMethodMaybe = props => {
@@ -135,6 +179,7 @@ const renderForm = formRenderProps => {
     payoutDetailsWarning,
     marketplaceName,
     values,
+    bookingFor,
     sectionHeadingAs = 'h3',
   } = formRenderProps;
 
@@ -172,11 +217,20 @@ const renderForm = formRenderProps => {
     }
   };
 
+  // Seminars & Events: one spot per booking
+  const isSeminar = !!bookingFor;
+  const isCouples = bookingFor === BOOKING_FOR_COUPLES;
+
   // In case quantity and deliveryMethod are missing focus on that select-input.
   // Otherwise continue with the default handleSubmit function.
   const handleFormSubmit = e => {
-    const { quantity, deliveryMethod } = values || {};
-    if (!quantity || quantity < 1) {
+    const { quantity, deliveryMethod, partnerName } = values || {};
+    if (isCouples && !partnerName?.trim()) {
+      e.preventDefault();
+      // Blur event will show validator message
+      formApi.blur('partnerName');
+      formApi.focus('partnerName');
+    } else if (!quantity || quantity < 1) {
       e.preventDefault();
       // Blur event will show validator message
       formApi.blur('quantity');
@@ -224,7 +278,15 @@ const renderForm = formRenderProps => {
   return (
     <Form onSubmit={handleFormSubmit}>
       <FormSpy subscription={{ values: true }} onChange={handleOnChange} />
-      {hasNoStockLeft ? null : hasOneItemLeft || !allowOrdersOfMultipleItems ? (
+      {hasStock && isSeminar ? (
+        <SeminarSpotFields
+          formId={formId}
+          intl={intl}
+          isCouples={isCouples}
+          currentStock={currentStock}
+        />
+      ) : null}
+      {hasNoStockLeft ? null : isSeminar || hasOneItemLeft || !allowOrdersOfMultipleItems ? (
         <FieldTextInput
           id={`${formId}.quantity`}
           className={css.quantityField}
@@ -294,6 +356,8 @@ const renderForm = formRenderProps => {
           payoutDetailsWarning
         ) : hasStock && isOwnListing ? (
           <FormattedMessage id="ProductOrderForm.ownListing" />
+        ) : hasStock && isSeminar ? (
+          <FormattedMessage id={`ProductOrderForm.finePrintSeminar.${isCouples ? 'couples' : 'individuals'}`} />
         ) : hasStock ? (
           <FormattedMessage id="ProductOrderForm.finePrint" />
         ) : showContactUser ? (
@@ -326,6 +390,7 @@ const renderForm = formRenderProps => {
  * @param {boolean} props.fetchLineItemsInProgress - Whether the line items are being fetched
  * @param {propTypes.error} props.fetchLineItemsError - The error for fetching the line items
  * @param {Function} props.onContactUser - The function to contact the user
+ * @param {'individuals'|'couples'|null} [props.bookingFor] - Seminars & Events: who one booking (one spot) is for
  * @param {'h2'|'h3'} [props.sectionHeadingAs='h3'] - Semantic heading level for form section titles
  * @returns {JSX.Element}
  */
@@ -338,6 +403,7 @@ const ProductOrderForm = props => {
     shippingEnabled,
     displayDeliveryMethod,
     allowOrdersOfMultipleItems,
+    bookingFor,
   } = props;
 
   // Should not happen for listings that go through EditListingWizard.
@@ -352,7 +418,10 @@ const ProductOrderForm = props => {
 
   const hasOneItemLeft = currentStock && currentStock === 1;
   const hasOneItemMode = !allowOrdersOfMultipleItems && currentStock > 0;
-  const quantityMaybe = hasOneItemLeft || hasOneItemMode ? { quantity: '1' } : {};
+  // Seminars & Events: one booking is always one spot
+  const hasOneSpotMode = !!bookingFor && currentStock > 0;
+  const quantityMaybe =
+    hasOneItemLeft || hasOneItemMode || hasOneSpotMode ? { quantity: '1' } : {};
   const deliveryMethodMaybe =
     shippingEnabled && !pickupEnabled
       ? { deliveryMethod: 'shipping' }

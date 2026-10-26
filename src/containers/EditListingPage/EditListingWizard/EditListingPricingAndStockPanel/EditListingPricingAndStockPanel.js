@@ -6,6 +6,7 @@ import { FormattedMessage } from '../../../../util/reactIntl';
 import { LISTING_STATE_DRAFT, STOCK_INFINITE_ITEMS, propTypes } from '../../../../util/types';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
 import { isValidCurrencyForTransactionProcess } from '../../../../util/fieldHelpers';
+import { SEMINAR_LISTING_TYPE, isCouplesListing } from '../../../../util/seminarSchedule';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -194,6 +195,9 @@ const EditListingPricingAndStockPanel = props => {
           marketplaceCurrency={marketplaceCurrency}
           listingType={listingTypeConfig}
           unitType={unitType}
+          isCouples={
+            publicData?.listingType === SEMINAR_LISTING_TYPE && isCouplesListing(publicData)
+          }
           saveActionMsg={submitButtonText}
           disabled={disabled}
           ready={ready}

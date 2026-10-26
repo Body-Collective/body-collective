@@ -44,6 +44,25 @@ export const TREATMENT_TEXT_FIELDS = [
 export const TREATMENT_TEXT_FIELD_KEYS = TREATMENT_TEXT_FIELDS.map(f => f.key);
 
 /**
+ * A listing query for treatments (pub_listingType=daily_booking, e.g. of a section in Console)
+ * asks for all treatments: Studio and Mobile Service listings.
+ *
+ * @param {string?} query Query string
+ * @returns {string?} Query string
+ */
+export const withAllTreatmentListingTypes = query => {
+  if (!query) {
+    return query;
+  }
+  const params = new URLSearchParams(query);
+  if (params.get('pub_listingType') !== TREATMENT_LISTING_TYPES[0]) {
+    return query;
+  }
+  params.set('pub_listingType', TREATMENT_LISTING_TYPES.join(','));
+  return params.toString();
+};
+
+/**
  * @param {string} listingType
  * @returns {boolean}
  */

@@ -26,6 +26,11 @@ import { formatMoney } from '../../util/currency';
 import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
 import {
+  SEMINAR_LISTING_TYPE,
+  getBookingFor,
+  isCouplesListing,
+} from '../../util/seminarSchedule';
+import {
   OFFER,
   REQUEST,
   getSupportedProcessesInfo,
@@ -150,6 +155,13 @@ const PriceMaybe = props => {
     showCurrencyMismatch = false,
   } = props;
   const { listingType, unitType } = publicData || {};
+  // Seminars booked by couples: the price is for both
+  const perUnitMessage =
+    listingType === SEMINAR_LISTING_TYPE && isCouplesListing(publicData) ? (
+      <FormattedMessage id="OrderPanel.perCouple" />
+    ) : (
+      <FormattedMessage id="OrderPanel.perUnit" values={{ unitType }} />
+    );
 
   const foundListingTypeConfig = validListingTypes.find(conf => conf.listingType === listingType);
   const showPrice = displayPrice(foundListingTypeConfig);
@@ -165,11 +177,7 @@ const PriceMaybe = props => {
   const priceValue = (
     <span className={css.priceValue}>{formatMoneyIfSupportedCurrency(price, intl)}</span>
   );
-  const pricePerUnit = (
-    <span className={css.perUnit}>
-      <FormattedMessage id="OrderPanel.perUnit" values={{ unitType }} />
-    </span>
-  );
+  const pricePerUnit = <span className={css.perUnit}>{perUnitMessage}</span>;
 
   // TODO: In CTA, we don't have space to show proper error message for a mismatch of marketplace currency
   //       Instead, we show the currency code in place of the price
@@ -181,9 +189,7 @@ const PriceMaybe = props => {
           values={{ priceValue: formattedPrice }}
         />
       </div>
-      <div className={css.perUnitInCTA}>
-        <FormattedMessage id="OrderPanel.perUnit" values={{ unitType }} />
-      </div>
+      <div className={css.perUnitInCTA}>{perUnitMessage}</div>
     </div>
   ) : (
     <div className={css.priceContainer}>
@@ -544,6 +550,7 @@ const OrderPanel = props => {
             shippingEnabled={shippingEnabled && displayShipping}
             displayDeliveryMethod={displayPickup || displayShipping}
             onContactUser={onContactUser}
+            bookingFor={listingType === SEMINAR_LISTING_TYPE ? getBookingFor(publicData) : null}
             {...sharedProps}
           />
         ) : showDownloadForm ? (

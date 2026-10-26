@@ -137,6 +137,9 @@ const getOrderParams = (
   const priceVariantMaybe = priceVariant ? prefixPriceVariantProperties(priceVariant) : {};
 
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
+  // Seminars & Events booked by couples: the partner's name from the order panel
+  const partnerName = pageData.orderData?.partnerName?.trim();
+  const partnerNameMaybe = partnerName ? { partnerName } : {};
 
   const protectedDataMaybe = {
     protectedData: {
@@ -146,6 +149,7 @@ const getOrderParams = (
       ...priceVariantMaybe,
       ...transactionFieldProtectedData,
       ...customerDefaultMessageMaybe,
+      ...partnerNameMaybe,
     },
   };
 

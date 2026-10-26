@@ -27,6 +27,39 @@
   }
 }
 
+/* Seminars & Events: what one booking covers and the spots left */
+.spotFields {
+  padding: 0 24px;
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    padding: 0;
+  }
+}
+
+.spotSummary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--colorGrey100);
+  border-bottom: 1px solid var(--colorGrey100);
+}
+
+.spotText {
+  font-weight: var(--fontWeightMedium);
+}
+
+.spotsLeft {
+  color: var(--colorGrey700);
+}
+
+.partnerNameField {
+  margin-top: 24px;
+}
+
 .deliveryField {
   padding: 0 24px;
   margin-top: 24px;

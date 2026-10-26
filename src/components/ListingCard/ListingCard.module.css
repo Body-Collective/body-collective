@@ -17,6 +17,30 @@
   border-radius: var(--borderRadiusMedium);
 }
 
+/* Label on the image (Mobile Service): white, slightly transparent, with a soft blur behind it */
+.typeLabel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--colorWhite);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 1px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
 .aspectRatioWrapper {
   transition: var(--transitionStyleButton);
   background: var(--colorGrey100);

@@ -60,7 +60,6 @@ import SectionAuthorMaybe from './SectionAuthorMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
 import SectionCancellationPolicy from './SectionCancellationPolicy';
 import CustomListingFields from './CustomListingFields';
-import SectionSeminarSchedule from './SectionSeminarSchedule';
 import SectionTreatmentDetails from './SectionTreatmentDetails';
 import SectionSeminarDetails, { SeminarKicker } from './SectionSeminarDetails';
 import Notifications from './Notifications/Notifications';
@@ -317,8 +316,6 @@ export const ListingPageComponent = props => {
 
             <SectionTreatmentDetails publicData={publicData} currency={price?.currency} />
             <SectionSeminarDetails publicData={publicData} />
-
-            <SectionSeminarSchedule publicData={publicData} />
 
             <CustomListingFields
               publicData={publicData}

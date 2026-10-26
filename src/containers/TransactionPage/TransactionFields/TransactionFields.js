@@ -285,8 +285,21 @@ const TransactionFields = props => {
     role
   );
 
-  return showFields && (!!defaultMessageContent || hasCustomTransactionFieldData) ? (
+  // Seminars & Events booked by couples: the name of the partner, given in the order panel
+  const partnerName = role === 'customer' ? protectedData?.partnerName : null;
+  const partnerNameText = partnerName && isCustomerBanned ? bannedUserMessage : partnerName;
+
+  return showFields &&
+    (!!defaultMessageContent || hasCustomTransactionFieldData || !!partnerName) ? (
     <div className={css.transactionFieldsContainer}>
+      {partnerName ? (
+        <SectionText
+          heading={intl.formatMessage({ id: 'TransactionPanel.partnerNameHeading' })}
+          headingClassName={css.defaultMessageLabel}
+          text={partnerNameText}
+          className={css.transactionFieldSection}
+        />
+      ) : null}
       {role === 'customer' && hasMobileBookingQuestions(transactionFieldConfigs) ? (
         <MobileBookingAnswers
           protectedData={protectedData}

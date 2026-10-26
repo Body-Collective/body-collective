@@ -9,6 +9,7 @@ import { useIntl } from '../../util/reactIntl';
 import { requireListingImage } from '../../util/configHelpers';
 import { lazyLoadWithDimensions } from '../../util/uiHelpers';
 import { createSlug } from '../../util/urlHelpers';
+import { MOBILE_LISTING_TYPE } from '../../util/mobileBookingQuestions';
 
 import {
   AspectRatioWrapper,
@@ -213,6 +214,12 @@ export const ListingCard = props => {
             setActivePropsMaybe={setActivePropsMaybe}
           />
         )}
+        {listingType === MOBILE_LISTING_TYPE ? (
+          // Mobile Service listings: a fixed label on the image, like the event types of seminars
+          <span className={css.typeLabel}>
+            {intl.formatMessage({ id: 'ListingCard.mobileService' })}
+          </span>
+        ) : null}
       </div>
       <div className={css.info}>
         <div className={css.authorRow}>

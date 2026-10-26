@@ -4,6 +4,7 @@ import classNames from 'classnames';
 // Import configs and util modules
 import { useConfiguration } from '../../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
+import { withAllTreatmentListingTypes } from '../../../../util/treatmentDetails';
 import {
   REGION_EVENTS_SECTION_ID,
   REGION_PRACTITIONERS_SECTION_ID,
@@ -113,7 +114,9 @@ const RegionSectionListings = props => {
   const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
 
   const section = allSections.find(s => s.sectionId === sectionId);
-  const searchQuery = getAreaListingSearchQuery(section?.listingSearchQuery, selectedArea);
+  const searchQuery = withAllTreatmentListingTypes(
+    getAreaListingSearchQuery(section?.listingSearchQuery, selectedArea)
+  );
   const hasMore = fetched && !inProgress && totalItems > listings.length;
 
   // Where an area is: the text of its block in Console ("across the city", "on Mallorca"), or

@@ -3,7 +3,12 @@ import classNames from 'classnames';
 
 import { useIntl } from '../../../../util/reactIntl';
 import { createSlug } from '../../../../util/urlHelpers';
-import { EVENT_TYPE, EVENT_TYPES, formatSeminarCardDates } from '../../../../util/seminarSchedule';
+import {
+  EVENT_TYPE,
+  EVENT_TYPES,
+  formatSeminarCardDates,
+  isCouplesListing,
+} from '../../../../util/seminarSchedule';
 import { getListingRating } from '../../../../util/rating';
 import { getListingTitle } from '../../../../util/localizedContent';
 import { getListingPlaceLine } from '../../../../util/neighbourhoods';
@@ -74,6 +79,8 @@ const getEventCardFields = (listing, intl) => {
     // Only the star: no number of reviews on seminar cards
     rating: hasReviews ? listingRating.rating : null,
     priceLabel: price ? formatMoneyAmountFirst(intl, price) : null,
+    // Booked by couples: "350 € / couple"
+    isCouples: isCouplesListing(publicData),
     authorName: listing?.author?.attributes?.profile?.displayName || null,
   };
 };
@@ -102,6 +109,7 @@ const EventCard = props => {
     locationLabel,
     rating,
     priceLabel,
+    isCouples,
     authorName,
   } = getEventCardFields(listing, intl);
 
@@ -151,7 +159,14 @@ const EventCard = props => {
         {locationLabel ? <div className={css.meta}>{locationLabel}</div> : null}
         {withAuthor ? <div className={css.meta}>{withAuthor}</div> : null}
         <div className={css.priceRow}>
-          {priceLabel ? (
+          {priceLabel && isCouples ? (
+            <span className={css.price}>
+              <span className={css.priceValue}>{priceLabel}</span>{' '}
+              <span className={css.pricePrefix}>
+                {intl.formatMessage({ id: 'EventCard.perCouple' })}
+              </span>
+            </span>
+          ) : priceLabel ? (
             <span className={css.price}>
               <span className={css.pricePrefix}>
                 {intl.formatMessage({ id: 'ListingCard.priceFromPrefix' })}

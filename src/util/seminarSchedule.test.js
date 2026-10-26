@@ -1,5 +1,4 @@
 import {
-  formatSeminarSchedule,
   fromUnixSeconds,
   getSeminarScheduleInitialValues,
   getSeminarSchedulePublicData,
@@ -31,36 +30,35 @@ describe('seminarSchedule', () => {
   it('turns the form values into public data and back', () => {
     const values = {
       seminarDates: { startDate: new Date(2026, 8, 12), endDate: new Date(2026, 8, 14) },
-      seminarStartTime: '10:00',
-      seminarEndTime: '17:45',
       event_type: 'retreat',
+      booking_for: 'couples',
     };
     const publicData = getSeminarSchedulePublicData(values);
+    // The whole days in Berlin: the daily times are in the programme
     expect(publicData).toEqual({
       event_type: 'retreat',
-      event_start: Date.UTC(2026, 8, 12, 8, 0) / 1000,
-      event_end: Date.UTC(2026, 8, 14, 15, 45) / 1000,
+      booking_for: 'couples',
+      event_start: Date.UTC(2026, 8, 11, 22, 0) / 1000,
+      event_end: Date.UTC(2026, 8, 14, 21, 59) / 1000,
     });
     expect(getSeminarScheduleInitialValues(publicData)).toEqual(values);
-    expect(getSeminarScheduleInitialValues({})).toEqual({});
+    expect(getSeminarScheduleInitialValues({})).toEqual({ booking_for: 'individuals' });
   });
 
-  it('formats the dates and times, or the old text of older listings', () => {
-    const intl = {
-      formatDate: (d, o) => new Intl.DateTimeFormat('en-GB', o).format(d),
-      formatTime: (d, o) => new Intl.DateTimeFormat('en-GB', o).format(d),
-    };
-    const { dates, times } = formatSeminarSchedule(intl, {
-      event_start: Date.UTC(2026, 8, 12, 8, 0) / 1000,
-      event_end: Date.UTC(2026, 8, 14, 15, 45) / 1000,
+  it('stores a one-day event and books individuals by default', () => {
+    const publicData = getSeminarSchedulePublicData({
+      seminarDates: { startDate: new Date(2026, 11, 15), endDate: null },
     });
-    expect(dates).toEqual('Sat, 12 Sept 2026 – Mon, 14 Sept 2026');
-    expect(times).toEqual('10:00 – 17:45');
-    expect(formatSeminarSchedule(intl, { seminar_date: '12–14 Sep' })).toEqual({
-      dates: '12–14 Sep',
-      times: null,
+    expect(publicData).toEqual({
+      event_type: null,
+      booking_for: 'individuals',
+      event_start: Date.UTC(2026, 11, 14, 23, 0) / 1000,
+      event_end: Date.UTC(2026, 11, 15, 22, 59) / 1000,
     });
-    expect(formatSeminarSchedule(intl, {})).toBeNull();
+    expect(getSeminarScheduleInitialValues(publicData).seminarDates).toEqual({
+      startDate: new Date(2026, 11, 15),
+      endDate: null,
+    });
   });
 
   it('hides the Console fields replaced by the date and time selectors', () => {

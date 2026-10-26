@@ -648,7 +648,7 @@ const EditListingDetailsForm = props => (
           ) : null}
 
           {showListingFields && isCompatibleCurrency && listingType === SEMINAR_LISTING_TYPE && (
-            <SeminarScheduleFields formId={formId} intl={intl} />
+            <SeminarScheduleFields formId={formId} intl={intl} values={values} />
           )}
 
           {showListingFields && isCompatibleCurrency && (

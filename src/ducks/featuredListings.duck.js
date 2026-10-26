@@ -7,6 +7,7 @@ import { getAreaListingSearchQuery, getRegionAreas } from '../util/regionAreas';
 import { SEMINAR_LISTING_TYPE, getUpcomingSeminarsParams } from '../util/seminarSchedule';
 import { LISTING_RATING_FIELDS } from '../util/rating';
 import { LISTING_TITLE_TRANSLATION_FIELDS } from '../util/localizedContent';
+import { withAllTreatmentListingTypes } from '../util/treatmentDetails';
 
 const MAX_LISTING_COUNT = 10;
 
@@ -22,7 +23,8 @@ const isListingsSection = section => section.sectionType === 'listings';
 // location of the query of the section, when one is chosen (areaSlug).
 const getSectionSearchQuery = (section, allSections, areaSlug) => {
   const area = areaSlug ? getRegionAreas(allSections).find(a => a.slug === areaSlug) : null;
-  return getAreaListingSearchQuery(section?.listingSearchQuery, area);
+  // Treatments: Studio and Mobile Service listings (see util/treatmentDetails.js)
+  return withAllTreatmentListingTypes(getAreaListingSearchQuery(section?.listingSearchQuery, area));
 };
 
 // Seminars & Events sections show the next events first (search schema of pub_event_start), unless
@@ -106,6 +108,8 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.seminar_date',
           'publicData.event_start',
           'publicData.event_end',
+          'publicData.event_type',
+          'publicData.booking_for',
         ],
         'fields.image': [
           'variants.listing-card',

@@ -2,13 +2,11 @@ import React from 'react';
 
 import { getStartOf } from '../../../../util/dates';
 import {
+  BOOKING_FOR,
+  BOOKING_FOR_OPTIONS,
   EVENT_TYPE,
   EVENT_TYPES,
   SEMINAR_DATES,
-  SEMINAR_END_TIME,
-  SEMINAR_START_TIME,
-  SEMINAR_TIME_OPTIONS,
-  getSeminarSchedulePublicData,
 } from '../../../../util/seminarSchedule';
 import { required } from '../../../../util/validators';
 
@@ -28,30 +26,21 @@ const isOutsideRange = day => {
 // The first day is required; without a last day, the event takes one day
 const requiredDates = message => value => (value?.startDate ? undefined : message);
 
-// Required, and the seminar must end after it starts (e.g. not 18:00 – 10:00 on one day)
-const validEndTime = (requiredMessage, endBeforeStartMessage) => (value, allValues) => {
-  if (!value) {
-    return requiredMessage;
-  }
-  const { event_start, event_end } = getSeminarSchedulePublicData(allValues);
-  return event_start != null && event_end != null && event_end <= event_start
-    ? endBeforeStartMessage
-    : undefined;
-};
-
 /**
- * Type, dates and times of a Seminars & Events listing: the type of the event (seminar, training,
- * ...), the first and the last day, and the start and the end time (Berlin time). The dates are
- * stored as unix timestamps: see util/seminarSchedule.js.
+ * Type, booking unit and dates of a Seminars & Events listing: the type of the event (seminar, training,
+ * ...), who one booking is for (one person or a couple), and the first and the last day (Berlin
+ * time; the daily times are in the programme). The dates are stored as unix timestamps: see
+ * util/seminarSchedule.js.
  *
  * @component
  * @param {Object} props
  * @param {string} props.formId
  * @param {Object} props.intl
+ * @param {Object} props.values Values of the form
  * @returns {JSX.Element}
  */
 const SeminarScheduleFields = props => {
-  const { formId, intl } = props;
+  const { formId, intl, values } = props;
   const t = (id, values) => intl.formatMessage({ id: `EditListingDetailsForm.${id}` }, values);
 
   return (
@@ -72,6 +61,22 @@ const SeminarScheduleFields = props => {
           </option>
         ))}
       </FieldSelect>
+      <FieldSelect
+        id={`${formId}.${BOOKING_FOR}`}
+        name={BOOKING_FOR}
+        className={css.seminarEventType}
+        label={t('bookingFor')}
+        validate={required(t('bookingForRequired'))}
+      >
+        {BOOKING_FOR_OPTIONS.map(option => (
+          <option key={option} value={option}>
+            {t(`bookingFor.${option}`)}
+          </option>
+        ))}
+      </FieldSelect>
+      <p className={css.seminarScheduleHelp}>
+        {t(`bookingForHelp.${values?.[BOOKING_FOR] || BOOKING_FOR_OPTIONS[0]}`)}
+      </p>
       <FieldDateRangePicker
         className={css.seminarDates}
         name={SEMINAR_DATES}
@@ -85,40 +90,6 @@ const SeminarScheduleFields = props => {
         isOutsideRange={isOutsideRange}
         validate={requiredDates(t('seminarDatesRequired'))}
       />
-      <div className={css.seminarTimes}>
-        <FieldSelect
-          id={`${formId}.${SEMINAR_START_TIME}`}
-          name={SEMINAR_START_TIME}
-          className={css.seminarTime}
-          label={t('seminarStartTime')}
-          validate={required(t('seminarTimeRequired'))}
-        >
-          <option disabled value="">
-            {t('seminarTimePlaceholder')}
-          </option>
-          {SEMINAR_TIME_OPTIONS.map(time => (
-            <option key={time} value={time}>
-              {time}
-            </option>
-          ))}
-        </FieldSelect>
-        <FieldSelect
-          id={`${formId}.${SEMINAR_END_TIME}`}
-          name={SEMINAR_END_TIME}
-          className={css.seminarTime}
-          label={t('seminarEndTime')}
-          validate={validEndTime(t('seminarTimeRequired'), t('seminarEndBeforeStart'))}
-        >
-          <option disabled value="">
-            {t('seminarTimePlaceholder')}
-          </option>
-          {SEMINAR_TIME_OPTIONS.map(time => (
-            <option key={time} value={time}>
-              {time}
-            </option>
-          ))}
-        </FieldSelect>
-      </div>
       <p className={css.seminarScheduleHelp}>{t('seminarScheduleHelp')}</p>
     </div>
   );
