@@ -11,6 +11,7 @@ import { isOldTotalMismatchStockError } from '../../../../util/errors';
 import * as validators from '../../../../util/validators';
 import { formatMoney } from '../../../../util/currency';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
+import { getSpotsLeft } from '../../../../util/seminarSchedule';
 
 // Import shared components
 import {
@@ -44,6 +45,77 @@ const getPriceValidators = (listingMinimumPriceSubUnits, marketplaceCurrency, in
   return listingMinimumPriceSubUnits
     ? validators.composeValidators(priceRequired, minPriceRequired)
     : priceRequired;
+};
+
+// Number inputs should not change value on scroll: prefer page scrolling
+const keepValueOnWheel = e => {
+  if (e.target === document.activeElement) {
+    e.target.blur();
+    // Refocus immediately, on the next tick (after the current function is done)
+    setTimeout(() => {
+      e.target.focus();
+    }, 0);
+  }
+};
+
+/**
+ * Spots of a Seminars & Events listing: the total and the spots sold outside the marketplace.
+ * The spots left (the stock) are total - booked elsewhere - booked on the marketplace.
+ *
+ * @param {Object} props
+ * @param {string} props.formId
+ * @param {Object} props.intl
+ * @param {boolean} props.isCouples
+ * @param {number} props.bookedHere Spots booked on the marketplace
+ * @param {Object} props.values Values of the form
+ * @returns {JSX.Element}
+ */
+const SeminarSpotsFields = props => {
+  const { formId, intl, isCouples, bookedHere, values } = props;
+  const t = (id, vals) => intl.formatMessage({ id: `EditListingPricingAndStockForm.${id}` }, vals);
+  const forWhom = isCouples ? 'couples' : 'individuals';
+
+  const countValidator = message => validators.numberAtLeast(message, 0);
+  // The total can't be lower than the spots already booked
+  const enoughSpots = (value, allValues) => {
+    const min = bookedHere + (Number.parseInt(allValues?.spotsBookedElsewhere, 10) || 0);
+    return Number.parseInt(value, 10) < min
+      ? t(`spotsTotalTooLow.${forWhom}`, { min, bookedHere })
+      : undefined;
+  };
+  const left = getSpotsLeft(values?.spotsTotal, values?.spotsBookedElsewhere, bookedHere);
+
+  return (
+    <>
+      <FieldTextInput
+        className={css.input}
+        id={`${formId}.spotsTotal`}
+        name="spotsTotal"
+        label={t(`spotsTotalLabel.${forWhom}`)}
+        placeholder={t(`spotsTotalPlaceholder.${forWhom}`)}
+        type="number"
+        min={0}
+        validate={(value, allValues) =>
+          countValidator(t('spotsTotalRequired'))(value) || enoughSpots(value, allValues)
+        }
+        onWheel={keepValueOnWheel}
+      />
+      <FieldTextInput
+        className={css.input}
+        id={`${formId}.spotsBookedElsewhere`}
+        name="spotsBookedElsewhere"
+        label={t('spotsBookedElsewhereLabel')}
+        type="number"
+        min={0}
+        validate={countValidator(t('spotsBookedElsewhereInvalid'))}
+        onWheel={keepValueOnWheel}
+      />
+      <p className={css.spotsHelp}>{t('spotsBookedElsewhereHelp')}</p>
+      <p className={css.spotsSummary} role="status">
+        {t(`spotsSummary.${forWhom}`, { bookedHere, left })}
+      </p>
+    </>
+  );
 };
 
 /**
@@ -103,6 +175,7 @@ const UpdateStockToInfinityCheckboxMaybe = ({ hasInfiniteStock, currentStock, fo
  * @param {propTypes.listingType} props.listingType - The listing types config
  * @param {string} props.unitType - The unit type (e.g. 'item')
  * @param {boolean} [props.isCouples] - Seminars booked by couples: the price and the spots are per couple
+ * @param {number|null} [props.seminarBookedHere] - Seminars: spots booked on the marketplace; the form asks the total and the spots booked elsewhere instead of the stock
  * @param {string} props.marketplaceCurrency - The marketplace currency (e.g. 'USD')
  * @param {number} props.listingMinimumPriceSubUnits - The listing minimum price sub units
  * @param {boolean} [props.autoFocus] - Whether the form should autofocus
@@ -135,6 +208,7 @@ export const EditListingPricingAndStockForm = props => (
         marketplaceCurrency,
         unitType,
         isCouples = false,
+        seminarBookedHere = null,
         listingMinimumPriceSubUnits = 0,
         listingType,
         saveActionMsg,
@@ -209,7 +283,15 @@ export const EditListingPricingAndStockForm = props => (
             intl={intl}
           />
 
-          {hasStockManagement ? (
+          {hasStockManagement && seminarBookedHere != null ? (
+            <SeminarSpotsFields
+              formId={formId}
+              intl={intl}
+              isCouples={isCouples}
+              bookedHere={seminarBookedHere}
+              values={values}
+            />
+          ) : hasStockManagement ? (
             <FieldTextInput
               className={css.input}
               id={`${formId}.stock`}

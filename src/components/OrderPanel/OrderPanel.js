@@ -28,6 +28,7 @@ import { userDisplayNameAsString } from '../../util/data';
 import {
   SEMINAR_LISTING_TYPE,
   getBookingFor,
+  getSeminarSpots,
   isCouplesListing,
 } from '../../util/seminarSchedule';
 import {
@@ -360,6 +361,10 @@ const OrderPanel = props => {
   const shouldHavePurchase = isPurchase && lineItemUnitType === LINE_ITEM_ITEM;
   const currentStock = listing.currentStock?.attributes?.quantity;
   const isOutOfStock = shouldHavePurchase && !isClosed && currentStock === 0;
+  // Seminars & Events: all the spots, when the organiser has set the total
+  const seminarSpots =
+    listingType === SEMINAR_LISTING_TYPE ? getSeminarSpots(publicData, currentStock) : null;
+  const seminarSpotsTotal = seminarSpots?.hasTotal ? seminarSpots.total : null;
 
   // Show form only when stock is fully loaded. This avoids "Out of stock" UI by
   // default before all data has been downloaded.
@@ -551,6 +556,7 @@ const OrderPanel = props => {
             displayDeliveryMethod={displayPickup || displayShipping}
             onContactUser={onContactUser}
             bookingFor={listingType === SEMINAR_LISTING_TYPE ? getBookingFor(publicData) : null}
+            spotsTotal={seminarSpotsTotal}
             {...sharedProps}
           />
         ) : showDownloadForm ? (

@@ -63,10 +63,11 @@ const handleFetchLineItems = ({
  * @param {Object} props.intl
  * @param {boolean} props.isCouples
  * @param {number} props.currentStock
+ * @param {number|null} props.spotsTotal All the spots of the event, when the organiser has set it
  * @returns {JSX.Element}
  */
 const SeminarSpotFields = props => {
-  const { formId, intl, isCouples, currentStock } = props;
+  const { formId, intl, isCouples, currentStock, spotsTotal } = props;
   const forWhom = isCouples ? 'couples' : 'individuals';
   return (
     <div className={css.spotFields}>
@@ -75,10 +76,17 @@ const SeminarSpotFields = props => {
           <FormattedMessage id={`ProductOrderForm.oneSpot.${forWhom}`} />
         </span>
         <span className={css.spotsLeft}>
-          <FormattedMessage
-            id={`ProductOrderForm.spotsLeft.${forWhom}`}
-            values={{ count: currentStock }}
-          />
+          {spotsTotal ? (
+            <FormattedMessage
+              id={`ProductOrderForm.spotsLeftOfTotal.${forWhom}`}
+              values={{ count: currentStock, total: spotsTotal }}
+            />
+          ) : (
+            <FormattedMessage
+              id={`ProductOrderForm.spotsLeft.${forWhom}`}
+              values={{ count: currentStock }}
+            />
+          )}
         </span>
       </p>
       {isCouples ? (
@@ -180,6 +188,7 @@ const renderForm = formRenderProps => {
     marketplaceName,
     values,
     bookingFor,
+    spotsTotal,
     sectionHeadingAs = 'h3',
   } = formRenderProps;
 
@@ -284,6 +293,7 @@ const renderForm = formRenderProps => {
           intl={intl}
           isCouples={isCouples}
           currentStock={currentStock}
+          spotsTotal={spotsTotal}
         />
       ) : null}
       {hasNoStockLeft ? null : isSeminar || hasOneItemLeft || !allowOrdersOfMultipleItems ? (
@@ -357,7 +367,9 @@ const renderForm = formRenderProps => {
         ) : hasStock && isOwnListing ? (
           <FormattedMessage id="ProductOrderForm.ownListing" />
         ) : hasStock && isSeminar ? (
-          <FormattedMessage id={`ProductOrderForm.finePrintSeminar.${isCouples ? 'couples' : 'individuals'}`} />
+          <FormattedMessage
+            id={`ProductOrderForm.finePrintSeminar.${isCouples ? 'couples' : 'individuals'}`}
+          />
         ) : hasStock ? (
           <FormattedMessage id="ProductOrderForm.finePrint" />
         ) : showContactUser ? (
@@ -390,6 +402,7 @@ const renderForm = formRenderProps => {
  * @param {boolean} props.fetchLineItemsInProgress - Whether the line items are being fetched
  * @param {propTypes.error} props.fetchLineItemsError - The error for fetching the line items
  * @param {Function} props.onContactUser - The function to contact the user
+ * @param {number|null} [props.spotsTotal] - Seminars & Events: all the spots, for "4 of 12 spots left"
  * @param {'individuals'|'couples'|null} [props.bookingFor] - Seminars & Events: who one booking (one spot) is for
  * @param {'h2'|'h3'} [props.sectionHeadingAs='h3'] - Semantic heading level for form section titles
  * @returns {JSX.Element}
@@ -420,8 +433,7 @@ const ProductOrderForm = props => {
   const hasOneItemMode = !allowOrdersOfMultipleItems && currentStock > 0;
   // Seminars & Events: one booking is always one spot
   const hasOneSpotMode = !!bookingFor && currentStock > 0;
-  const quantityMaybe =
-    hasOneItemLeft || hasOneItemMode || hasOneSpotMode ? { quantity: '1' } : {};
+  const quantityMaybe = hasOneItemLeft || hasOneItemMode || hasOneSpotMode ? { quantity: '1' } : {};
   const deliveryMethodMaybe =
     shippingEnabled && !pickupEnabled
       ? { deliveryMethod: 'shipping' }

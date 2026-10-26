@@ -1962,5 +1962,19 @@
   "ProductOrderForm.partnerNameRequired": "Bitte gib den Namen deiner Begleitung an.",
   "ProductOrderForm.finePrintSeminar.individuals": "Möchte jemand mit dir teilnehmen? Bitte jede Person bucht ihren Platz selbst.",
   "ProductOrderForm.finePrintSeminar.couples": "Eine Buchung gilt für euch beide.",
-  "TransactionPanel.partnerNameHeading": "Begleitung"
+  "TransactionPanel.partnerNameHeading": "Begleitung",
+  "EditListingPricingAndStockForm.spotsTotalLabel.individuals": "Plätze insgesamt",
+  "EditListingPricingAndStockForm.spotsTotalLabel.couples": "Plätze insgesamt (Paare)",
+  "EditListingPricingAndStockForm.spotsTotalPlaceholder.individuals": "Wie viele Personen können teilnehmen?",
+  "EditListingPricingAndStockForm.spotsTotalPlaceholder.couples": "Wie viele Paare können teilnehmen?",
+  "EditListingPricingAndStockForm.spotsTotalRequired": "Bitte gib die Zahl der Plätze an.",
+  "EditListingPricingAndStockForm.spotsTotalTooLow.individuals": "Mindestens {min}: {bookedHere, plural, =0 {} one {1 Platz ist über Body Collective gebucht, } other {# Plätze sind über Body Collective gebucht, }}dazu die anderweitig gebuchten Plätze.",
+  "EditListingPricingAndStockForm.spotsTotalTooLow.couples": "Mindestens {min}: {bookedHere, plural, =0 {} one {1 Paar ist über Body Collective gebucht, } other {# Paare sind über Body Collective gebucht, }}dazu die anderweitig gebuchten Plätze.",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereLabel": "Anderweitig gebucht",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereInvalid": "Bitte gib eine Zahl ein (0 oder mehr).",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereHelp": "Plätze, die du außerhalb von Body Collective vergeben hast, z. B. per E-Mail oder über deine Website. Du kannst das jederzeit ändern.",
+  "EditListingPricingAndStockForm.spotsSummary.individuals": "{bookedHere, plural, one {1 Platz} other {# Plätze}} über Body Collective gebucht · noch {left, plural, one {1 Platz} other {# Plätze}} frei",
+  "EditListingPricingAndStockForm.spotsSummary.couples": "{bookedHere, plural, one {1 Paar} other {# Paare}} über Body Collective gebucht · noch {left, plural, one {1 Paar} other {# Paare}} frei",
+  "ProductOrderForm.spotsLeftOfTotal.individuals": "noch {count} von {total} Plätzen",
+  "ProductOrderForm.spotsLeftOfTotal.couples": "noch {count} von {total} Paaren"
 }

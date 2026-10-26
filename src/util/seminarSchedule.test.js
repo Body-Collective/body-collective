@@ -5,6 +5,8 @@ import {
   toUnixSeconds,
   withoutLegacySeminarFields,
   formatSeminarCardDates,
+  getSeminarSpots,
+  getSpotsLeft,
 } from './seminarSchedule';
 
 describe('seminarSchedule', () => {
@@ -79,5 +81,33 @@ describe('seminarSchedule', () => {
     expect(card(en, at(2026, 11, 27), at(2027, 0, 3))).toEqual('27 Dec 26 – 3 Jan 27');
     expect(card(de, at(2026, 11, 27), at(2027, 0, 3))).toEqual('27. Dez. 26 – 3. Jan. 27');
     expect(card(en, at(2026, 10, 1), at(2026, 10, 1) + 3600)).toEqual('1 Nov 26');
+  });
+
+  it('counts the spots booked here from the total, the spots booked elsewhere and the stock', () => {
+    // 12 spots, 3 booked elsewhere, 7 left: 2 booked on the marketplace
+    const spots = getSeminarSpots({ spots_total: 12, spots_booked_elsewhere: 3 }, 7);
+    expect(spots).toEqual({
+      total: 12,
+      bookedElsewhere: 3,
+      bookedHere: 2,
+      left: 7,
+      hasTotal: true,
+    });
+    // Older listings: the stock is the total
+    expect(getSeminarSpots({}, 5)).toEqual({
+      total: 5,
+      bookedElsewhere: 0,
+      bookedHere: 0,
+      left: 5,
+      hasTotal: false,
+    });
+  });
+
+  it('keeps the spots booked here when the organiser changes the numbers', () => {
+    // 2 booked here; the organiser sells 1 more spot elsewhere and adds 2 spots
+    expect(getSpotsLeft('14', '4', 2)).toEqual(8);
+    expect(getSpotsLeft(12, 0, 2)).toEqual(10);
+    // Never below zero
+    expect(getSpotsLeft(3, 2, 2)).toEqual(0);
   });
 });

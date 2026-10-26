@@ -52,6 +52,47 @@ export const getBookingFor = publicData =>
  */
 export const isCouplesListing = publicData => getBookingFor(publicData) === BOOKING_FOR_COUPLES;
 
+// Spots of a seminar: the total, and the spots the organiser sold outside the marketplace. The
+// stock of the listing is the spots left: total - booked elsewhere - booked here.
+export const SPOTS_TOTAL = 'spots_total';
+export const SPOTS_BOOKED_ELSEWHERE = 'spots_booked_elsewhere';
+
+const toSpotCount = value => {
+  const n = Number.parseInt(value, 10);
+  return Number.isInteger(n) && n >= 0 ? n : null;
+};
+
+/**
+ * The spots of a seminar. The spots booked on the marketplace are the ones missing from the
+ * stock: total - booked elsewhere - stock. Listings saved before the total existed: the stock is
+ * the total.
+ *
+ * @param {Object} publicData
+ * @param {number|null} currentStock quantity of the listing's current stock
+ * @returns {Object} { total, bookedElsewhere, bookedHere, left, hasTotal }
+ */
+export const getSeminarSpots = (publicData, currentStock) => {
+  const left = toSpotCount(currentStock) ?? 0;
+  const storedTotal = toSpotCount(publicData?.[SPOTS_TOTAL]);
+  const hasTotal = storedTotal != null;
+  const total = hasTotal ? storedTotal : left;
+  const bookedElsewhere = hasTotal ? toSpotCount(publicData?.[SPOTS_BOOKED_ELSEWHERE]) ?? 0 : 0;
+  const bookedHere = Math.max(0, total - bookedElsewhere - left);
+  return { total, bookedElsewhere, bookedHere, left, hasTotal };
+};
+
+/**
+ * The spots left (the new stock) after the organiser changes the total or the spots booked
+ * elsewhere. Never below zero.
+ *
+ * @param {number|string} total
+ * @param {number|string} bookedElsewhere
+ * @param {number} bookedHere
+ * @returns {number}
+ */
+export const getSpotsLeft = (total, bookedElsewhere, bookedHere) =>
+  Math.max(0, (toSpotCount(total) ?? 0) - (toSpotCount(bookedElsewhere) ?? 0) - bookedHere);
+
 /**
  * The event type search param, if it has known types, e.g. "retreat" or "seminar,workshop".
  *

@@ -1962,5 +1962,19 @@
   "ProductOrderForm.partnerNameRequired": "Please add your partner's name.",
   "ProductOrderForm.finePrintSeminar.individuals": "Joining with someone? Each person books their own spot.",
   "ProductOrderForm.finePrintSeminar.couples": "One booking covers both of you.",
-  "TransactionPanel.partnerNameHeading": "Partner"
+  "TransactionPanel.partnerNameHeading": "Partner",
+  "EditListingPricingAndStockForm.spotsTotalLabel.individuals": "Total spots",
+  "EditListingPricingAndStockForm.spotsTotalLabel.couples": "Total spots (couples)",
+  "EditListingPricingAndStockForm.spotsTotalPlaceholder.individuals": "How many people can join?",
+  "EditListingPricingAndStockForm.spotsTotalPlaceholder.couples": "How many couples can join?",
+  "EditListingPricingAndStockForm.spotsTotalRequired": "Please add the number of spots.",
+  "EditListingPricingAndStockForm.spotsTotalTooLow.individuals": "At least {min}: {bookedHere, plural, =0 {} one {1 spot is booked on Body Collective, } other {# spots are booked on Body Collective, }}plus the spots booked elsewhere.",
+  "EditListingPricingAndStockForm.spotsTotalTooLow.couples": "At least {min}: {bookedHere, plural, =0 {} one {1 couple is booked on Body Collective, } other {# couples are booked on Body Collective, }}plus the spots booked elsewhere.",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereLabel": "Booked elsewhere",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereInvalid": "Please add a number (0 or more).",
+  "EditListingPricingAndStockForm.spotsBookedElsewhereHelp": "Spots you filled outside Body Collective, e.g. by email or on your own website. You can change this anytime.",
+  "EditListingPricingAndStockForm.spotsSummary.individuals": "{bookedHere, plural, one {1 spot} other {# spots}} booked on Body Collective · {left, plural, one {1 spot} other {# spots}} left",
+  "EditListingPricingAndStockForm.spotsSummary.couples": "{bookedHere, plural, one {1 couple} other {# couples}} booked on Body Collective · {left, plural, one {1 couple} other {# couples}} left",
+  "ProductOrderForm.spotsLeftOfTotal.individuals": "{count} of {total} spots left",
+  "ProductOrderForm.spotsLeftOfTotal.couples": "{count} of {total} couples left"
 }

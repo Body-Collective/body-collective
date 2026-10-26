@@ -3,10 +3,22 @@ import classNames from 'classnames';
 
 // Import configs and util modules
 import { FormattedMessage } from '../../../../util/reactIntl';
-import { LISTING_STATE_DRAFT, STOCK_INFINITE_ITEMS, propTypes } from '../../../../util/types';
+import {
+  LISTING_STATE_DRAFT,
+  STOCK_INFINITE_ITEMS,
+  STOCK_MULTIPLE_ITEMS,
+  propTypes,
+} from '../../../../util/types';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
 import { isValidCurrencyForTransactionProcess } from '../../../../util/fieldHelpers';
-import { SEMINAR_LISTING_TYPE, isCouplesListing } from '../../../../util/seminarSchedule';
+import {
+  SEMINAR_LISTING_TYPE,
+  SPOTS_BOOKED_ELSEWHERE,
+  SPOTS_TOTAL,
+  getSeminarSpots,
+  getSpotsLeft,
+  isCouplesListing,
+} from '../../../../util/seminarSchedule';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -22,6 +34,11 @@ const getListingTypeConfig = (publicData, listingTypes) => {
   const selectedListingType = publicData.listingType;
   return listingTypes.find(conf => conf.listingType === selectedListingType);
 };
+
+// Seminars & Events with stock: the spots are given as a total and the spots booked elsewhere
+const isSeminarWithSpots = (publicData, listingTypeConfig) =>
+  publicData?.listingType === SEMINAR_LISTING_TYPE &&
+  listingTypeConfig?.stockType === STOCK_MULTIPLE_ITEMS;
 
 const getInitialValues = props => {
   const { listing, listingTypes } = props;
@@ -47,7 +64,15 @@ const getInitialValues = props => {
       : 1;
   const stockTypeInfinity = [];
 
-  return { price, stock, stockTypeInfinity };
+  // Seminars: a new listing starts with the default stock as its total
+  const seminarSpotsMaybe = isSeminarWithSpots(publicData, listingTypeConfig)
+    ? (() => {
+        const { total, bookedElsewhere } = getSeminarSpots(publicData, stock);
+        return { spotsTotal: total, spotsBookedElsewhere: bookedElsewhere };
+      })()
+    : {};
+
+  return { price, stock, stockTypeInfinity, ...seminarSpotsMaybe };
 };
 
 /**
@@ -105,6 +130,12 @@ const EditListingPricingAndStockPanel = props => {
 
   const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
 
+  // Seminars: the spots booked on the marketplace, from the stock when the panel was opened
+  const isSeminar = isSeminarWithSpots(publicData, listingTypeConfig);
+  const seminarBookedHere = isSeminar
+    ? getSeminarSpots(publicData, listing?.currentStock?.attributes?.quantity).bookedHere
+    : 0;
+
   // Don't render the form if the assigned currency is different from the marketplace currency
   // or if transaction process is incompatible with selected currency
   const isStripeCompatibleCurrency = isValidCurrencyForTransactionProcess(
@@ -146,7 +177,20 @@ const EditListingPricingAndStockPanel = props => {
           className={css.form}
           initialValues={initialValues}
           onSubmit={values => {
-            const { price, stock, stockTypeInfinity } = values;
+            const { price, stockTypeInfinity, spotsTotal, spotsBookedElsewhere } = values;
+            // Seminars: the stock is the spots left. If a spot is booked meanwhile, the stock
+            // update fails (compare and set) and nothing is saved.
+            const stock = isSeminar
+              ? getSpotsLeft(spotsTotal, spotsBookedElsewhere, seminarBookedHere)
+              : values.stock;
+            const seminarSpotsMaybe = isSeminar
+              ? {
+                  publicData: {
+                    [SPOTS_TOTAL]: Number.parseInt(spotsTotal, 10),
+                    [SPOTS_BOOKED_ELSEWHERE]: Number.parseInt(spotsBookedElsewhere, 10) || 0,
+                  },
+                }
+              : {};
 
             // Update stock only if the value has changed, or stock is infinity in stockType,
             // but not current stock is a small number (might happen with old listings)
@@ -155,7 +199,9 @@ const EditListingPricingAndStockPanel = props => {
 
             const hasStockTypeInfinityChecked = stockTypeInfinity?.[0] === 'infinity';
             const hasNoCurrentStock = listing?.currentStock?.attributes?.quantity == null;
-            const hasStockQuantityChanged = stock && stock !== initialValues.stock;
+            const hasStockQuantityChanged = isSeminar
+              ? stock !== initialValues.stock
+              : stock && stock !== initialValues.stock;
             // currentStockQuantity is null or undefined, return null - otherwise use the value
             const oldTotal = hasNoCurrentStock ? null : initialValues.stock;
             const stockUpdateMaybe =
@@ -179,14 +225,16 @@ const EditListingPricingAndStockPanel = props => {
             const updateValues = {
               price,
               ...stockUpdateMaybe,
+              ...seminarSpotsMaybe,
             };
             // Save the initialValues to state
             // Otherwise, re-rendering would overwrite the values during XHR call.
             setState({
               initialValues: {
                 price,
-                stock: stockUpdateMaybe?.stockUpdate?.newTotal || stock,
+                stock: stockUpdateMaybe?.stockUpdate?.newTotal ?? stock,
                 stockTypeInfinity,
+                ...(isSeminar ? { spotsTotal, spotsBookedElsewhere } : {}),
               },
             });
             onSubmit(updateValues);
@@ -198,6 +246,7 @@ const EditListingPricingAndStockPanel = props => {
           isCouples={
             publicData?.listingType === SEMINAR_LISTING_TYPE && isCouplesListing(publicData)
           }
+          seminarBookedHere={isSeminar ? seminarBookedHere : null}
           saveActionMsg={submitButtonText}
           disabled={disabled}
           ready={ready}
