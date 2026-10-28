@@ -25,7 +25,7 @@ const userWithLanguage = language =>
       lastName: 'B',
       displayName: 'A B',
       abbreviatedName: 'AB',
-      publicData: language ? { language } : {},
+      privateData: language ? { language } : {},
     },
   });
 
@@ -90,6 +90,24 @@ describe('LanguageSync', () => {
 
       expect(screen.getByTestId('language')).toHaveTextContent('de');
       expect(onSaveLanguage).toHaveBeenCalledTimes(1);
+      expect(onSaveLanguage).toHaveBeenCalledWith('de');
+    });
+
+    it('moves a language saved only in the public data (older accounts) to the private data', () => {
+      const { onSaveLanguage } = renderSync({
+        initialLanguage: 'en',
+        currentUser: createCurrentUser('user1', {
+          profile: {
+            firstName: 'A',
+            lastName: 'B',
+            displayName: 'A B',
+            abbreviatedName: 'AB',
+            publicData: { language: 'de' },
+          },
+        }),
+      });
+
+      expect(screen.getByTestId('language')).toHaveTextContent('de');
       expect(onSaveLanguage).toHaveBeenCalledWith('de');
     });
 

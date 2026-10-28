@@ -1,1 +1,1 @@
-{{set-translations (asset "content/email-texts.json")}}{{t "PurchaseOrderCanceledFromDisputedCustomer.Subject" "An order for {listingTitle} which you disputed was canceled" listingTitle=transaction.listing.title}}
+{{set-translations (asset "content/email-texts.json")}}{{t (concat "PurchaseOrderCanceledFromDisputedCustomer.Subject." @root.recipient.private-data.language) (t "PurchaseOrderCanceledFromDisputedCustomer.Subject" "An order for {listingTitle} which you disputed was canceled" listingTitle=transaction.listing.title) listingTitle=transaction.listing.title}}

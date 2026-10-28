@@ -9,6 +9,7 @@ import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import * as validators from '../../../../util/validators';
 import { formatMoney } from '../../../../util/currency';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
+import { submitShowingErrors } from '../../../../util/formErrors';
 import { FIXED, isBookingProcess } from '../../../../transactions/transaction';
 
 // Import shared components
@@ -128,7 +129,8 @@ export const EditListingPricingForm = props => (
       const classes = classNames(rootClassName || css.root, className);
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
-      const submitDisabled = invalid || disabled || submitInProgress;
+      // Not disabled when fields are missing: saving shows the errors (see util/formErrors.js)
+      const submitDisabled = disabled || submitInProgress;
       const { transactionType } = listingTypeConfig || {};
       const { process } = transactionType || {};
       const isBooking = isBookingProcess(process);
@@ -138,7 +140,7 @@ export const EditListingPricingForm = props => (
       const isUsingPriceVariants = isFixedLengthBooking || isBookingPriceVariationsInUse;
 
       return (
-        <Form onSubmit={handleSubmit} className={classes}>
+        <Form onSubmit={submitShowingErrors(handleSubmit, invalid)} className={classes}>
           <ErrorMessages fetchErrors={fetchErrors} />
 
           {isUsingPriceVariants ? (

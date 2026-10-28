@@ -1,40 +1,91 @@
 @import '../../../../styles/customMediaQueries.css';
 
-/* "8 practitioners across the city": sits between the neighbourhood pills and the grid */
-.count {
+/* Above the row: "8 practitioners across the city" on the left, the arrows on the right */
+.rowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin: 0 0 20px;
-  padding: 0;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 400;
-  line-height: 1.55;
-  color: #605d5d;
 
   @media (min-width: 768px) {
     margin-bottom: 24px;
   }
 }
 
-.grid {
-  display: grid;
-  /* One card per row on phones, 4 on desktop (like the rows of the home page) */
-  grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
-
-  @media (min-width: 600px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (--viewportLarge) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+.count {
   margin: 0;
   padding: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #605d5d;
+}
+
+/* Round arrows, desktop only (phones swipe) */
+.arrows {
+  display: none;
+  flex-shrink: 0;
+  gap: 8px;
+
+  @media (--viewportLarge) {
+    display: flex;
+  }
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(32, 31, 29, 0.16);
+  border-radius: 50%;
+  background: #fff;
+  color: #201f1d;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: #201f1d;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #7f4a5c;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+/* A row that scrolls sideways, like the rows of the home page: on phones a card is 78 % wide so
+   the next one peeks in; 2 cards on tablets, 4 on desktop */
+.row {
+  --rowGap: 16px;
+  display: flex;
+  gap: var(--rowGap);
+  margin: 0;
+  padding: 0 0 4px;
   list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
   transition: opacity 0.15s ease;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   @media (min-width: 768px) {
-    gap: 20px;
+    --rowGap: 20px;
   }
 }
 
@@ -45,10 +96,20 @@
 }
 
 .item {
+  flex: 0 0 78%;
   min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  scroll-snap-align: start;
+
+  @media (min-width: 600px) {
+    flex-basis: calc((100% - var(--rowGap)) / 2);
+  }
+
+  @media (--viewportLarge) {
+    flex-basis: calc((100% - 3 * var(--rowGap)) / 4);
+  }
 }
 
 .card {

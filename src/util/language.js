@@ -20,8 +20,9 @@ export const LANGUAGE_COOKIE_NAME = 'bc_language';
 const LANGUAGE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 // The user field of Console (users/user-fields.json) where the language of a user is saved: a
-// "single select" field in the public data of the user, with the languages as the options. It is
-// shown in the signup form and in the profile settings like the other user fields.
+// "single select" field in the private data of the user ("Preferred language"), with the
+// languages as the options. It is shown in the signup form and in Manage account. The emails read
+// it to choose their language.
 export const LANGUAGE_USER_FIELD_KEY = 'language';
 
 // Names of the languages in the language itself. They are not translated.

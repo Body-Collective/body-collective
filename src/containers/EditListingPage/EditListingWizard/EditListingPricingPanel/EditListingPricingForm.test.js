@@ -13,12 +13,13 @@ const noop = () => null;
 describe('EditListingDeliveryForm', () => {
   it('Check that price can be given and submit button activates', async () => {
     const user = userEvent.setup();
+    const onSubmit = jest.fn();
     const saveActionMsg = 'Save price';
     render(
       <EditListingPricingForm
         intl={fakeIntl}
         dispatch={noop}
-        onSubmit={v => v}
+        onSubmit={onSubmit}
         marketplaceCurrency="USD"
         unitType="day"
         listingMinimumPriceSubUnits={0}
@@ -31,7 +32,9 @@ describe('EditListingDeliveryForm', () => {
     );
 
     // Test that save button is disabled at first
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
+    // Saving with missing or invalid fields shows the errors instead of saving
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).not.toHaveBeenCalled();
 
     // Fill mandatory attributes
     const price = 'EditListingPricingForm.pricePerProduct';

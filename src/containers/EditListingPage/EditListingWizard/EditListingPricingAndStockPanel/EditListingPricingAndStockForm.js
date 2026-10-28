@@ -12,6 +12,7 @@ import * as validators from '../../../../util/validators';
 import { formatMoney } from '../../../../util/currency';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
 import { getSpotsLeft } from '../../../../util/seminarSchedule';
+import { submitShowingErrors } from '../../../../util/formErrors';
 
 // Import shared components
 import {
@@ -237,7 +238,8 @@ export const EditListingPricingAndStockForm = props => (
       const classes = classNames(rootClassName || css.root, className);
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
-      const submitDisabled = invalid || disabled || submitInProgress;
+      // Not disabled when fields are missing: saving shows the errors (see util/formErrors.js)
+      const submitDisabled = disabled || submitInProgress;
       const { updateListingError, showListingsError, setStockError } = fetchErrors || {};
 
       const stockErrorMessage = isOldTotalMismatchStockError(setStockError)
@@ -245,7 +247,7 @@ export const EditListingPricingAndStockForm = props => (
         : intl.formatMessage({ id: 'EditListingPricingAndStockForm.stockUpdateFailed' });
 
       return (
-        <Form onSubmit={handleSubmit} className={classes}>
+        <Form onSubmit={submitShowingErrors(handleSubmit, invalid)} className={classes}>
           {updateListingError ? (
             <p className={css.error}>
               <FormattedMessage id="EditListingPricingAndStockForm.updateFailed" />

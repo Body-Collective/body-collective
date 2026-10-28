@@ -457,9 +457,13 @@ export const {
  * @param {string} language e.g. "de"
  * @returns {Promise<Object|null>} the updated currentUser, or null when saving failed
  */
+// The language is saved to the private data ("Preferred language" user field); a copy in the
+// public data, where it was saved before, is removed
 export const saveCurrentUserLanguage = language => (dispatch, getState, sdk) => {
+  const publicLanguage = getState().user?.currentUser?.attributes?.profile?.publicData?.language;
+  const removePublicCopyMaybe = publicLanguage != null ? { publicData: { language: null } } : {};
   return sdk.currentUser
-    .updateProfile({ privateData: { language } }, { expand: true })
+    .updateProfile({ privateData: { language }, ...removePublicCopyMaybe }, { expand: true })
     .then(response => {
       const [currentUser] = denormalisedResponseEntities(response);
       if (currentUser) {

@@ -15,9 +15,10 @@ const { screen, userEvent } = testingLibrary;
 const noop = () => null;
 
 describe('EditListingDetailsForm', () => {
-  it('Check that shipping fees can be given and submit button activates', async () => {
+  it('Check that details can be given, and that a save with missing fields shows the errors', async () => {
     const user = userEvent.setup();
     const saveActionMsg = 'Save details';
+    const onSubmit = jest.fn();
 
     const selectableListingTypes = [
       {
@@ -85,7 +86,7 @@ describe('EditListingDetailsForm', () => {
         intl={fakeIntl}
         dispatch={noop}
         onListingTypeChange={noop}
-        onSubmit={v => v}
+        onSubmit={onSubmit}
         saveActionMsg={saveActionMsg}
         updated={false}
         updateInProgress={false}
@@ -110,8 +111,12 @@ describe('EditListingDetailsForm', () => {
     const description = 'EditListingDetailsForm.description';
     expect(await screen.findByText(description)).toBeInTheDocument();
 
-    // Test that save button is disabled at first
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
+    // Saving with missing fields doesn't save, it shows the errors (the button isn't disabled, so
+    // that listings missing a newly required field show what to fill in)
+    expect(screen.getByRole('button', { name: saveActionMsg })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('EditListingDetailsForm.titleRequired')).toBeInTheDocument();
 
     // Fill mandatory attributes
     await user.type(screen.getByRole('textbox', { name: title }), 'My Listing');
@@ -120,7 +125,8 @@ describe('EditListingDetailsForm', () => {
     // Fill custom listing field
     await user.selectOptions(screen.getByLabelText('Clothing'), 'kids');
 
-    // Test that save button is enabled
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeEnabled();
+    // With the fields filled in, it saves
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).toHaveBeenCalled();
   });
 });

@@ -21,6 +21,12 @@ import {
   getSeminarSchedulePublicData,
   withoutLegacySeminarFields,
 } from '../../../../util/seminarSchedule';
+import {
+  ABOUT_EVENT,
+  ABOUT_TREATMENT,
+  getLegacyDescriptionValues,
+  isTreatmentListingType,
+} from '../../../../util/treatmentDetails';
 import { isBookingProcessAlias } from '../../../../transactions/transaction';
 
 // Import shared components
@@ -254,6 +260,19 @@ const getInitialValues = (
   const listingType = publicData?.listingType || preselectedListingType;
 
   const nestedCategories = pickCategoryFields(publicData, categoryKey, 1, listingCategories);
+
+  // Older treatment and seminar listings have a long description: it goes to the about text, so
+  // that the short description fits and the listing can be saved
+  const aboutKey = isTreatmentListingType(listingType)
+    ? ABOUT_TREATMENT.key
+    : listingType === SEMINAR_LISTING_TYPE
+    ? ABOUT_EVENT.key
+    : null;
+  const legacy = aboutKey ? getLegacyDescriptionValues(description, publicData, aboutKey) : null;
+  const legacyValuesMaybe = legacy
+    ? { description: legacy.description, [`pub_${aboutKey}`]: legacy.about }
+    : {};
+
   // Initial values for the form
   return {
     title,
@@ -276,6 +295,7 @@ const getInitialValues = (
       listingFields
     ),
     ...(listingType === SEMINAR_LISTING_TYPE ? getSeminarScheduleInitialValues(publicData) : {}),
+    ...legacyValuesMaybe,
   };
 };
 

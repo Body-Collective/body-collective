@@ -28,13 +28,14 @@ beforeAll(() => {
 describe('EditListingDeliveryForm', () => {
   it('Check that shipping fees can be given and submit button activates', async () => {
     const user = userEvent.setup();
+    const onSubmit = jest.fn();
     const saveActionMsg = 'Save location';
     await act(async () => {
       render(
         <EditListingLocationForm
           intl={fakeIntl}
           dispatch={noop}
-          onSubmit={noop}
+          onSubmit={onSubmit}
           saveActionMsg={saveActionMsg}
           updated={false}
           updateInProgress={false}
@@ -52,7 +53,9 @@ describe('EditListingDeliveryForm', () => {
     expect(screen.getByText(building)).toBeInTheDocument();
 
     // Test that save button is disabled at first
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
+    // Saving with missing or invalid fields shows the errors instead of saving
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).not.toHaveBeenCalled();
 
     await user.type(screen.getByTestId('location-search'), 'Erottajankatu 19, Helsinki');
     await user.type(screen.getByRole('textbox', { name: building }), 'B');

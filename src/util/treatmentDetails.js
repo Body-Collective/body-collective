@@ -1,5 +1,9 @@
 import { getContentLanguage } from './localizedContent';
 import { isTranslationCurrent } from './textFingerprint';
+import { formatMoneyAmountFirst } from './currency';
+import { types as sdkTypes } from './sdkLoader';
+
+const { Money } = sdkTypes;
 
 /**
  * Details of treatment listings (listing types Studio and Mobile Service) and of Seminars & Events:
@@ -68,6 +72,35 @@ export const withAllTreatmentListingTypes = query => {
  */
 export const isTreatmentListingType = listingType => TREATMENT_LISTING_TYPES.includes(listingType);
 
+// The description of treatment and seminar listings is a short description (one sentence)
+export const SHORT_DESCRIPTION_MAX_LENGTH = 150;
+
+/**
+ * Listings created before the short description: their description is a long text that doesn't
+ * fit the short description. The form then shows it in "About this treatment" / "About this
+ * seminar" (if that is empty) and proposes its first sentence as the short description (empty
+ * when the sentence is too long), so the listing can be saved again.
+ *
+ * @param {string} description The listing's description
+ * @param {Object} publicData The listing's public data
+ * @param {string} aboutKey Listing field key of the about text, e.g. 'about_treatment'
+ * @returns {Object|null} { description, about } or null when the description fits
+ */
+export const getLegacyDescriptionValues = (description, publicData, aboutKey) => {
+  if (typeof description !== 'string' || description.length <= SHORT_DESCRIPTION_MAX_LENGTH) {
+    return null;
+  }
+  const firstSentence = description
+    .trim()
+    .split(/(?<=[.!?])\s+|\n/)[0]
+    .trim();
+  const hasAbout = typeof publicData?.[aboutKey] === 'string' && publicData[aboutKey].trim();
+  return {
+    description: firstSentence.length <= SHORT_DESCRIPTION_MAX_LENGTH ? firstSentence : '',
+    about: hasAbout ? publicData[aboutKey] : description.trim(),
+  };
+};
+
 /**
  * The formatted text field of the given listing field key, or undefined.
  *
@@ -102,15 +135,8 @@ export const getTreatmentText = (publicData, key, intl) => {
   return (translated && isTranslationCurrent(publicData, key, original) && translated) || original;
 };
 
-/**
- * The treatments of the listing (its price variants) in the visitor's language. A translation is
- * only used when it was made from the variant's current text.
- *
- * @param {Object} publicData
- * @param {Object} intl
- * @returns {Array<{ name: string, description: string, bookingLengthInMinutes: number|null, priceInSubunits: number }>}
- */
-export const getTreatmentPackages = (publicData, intl) => {
+// The treatments in the order of the listing's price variants, with prices or not
+const getTreatmentsOfVariants = (publicData, intl) => {
   const variants = Array.isArray(publicData?.priceVariants) ? publicData.priceVariants : [];
   const translated = getListingTranslation(publicData, intl).priceVariants;
   const translations = Array.isArray(translated) ? translated : [];
@@ -120,18 +146,77 @@ export const getTreatmentPackages = (publicData, intl) => {
     original ||
     '';
 
-  return variants
-    .map((variant, i) => ({
-      name: text(translations[i]?.name, `variant_${i}_name`, variant?.name),
-      description: text(
-        translations[i]?.description,
-        `variant_${i}_description`,
-        variant?.description
-      ),
-      bookingLengthInMinutes: Number.isInteger(variant?.bookingLengthInMinutes)
-        ? variant.bookingLengthInMinutes
-        : null,
-      priceInSubunits: variant?.priceInSubunits,
-    }))
-    .filter(treatment => Number.isInteger(treatment.priceInSubunits));
+  return variants.map((variant, i) => ({
+    name: text(translations[i]?.name, `variant_${i}_name`, variant?.name),
+    description: text(
+      translations[i]?.description,
+      `variant_${i}_description`,
+      variant?.description
+    ),
+    bookingLengthInMinutes: Number.isInteger(variant?.bookingLengthInMinutes)
+      ? variant.bookingLengthInMinutes
+      : null,
+    priceInSubunits: variant?.priceInSubunits,
+  }));
 };
+
+/**
+ * The treatments of the listing (its price variants) in the visitor's language. A translation is
+ * only used when it was made from the variant's current text.
+ *
+ * @param {Object} publicData
+ * @param {Object} intl
+ * @returns {Array<{ name: string, description: string, bookingLengthInMinutes: number|null, priceInSubunits: number }>}
+ */
+export const getTreatmentPackages = (publicData, intl) =>
+  getTreatmentsOfVariants(publicData, intl).filter(treatment =>
+    Number.isInteger(treatment.priceInSubunits)
+  );
+
+/**
+ * The price of a treatment with the amount first, e.g. "145 €" or "145,50 €".
+ *
+ * @param {Object} intl
+ * @param {number} priceInSubunits
+ * @param {string} currency
+ * @returns {string}
+ */
+export const formatTreatmentPrice = (intl, priceInSubunits, currency) =>
+  formatMoneyAmountFirst(intl, new Money(priceInSubunits, currency));
+
+/**
+ * Duration and price of a treatment, e.g. "90 min · 145 €".
+ *
+ * @param {Object} treatment { bookingLengthInMinutes, priceInSubunits }
+ * @param {Object} intl
+ * @param {string} [currency]
+ * @returns {string}
+ */
+export const formatTreatmentMeta = (treatment, intl, currency) => {
+  const { bookingLengthInMinutes, priceInSubunits } = treatment || {};
+  const duration = bookingLengthInMinutes
+    ? intl.formatMessage(
+        { id: 'ListingPage.treatmentPackage.duration' },
+        { minutes: bookingLengthInMinutes }
+      )
+    : null;
+  const price =
+    currency && Number.isInteger(priceInSubunits)
+      ? formatTreatmentPrice(intl, priceInSubunits, currency)
+      : null;
+  return [duration, price].filter(Boolean).join(' · ');
+};
+
+/**
+ * Labels of the options of the booking panel, in the order of the price variants:
+ * "Abhyanga · 90 min · 145 €", with the name in the visitor's language.
+ *
+ * @param {Object} publicData
+ * @param {Object} intl
+ * @param {string} [currency]
+ * @returns {Array<string>}
+ */
+export const getTreatmentOptionLabels = (publicData, intl, currency) =>
+  getTreatmentsOfVariants(publicData, intl).map(treatment =>
+    [treatment.name, formatTreatmentMeta(treatment, intl, currency)].filter(Boolean).join(' · ')
+  );

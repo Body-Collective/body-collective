@@ -31,6 +31,7 @@ import {
   getSeminarSpots,
   isCouplesListing,
 } from '../../util/seminarSchedule';
+import { getTreatmentOptionLabels } from '../../util/treatmentDetails';
 import {
   OFFER,
   REQUEST,
@@ -403,10 +404,20 @@ const OrderPanel = props => {
       ? priceVariants.find(pv => pv?.name && createSlug(pv?.name) === preselectedPriceVariantSlug)
       : null;
 
+  // Options of the booking panel: "Abhyanga · 90 min · 145 €"
+  const optionLabels = getTreatmentOptionLabels(
+    publicData,
+    intl,
+    price?.currency || marketplaceCurrency
+  );
+  const priceVariantsWithLabels = Array.isArray(priceVariants)
+    ? priceVariants.map((pv, i) => ({ ...pv, label: optionLabels[i] }))
+    : priceVariants;
+
   const priceVariantsMaybe = isPriceVariationsInUse
     ? {
         isPriceVariationsInUse,
-        priceVariants,
+        priceVariants: priceVariantsWithLabels,
         priceVariantFieldComponent: PriceVariantPicker,
         preselectedPriceVariant,
         isPublishedListing: isPublishedListing(listing),
