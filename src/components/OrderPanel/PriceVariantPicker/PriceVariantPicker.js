@@ -16,7 +16,7 @@ const VariantNameMaybe = props => {
     <div className={className}>
       <FormattedMessage
         id="PriceVariantPicker.onePriceVariantOnly"
-        values={{ priceVariantName: priceVariant?.name }}
+        values={{ priceVariantName: priceVariant?.label || priceVariant?.name }}
       />
     </div>
   ) : null;
@@ -53,7 +53,7 @@ const PriceVariantPicker = props => {
       </option>
       {priceVariants.map(pv => (
         <option value={pv.name} key={pv.name} data-slug={createSlug(pv.name)}>
-          {pv.name}
+          {pv.label || pv.name}
         </option>
       ))}
     </FieldSelect>

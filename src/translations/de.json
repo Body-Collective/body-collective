@@ -1992,5 +1992,7 @@
   "VatIdForm.save": "USt-IdNr. speichern",
   "VatIdForm.status.validWithName": "In der EU-Datenbank VIES geprüft: gültig ({name}).",
   "Neighbourhood.friedrichshain": "Friedrichshain",
-  "Neighbourhood.schoeneberg": "Schöneberg"
+  "Neighbourhood.schoeneberg": "Schöneberg",
+  "RegionSectionListings.previous": "Zurück",
+  "RegionSectionListings.next": "Weiter"
 }

@@ -13,12 +13,13 @@ const noop = () => null;
 describe('EditListingDeliveryForm', () => {
   it('Check that price can be given and submit button activates', async () => {
     const user = userEvent.setup();
+    const onSubmit = jest.fn();
     const saveActionMsg = 'Save price';
     render(
       <EditListingPricingAndStockForm
         intl={fakeIntl}
         dispatch={noop}
-        onSubmit={v => v}
+        onSubmit={onSubmit}
         marketplaceCurrency="USD"
         listingMinimumPriceSubUnits={0}
         unitType="item"
@@ -32,7 +33,9 @@ describe('EditListingDeliveryForm', () => {
     );
 
     // Test that save button is disabled at first
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
+    // Saving with missing or invalid fields shows the errors instead of saving
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).not.toHaveBeenCalled();
 
     // Fill mandatory attributes
     const price = 'EditListingPricingAndStockForm.pricePerProduct';
@@ -46,12 +49,13 @@ describe('EditListingDeliveryForm', () => {
 
   it('Seminars: asks the total and the spots booked elsewhere, not below the spots booked', async () => {
     const user = userEvent.setup();
+    const onSubmit = jest.fn();
     const saveActionMsg = 'Save spots';
     render(
       <EditListingPricingAndStockForm
         intl={fakeIntl}
         dispatch={noop}
-        onSubmit={v => v}
+        onSubmit={onSubmit}
         initialValues={{ spotsTotal: 12, spotsBookedElsewhere: 0 }}
         marketplaceCurrency="USD"
         listingMinimumPriceSubUnits={0}
@@ -78,7 +82,9 @@ describe('EditListingDeliveryForm', () => {
     const total = 'EditListingPricingAndStockForm.spotsTotalLabel.individuals';
     await user.clear(screen.getByRole('spinbutton', { name: total }));
     await user.type(screen.getByRole('spinbutton', { name: total }), '10');
-    expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
+    // Saving with missing or invalid fields shows the errors instead of saving
+    await user.click(screen.getByRole('button', { name: saveActionMsg }));
+    expect(onSubmit).not.toHaveBeenCalled();
 
     await user.clear(screen.getByRole('spinbutton', { name: total }));
     await user.type(screen.getByRole('spinbutton', { name: total }), '11');

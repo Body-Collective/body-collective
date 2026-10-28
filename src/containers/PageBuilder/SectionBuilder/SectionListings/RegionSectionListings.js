@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 // Import configs and util modules
@@ -89,6 +89,30 @@ const RegionSectionListings = props => {
   const loadedAreaSlug = data.areaSlug || null;
   const listings = listingIds ? getListingEntitiesById(listingIds) : [];
 
+  // The cards are a row that scrolls sideways; the arrows scroll it by the visible width
+  const rowRef = useRef(null);
+  const [scrollState, setScrollState] = useState({ canPrev: false, canNext: false });
+  const updateScrollState = () => {
+    const row = rowRef.current;
+    if (!row) {
+      return;
+    }
+    const maxScroll = row.scrollWidth - row.clientWidth;
+    setScrollState({ canPrev: row.scrollLeft > 2, canNext: row.scrollLeft < maxScroll - 2 });
+  };
+  const scrollRow = direction => {
+    const row = rowRef.current;
+    row?.scrollBy({ left: direction * row.clientWidth, behavior: 'smooth' });
+  };
+  useEffect(() => {
+    updateScrollState();
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    window.addEventListener('resize', updateScrollState);
+    return () => window.removeEventListener('resize', updateScrollState);
+  }, [listings.length]);
+
   useEffect(() => {
     // Load the listings, and load them again when another area is chosen
     const isUpToDate = loadedAreaSlug === areaSlug && (fetched || inProgress);
@@ -178,7 +202,12 @@ const RegionSectionListings = props => {
     );
   } else {
     content = (
-      <ul className={classNames(css.grid, { [css.dimmed]: inProgress })} aria-busy={inProgress}>
+      <ul
+        ref={rowRef}
+        className={classNames(css.row, { [css.dimmed]: inProgress })}
+        aria-busy={inProgress}
+        onScroll={updateScrollState}
+      >
         {listings.map(listing => (
           <li key={listing.id.uuid} className={css.item}>
             {isEvents ? (
@@ -221,11 +250,37 @@ const RegionSectionListings = props => {
         </header>
       ) : null}
 
-      {showCount ? (
-        <p className={css.count} role="status">
-          {countLabel || ' '}
-        </p>
-      ) : null}
+      <div className={css.rowHeader}>
+        {showCount ? (
+          <p className={css.count} role="status">
+            {countLabel || ' '}
+          </p>
+        ) : (
+          <span />
+        )}
+        {scrollState.canPrev || scrollState.canNext ? (
+          <div className={css.arrows}>
+            <button
+              type="button"
+              className={css.arrow}
+              onClick={() => scrollRow(-1)}
+              disabled={!scrollState.canPrev}
+              aria-label={intl.formatMessage({ id: 'RegionSectionListings.previous' })}
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              className={css.arrow}
+              onClick={() => scrollRow(1)}
+              disabled={!scrollState.canNext}
+              aria-label={intl.formatMessage({ id: 'RegionSectionListings.next' })}
+            >
+              →
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       {content}
 

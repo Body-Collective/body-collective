@@ -19,6 +19,7 @@ import {
   getRegionOfOrigin,
 } from '../../../../util/neighbourhoods';
 import { isMobileBookingListingType } from '../../../../util/mobileBookingQuestions';
+import { submitShowingErrors } from '../../../../util/formErrors';
 
 // Import shared components
 import {
@@ -116,10 +117,11 @@ export const EditListingLocationForm = props => (
       const classes = classNames(rootClassName || css.root, className);
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
-      const submitDisabled = invalid || disabled || submitInProgress;
+      // Not disabled when fields are missing: saving shows the errors (see util/formErrors.js)
+      const submitDisabled = disabled || submitInProgress;
 
       return (
-        <Form className={classes} onSubmit={handleSubmit}>
+        <Form className={classes} onSubmit={submitShowingErrors(handleSubmit, invalid)}>
           {updateListingError ? (
             <p className={css.error}>
               <FormattedMessage id="EditListingLocationForm.updateFailed" />

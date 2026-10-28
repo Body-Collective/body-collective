@@ -1993,5 +1993,7 @@
   "VatIdForm.save": "Save VAT ID",
   "VatIdForm.status.validWithName": "Checked in the EU's VIES database: valid ({name}).",
   "Neighbourhood.friedrichshain": "Friedrichshain",
-  "Neighbourhood.schoeneberg": "Schöneberg"
+  "Neighbourhood.schoeneberg": "Schöneberg",
+  "RegionSectionListings.previous": "Previous",
+  "RegionSectionListings.next": "Next"
 }

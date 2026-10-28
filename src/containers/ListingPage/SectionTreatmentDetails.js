@@ -9,6 +9,7 @@ import {
   GOOD_TO_KNOW,
   TREATMENT_APPROACH,
   TREATMENT_SUPPORTS,
+  formatTreatmentMeta,
   getTreatmentPackages,
   getTreatmentText,
   isTreatmentListingType,
@@ -40,30 +41,13 @@ const TextSection = props => {
   );
 };
 
-// E.g. "145 €", or "145,50 €" when there are cents
-const formatPrice = (intl, priceInSubunits, currency) => {
-  const hasCents = priceInSubunits % 100 !== 0;
-  return intl.formatNumber(priceInSubunits / 100, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: hasCents ? 2 : 0,
-    maximumFractionDigits: 2,
-  });
-};
-
 // One treatment: name, duration and price; the description opens with a click
 const TreatmentPackage = props => {
   const { treatment, id, isOpen, onToggle, currency, intl } = props;
-  const { name, description, bookingLengthInMinutes, priceInSubunits } = treatment;
+  const { name, description } = treatment;
   const hasDescription = !!description?.trim();
-  const duration = bookingLengthInMinutes
-    ? intl.formatMessage(
-        { id: 'ListingPage.treatmentPackage.duration' },
-        { minutes: bookingLengthInMinutes }
-      )
-    : null;
-  const price = currency ? formatPrice(intl, priceInSubunits, currency) : null;
-  const meta = [duration, price].filter(Boolean).join(' · ');
+  // "90 min · 145 €"
+  const meta = formatTreatmentMeta(treatment, intl, currency);
   const panelId = `${id}-description`;
 
   const header = (

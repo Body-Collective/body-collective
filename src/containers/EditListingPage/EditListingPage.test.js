@@ -991,7 +991,8 @@ describe('EditListingPage', () => {
         name: 'EditListingWizard.edit.savePricingAndStock',
       });
       expect(saveButton).toBeInTheDocument();
-      expect(saveButton).toBeDisabled();
+      // Not disabled while the infinity checkbox is unchecked: saving shows the error
+      expect(saveButton).toBeEnabled();
     });
     // Test intercation
     await user.click(

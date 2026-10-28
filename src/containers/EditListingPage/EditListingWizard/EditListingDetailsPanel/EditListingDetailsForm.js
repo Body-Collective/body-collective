@@ -14,9 +14,14 @@ import {
   isValidCurrencyForTransactionProcess,
 } from '../../../../util/fieldHelpers';
 import { maxLength, required, composeValidators } from '../../../../util/validators';
+import { submitShowingErrors } from '../../../../util/formErrors';
 import { SEMINAR_LISTING_TYPE } from '../../../../util/seminarSchedule';
 import { hasFormattedContent } from '../../../../util/formattedText';
-import { getTreatmentTextField, isTreatmentListingType } from '../../../../util/treatmentDetails';
+import {
+  SHORT_DESCRIPTION_MAX_LENGTH,
+  getTreatmentTextField,
+  isTreatmentListingType,
+} from '../../../../util/treatmentDetails';
 import {
   CANCELLATION_POLICY_ITEMS,
   CANCELLATION_POLICY_KEY,
@@ -41,7 +46,6 @@ import css from './EditListingDetailsForm.module.css';
 const TITLE_MAX_LENGTH = 60;
 const DESCRIPTION_MAX_LENGTH = 5000;
 // Short description of treatment listings: one sentence
-const SHORT_DESCRIPTION_MAX_LENGTH = 150;
 
 // Validator of a formatted text (marks and empty lines alone are not content)
 const requiredFormattedText = message => value =>
@@ -542,15 +546,13 @@ const EditListingDetailsForm = props => (
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
       const hasMandatoryListingTypeData = listingType && transactionProcessAlias && unitType;
+      // Not disabled when fields are missing: saving then shows the errors (e.g. listings created
+      // before a field became required) and scrolls to the first one
       const submitDisabled =
-        invalid ||
-        disabled ||
-        submitInProgress ||
-        !hasMandatoryListingTypeData ||
-        !isCompatibleCurrency;
+        disabled || submitInProgress || !hasMandatoryListingTypeData || !isCompatibleCurrency;
 
       return (
-        <Form className={classes} onSubmit={handleSubmit}>
+        <Form className={classes} onSubmit={submitShowingErrors(handleSubmit, invalid)}>
           <ErrorMessage fetchErrors={fetchErrors} />
 
           <FieldSelectListingType
