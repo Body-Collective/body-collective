@@ -1,1 +1,1 @@
-{{set-translations (asset "content/email-texts.json")}}{{t "BookingReviewByOtherPartyUnpublished.Subject" "{otherPartyDisplayName} left you a review" otherPartyDisplayName=other-party.display-name }}
+{{set-translations (asset "content/email-texts.json")}}{{t (concat "BookingReviewByOtherPartyUnpublished.Subject." @root.recipient.private-data.language) (t "BookingReviewByOtherPartyUnpublished.Subject" "{otherPartyDisplayName} left you a review" otherPartyDisplayName=other-party.display-name) otherPartyDisplayName=other-party.display-name}}

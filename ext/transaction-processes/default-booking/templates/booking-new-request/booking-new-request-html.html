@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     {{set-translations (asset "content/email-texts.json")}}
-    {{set-locale (asset "general/localization.json" "locale" "en_US")}}
+    {{#eq @root.recipient.private-data.language "de"}}{{set-locale "de_DE"}}{{else}}{{set-locale "en_GB"}}{{/eq}}
     {{set-timezone transaction.listing.availability-plan.timezone}}
 <html lang="en">
   <head>
@@ -20,8 +20,8 @@
           <table align="center" role="presentation" cellSpacing="0" cellPadding="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
             <tr style="width:100%">
               <td>
-                <h1 style="color:#484848;font-size:26px;line-height:1.3;font-weight:700">{{t "BookingNewRequest.Title" "You have a new booking request for {listingTitle}" listingTitle=listing.title}}</h1>
-                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848">{{t "BookingNewRequest.Description" "{customerDisplayName} requested to book {listingTitle} in {marketplaceName}." customerDisplayName=customer.display-name listingTitle=listing.title marketplaceName=marketplace.name}}</p>
+                <h1 style="color:#484848;font-size:26px;line-height:1.3;font-weight:700">{{t (concat "BookingNewRequest.Title." @root.recipient.private-data.language) (t "BookingNewRequest.Title" "You have a new booking request for {listingTitle}" listingTitle=listing.title) listingTitle=listing.title}}</h1>
+                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848">{{t (concat "BookingNewRequest.Description." @root.recipient.private-data.language) (t "BookingNewRequest.Description" "{customerDisplayName} requested to book {listingTitle} in {marketplaceName}." customerDisplayName=customer.display-name listingTitle=listing.title marketplaceName=marketplace.name) customerDisplayName=customer.display-name listingTitle=listing.title marketplaceName=marketplace.name}}</p>
                 <table style="color:#484848;font-size:16px;line-height:1.4;background-color:#FFF;padding:8px 24px;border-radius:8px;border:1px solid;border-color:#E1E1E1;margin:24px 0" align="center" border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
                   <tbody>
                     <tr>
@@ -44,10 +44,10 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;margin-bottom:1px">{{t "BookingNewRequest.StartLabel" "Start"}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;margin-bottom:1px">{{t (concat "BookingNewRequest.StartLabel." @root.recipient.private-data.language) (t "BookingNewRequest.StartLabel" "Start")}}</p>
                                 </td>
                                 <td style="text-align:right">
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;margin-bottom:1px">{{t "BookingNewRequest.EndLabel" "End"}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;margin-bottom:1px">{{t (concat "BookingNewRequest.EndLabel." @root.recipient.private-data.language) (t "BookingNewRequest.EndLabel" "End")}}</p>
                                 </td>
                               </td>
                             </tr>
@@ -59,10 +59,10 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.StartLabel" "Start"}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.StartLabel." @root.recipient.private-data.language) (t "BookingNewRequest.StartLabel" "Start")}}</p>
                                 </td>
                                 <td style="text-align:right">
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.EndLabel" "End"}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.EndLabel." @root.recipient.private-data.language) (t "BookingNewRequest.EndLabel" "End")}}</p>
                                 </td>
                               </td>
                             </tr>
@@ -193,7 +193,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForHoursQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {hour} other {hours}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForHoursQuantityWithSeats." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForHoursQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {hour} other {hours}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats) amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -208,7 +208,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForHoursQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {hour} other {hours}}" amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForHoursQuantity." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForHoursQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {hour} other {hours}}" amount=unit-price.amount currency=unit-price.currency units=quantity) amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -223,7 +223,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForDaysQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {day} other {days}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForDaysQuantityWithSeats." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForDaysQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {day} other {days}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats) amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -238,7 +238,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForDaysQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {day} other {days}}" amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForDaysQuantity." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForDaysQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {day} other {days}}" amount=unit-price.amount currency=unit-price.currency units=quantity) amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -253,7 +253,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForNightsQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {night} other {nights}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForNightsQuantityWithSeats." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForNightsQuantityWithSeats" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {night} other {nights}} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency units=units seats=seats) amount=unit-price.amount currency=unit-price.currency units=units seats=seats}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -268,7 +268,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForNightsQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {night} other {nights}}" amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForNightsQuantity." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForNightsQuantity" "{amount, number, ::.00} {currency} × {units, number} {units, plural, one {night} other {nights}}" amount=unit-price.amount currency=unit-price.currency units=quantity) amount=unit-price.amount currency=unit-price.currency units=quantity}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -283,7 +283,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForFixedBookingWithSeats" "{currency} {amount, number, ::.00} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency seats=seats}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForFixedBookingWithSeats." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForFixedBookingWithSeats" "{currency} {amount, number, ::.00} × {seats, number} {seats, plural, one {seat} other {seats}}" amount=unit-price.amount currency=unit-price.currency seats=seats) amount=unit-price.amount currency=unit-price.currency seats=seats}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -298,7 +298,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t "BookingNewRequest.PriceForFixedBooking" "{currency} {amount, number, ::.00}" amount=unit-price.amount currency=unit-price.currency}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{t (concat "BookingNewRequest.PriceForFixedBooking." @root.recipient.private-data.language) (t "BookingNewRequest.PriceForFixedBooking" "{currency} {amount, number, ::.00}" amount=unit-price.amount currency=unit-price.currency) amount=unit-price.amount currency=unit-price.currency}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-bottom:1px">{{> format-money money=line-total}}</p>
@@ -313,7 +313,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px">{{t "BookingNewRequest.MarketplaceFeeLabel" "{marketplaceName} fee" marketplaceName=marketplace.name}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px">{{t (concat "BookingNewRequest.MarketplaceFeeLabel." @root.recipient.private-data.language) (t "BookingNewRequest.MarketplaceFeeLabel" "{marketplaceName} fee" marketplaceName=marketplace.name) marketplaceName=marketplace.name}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px">{{> format-money money=line-total}}</p>
@@ -329,7 +329,7 @@
                             <tr>
                               <td>
                                 <td>
-                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;font-weight:700">{{t "BookingNewRequest.EarningLabel" "You'll earn"}}</p>
+                                  <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;font-weight:700">{{t (concat "BookingNewRequest.EarningLabel." @root.recipient.private-data.language) (t "BookingNewRequest.EarningLabel" "You'll earn")}}</p>
                                 </td>
                                 <td style="text-align:right">
                                   <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;margin-top:1px;font-weight:700">{{> format-money money=payout-total}}</p>
@@ -342,14 +342,14 @@
                     </tr>
                   </tbody>
                 </table>
-                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;font-weight:700">{{t "BookingNewRequest.AcceptText" "You need to accept the request by {date,date,::jmmyyyyMMMd}. Otherwise the request will expire automatically and you won't get paid." date=delayed-transition.run-at}}</p>
-                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848">{{t "BookingNewRequest.DeclineOptionText" "If the booked dates don't work for you, you can also choose to decline the request."}}</p>
+                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848;font-weight:700">{{t (concat "BookingNewRequest.AcceptText." @root.recipient.private-data.language) (t "BookingNewRequest.AcceptText" "You need to accept the request by {date,date,::jmmyyyyMMMd}. Otherwise the request will expire automatically and you won't get paid." date=delayed-transition.run-at) date=delayed-transition.run-at}}</p>
+                <p style="font-size:16px;line-height:1.4;margin:16px 0;color:#484848">{{t (concat "BookingNewRequest.DeclineOptionText." @root.recipient.private-data.language) (t "BookingNewRequest.DeclineOptionText" "If the booked dates don't work for you, you can also choose to decline the request.")}}</p>
                 <table style="padding:16px 0 0" align="center" border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
                   <tbody>
                     <tr>
-                      <td><a href="{{marketplace.url}}/sale/{{url-encode id}}/" target="_blank" style="color:#FFF;background-color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};border-radius:4px;font-size:15px;text-decoration:none;text-align:center;display:inline-block;min-width:210px;padding:0px 0px;line-height:100%;max-width:100%"><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%;mso-text-raise:0" hidden>&nbsp;</i><![endif]--></span><span style="color:#FFF;background-color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};border-radius:4px;font-size:15px;text-decoration:none;text-align:center;display:inline-block;min-width:210px;padding:16px 32px;max-width:100%;line-height:120%;text-transform:none;mso-padding-alt:0px;mso-text-raise:0">{{t "BookingNewRequest.AcceptOrDeclineLink" "Accept or Decline the booking"}}</span><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
+                      <td><a href="{{marketplace.url}}/sale/{{url-encode id}}/" target="_blank" style="color:#FFF;background-color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};border-radius:4px;font-size:15px;text-decoration:none;text-align:center;display:inline-block;min-width:210px;padding:0px 0px;line-height:100%;max-width:100%"><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%;mso-text-raise:0" hidden>&nbsp;</i><![endif]--></span><span style="color:#FFF;background-color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};border-radius:4px;font-size:15px;text-decoration:none;text-align:center;display:inline-block;min-width:210px;padding:16px 32px;max-width:100%;line-height:120%;text-transform:none;mso-padding-alt:0px;mso-text-raise:0">{{t (concat "BookingNewRequest.AcceptOrDeclineLink." @root.recipient.private-data.language) (t "BookingNewRequest.AcceptOrDeclineLink" "Accept or Decline the booking")}}</span><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
                         <div>
-                          <p style="font-size:14px;line-height:1.5;margin:16px 0;color:#484848">{{t "TransactionEmails.AccessibleLinkText" "Can’t click the button? Here’s the link for your convenience:"}} <a target="_blank" style="color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};text-decoration:none" href="{{marketplace.url}}/sale/{{url-encode id}}/">{{marketplace.url}}/sale/{{url-encode id}}/</a></p>
+                          <p style="font-size:14px;line-height:1.5;margin:16px 0;color:#484848">{{t (concat "TransactionEmails.AccessibleLinkText." @root.recipient.private-data.language) (t "TransactionEmails.AccessibleLinkText" "Can’t click the button? Here’s the link for your convenience:")}} <a target="_blank" style="color:{{asset "design/branding.json" "marketplaceColors.notificationPrimaryButton" "#6938EF"}};text-decoration:none" href="{{marketplace.url}}/sale/{{url-encode id}}/">{{marketplace.url}}/sale/{{url-encode id}}/</a></p>
                         </div>
                       </td>
                     </tr>
@@ -358,7 +358,7 @@
                 {{/with}}
                 <div>
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E1E1E1;margin:20px 0" />
-                  <p style="font-size:12px;line-height:15px;margin:0 auto;color:#b7b7b7;text-align:left;margin-bottom:50px">{{t "TransactionEmails.MembershipParagraph" "You're a member of {marketplaceName}. If you no longer want to receive these emails, please contact {marketplaceName} team." marketplaceName=marketplace.name}}</p>
+                  <p style="font-size:12px;line-height:15px;margin:0 auto;color:#b7b7b7;text-align:left;margin-bottom:50px">{{t (concat "TransactionEmails.MembershipParagraph." @root.recipient.private-data.language) (t "TransactionEmails.MembershipParagraph" "You're a member of {marketplaceName}. If you no longer want to receive these emails, please contact {marketplaceName} team." marketplaceName=marketplace.name) marketplaceName=marketplace.name}}</p>
                 </div>
               </td>
             </tr>

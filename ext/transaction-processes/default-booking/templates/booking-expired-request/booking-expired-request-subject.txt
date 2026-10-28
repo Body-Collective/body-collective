@@ -1,1 +1,1 @@
-{{set-translations (asset "content/email-texts.json")}}{{t "BookingExpiredRequest.Subject" "Your booking request expired" }}
+{{set-translations (asset "content/email-texts.json")}}{{t (concat "BookingExpiredRequest.Subject." @root.recipient.private-data.language) (t "BookingExpiredRequest.Subject" "Your booking request expired")}}

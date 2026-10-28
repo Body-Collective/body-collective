@@ -147,6 +147,7 @@ const calculateCarouselHeight = (
  * @param {number} props.numColumns - Number of columns to display
  * @param {Array} props.listings - Array of listing data
  * @param {React.RefObject} props.sliderRef - Ref object for the slider element
+ * @param {Function} [props.onContentHeight] - Called with the height of the cards
  * @param {boolean} props.darkMode - Whether to apply dark mode styling
  * @returns {JSX.Element} Carousel container with listing cards
  */
@@ -155,6 +156,7 @@ const ListingCarouselComponent = props => {
     numColumns,
     listings,
     sliderRef,
+    onContentHeight,
     darkMode,
     onFetchFeaturedListings,
     fetched,
@@ -169,6 +171,17 @@ const ListingCarouselComponent = props => {
 
   const isSeminarsAndEvents = sectionId === SEMINARS_AND_EVENTS_SECTION_ID;
   const listingImageConfig = config.layout.listingImage;
+
+  // Reports the height of the cards, so that the section makes room for all of it
+  useEffect(() => {
+    const slider = sliderRef?.current;
+    if (!slider || typeof ResizeObserver === 'undefined' || !onContentHeight) {
+      return undefined;
+    }
+    const resizeObserver = new ResizeObserver(() => onContentHeight(slider.offsetHeight));
+    resizeObserver.observe(slider);
+    return () => resizeObserver.disconnect();
+  }, [listings.length]);
 
   useEffect(() => {
     if (!fetched && inProgress !== true && !error) {
@@ -289,6 +302,7 @@ const CarouselSectionListings = props => {
 
   const containerRef = React.useRef(null);
   const sliderRef = React.useRef(null);
+  const [contentHeight, setContentHeight] = useState(null);
 
   // force mobile styles if we render this section within a modal
   const isMobile = mounted && isMobileViewport();
@@ -391,13 +405,21 @@ const CarouselSectionListings = props => {
             ›
           </button>
         </div>
-        <div className={css.dynamicContainer} style={{ height: carouselHeight }} ref={containerRef}>
+        <div
+          className={css.dynamicContainer}
+          // The height is an estimate that keeps the space while the cards load. Taller cards (e.g.
+          // a seminar title on two lines on phones) make the row taller instead of running into
+          // the next section: the carousel is positioned absolutely, so its height is measured.
+          style={{ height: Math.max(carouselHeight, contentHeight || 0) }}
+          ref={containerRef}
+        >
           {/* Lazy-loaded carousel component renders when in viewport. We don't use lazy loading if component is rendered within a modal */}
           {isInsideContainer ? (
             <ListingCarouselComponent
               numColumns={numColumns}
               listings={listingEntities}
               sliderRef={sliderRef}
+              onContentHeight={setContentHeight}
               darkMode={darkMode}
               onFetchFeaturedListings={onFetchFeaturedListings}
               fetched={fetched}
@@ -414,6 +436,7 @@ const CarouselSectionListings = props => {
               numColumns={numColumns}
               listings={listingEntities}
               sliderRef={sliderRef}
+              onContentHeight={setContentHeight}
               darkMode={darkMode}
               onFetchFeaturedListings={onFetchFeaturedListings}
               fetched={fetched}

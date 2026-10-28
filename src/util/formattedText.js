@@ -8,7 +8,9 @@
  *   1. a numbered point
  *   ---  (a divider line)
  *
- * Every other line is a paragraph. Texts written before the editor (plain lines) read the same.
+ * Every other line is a paragraph. An empty line between paragraphs is kept as a gap (like the
+ * profile texts): one line break is a new line, an empty line a new paragraph. Texts written before
+ * the editor (plain lines) read the same.
  * textToDoc and docToText convert between this text and the editor's document (Tiptap JSON);
  * parseFormattedText gives the blocks to render (see components/FormattedText).
  */
@@ -73,44 +75,46 @@ const splitInlineList = line => {
  * The blocks of a formatted text: paragraphs and lists, each line as inline parts.
  *
  * @param {string} text
- * @returns {Array<{ type: 'paragraph', parts: Array }|{ type: 'bulletList'|'orderedList', items: Array<Array> }>}
+ * @returns {Array<{ type: 'paragraph', parts: Array }|{ type: 'bulletList'|'orderedList', items: Array<Array> }|{ type: 'divider' }|{ type: 'gap' }>}
  */
 export const parseFormattedText = text => {
   const blocks = [];
+  // The list that the next list line continues, if any
   let list = null;
-  const flush = () => {
-    if (list) {
-      blocks.push(list);
+  // An empty line since the last block: a gap before the next one (none at the start or the end)
+  let hasGap = false;
+  const push = block => {
+    if (hasGap && blocks.length > 0) {
+      blocks.push({ type: 'gap' });
     }
-    list = null;
+    hasGap = false;
+    blocks.push(block);
   };
 
   `${text || ''}`
     .split('\n')
     .flatMap(splitInlineList)
     .forEach(line => {
-      if (DIVIDER.test(line)) {
-        flush();
-        blocks.push({ type: 'divider' });
-        return;
-      }
       const bullet = BULLET.exec(line);
       const numbered = NUMBERED.exec(line);
-      if (bullet || numbered) {
+      if (!DIVIDER.test(line) && (bullet || numbered)) {
         const type = numbered ? 'orderedList' : 'bulletList';
-        if (!list || list.type !== type) {
-          flush();
+        if (!list || list.type !== type || hasGap) {
           list = { type, items: [] };
+          push(list);
         }
         list.items.push(parseInline((bullet || numbered)[1]));
         return;
       }
-      flush();
-      if (line.trim()) {
-        blocks.push({ type: 'paragraph', parts: parseInline(line) });
+      list = null;
+      if (DIVIDER.test(line)) {
+        push({ type: 'divider' });
+      } else if (line.trim()) {
+        push({ type: 'paragraph', parts: parseInline(line) });
+      } else {
+        hasGap = true;
       }
     });
-  flush();
   return blocks;
 };
 
@@ -123,7 +127,7 @@ export const parseFormattedText = text => {
 export const stripFormatting = text =>
   parseFormattedText(text)
     .map(block =>
-      block.type === 'divider'
+      block.type === 'divider' || block.type === 'gap'
         ? ''
         : block.type === 'paragraph'
         ? block.parts.map(p => p.text).join('')
@@ -160,7 +164,9 @@ const paragraphNode = parts => {
  */
 export const textToDoc = text => {
   const content = parseFormattedText(text).map(block =>
-    block.type === 'divider'
+    block.type === 'gap'
+      ? { type: 'paragraph' }
+      : block.type === 'divider'
       ? { type: 'horizontalRule' }
       : block.type === 'paragraph'
       ? paragraphNode(block.parts)

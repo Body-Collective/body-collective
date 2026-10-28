@@ -1,1 +1,1 @@
-{{set-translations (asset "content/email-texts.json")}}{{t "BookingOperatorAcceptedRequest.Subject" "A booking request was accepted on your behalf" }}
+{{set-translations (asset "content/email-texts.json")}}{{t (concat "BookingOperatorAcceptedRequest.Subject." @root.recipient.private-data.language) (t "BookingOperatorAcceptedRequest.Subject" "A booking request was accepted on your behalf")}}

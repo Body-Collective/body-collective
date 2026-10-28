@@ -1,13 +1,32 @@
 @import '../../styles/customMediaQueries.css';
 
 .root {
-  /* Room between paragraphs and lists */
+  /* Lines of a paragraph follow each other; an empty line (a gap) and lists get room around them */
+  & > * {
+    margin: 0;
+  }
+
   & > * + * {
     margin-top: 12px;
 
     @media (--viewportMedium) {
       margin-top: 16px;
     }
+  }
+
+  & > .paragraph + .paragraph,
+  & > .gap,
+  & > .gap + * {
+    margin-top: 0;
+  }
+}
+
+/* An empty line of the text: the room between two paragraphs */
+.gap {
+  height: 12px;
+
+  @media (--viewportMedium) {
+    height: 16px;
   }
 }
 
@@ -20,13 +39,11 @@
 
 .paragraph {
   composes: p from global;
-  margin: 0;
   padding: 0;
 }
 
 .list,
 .orderedList {
-  margin: 0;
   padding: 0 0 0 20px;
 }
 

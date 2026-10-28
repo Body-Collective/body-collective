@@ -19,9 +19,9 @@ const renderParts = parts =>
   ));
 
 /**
- * A formatted text of a listing (see util/formattedText.js): paragraphs, bullet and numbered
- * lists, with bold, italic and underlined parts. The text is rendered as React elements, never
- * as HTML.
+ * A formatted text of a listing (see util/formattedText.js): lines, bullet and numbered lists,
+ * with bold, italic and underlined parts. An empty line in the text is a gap between paragraphs,
+ * like in the profile texts. The text is rendered as React elements, never as HTML.
  *
  * @component
  * @param {Object} props
@@ -42,6 +42,9 @@ const FormattedText = props => {
       {blocks.map((block, i) => {
         if (block.type === 'divider') {
           return <hr key={i} className={css.divider} />;
+        }
+        if (block.type === 'gap') {
+          return <div key={i} className={css.gap} aria-hidden="true" />;
         }
         if (block.type === 'paragraph') {
           return (

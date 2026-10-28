@@ -1,1 +1,1 @@
-{{set-translations (asset "content/email-texts.json")}}{{t "BookingDeclinedRequest.Subject" "Your booking request was declined" }}
+{{set-translations (asset "content/email-texts.json")}}{{t (concat "BookingDeclinedRequest.Subject." @root.recipient.private-data.language) (t "BookingDeclinedRequest.Subject" "Your booking request was declined")}}

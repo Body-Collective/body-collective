@@ -2,7 +2,12 @@ import { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import { useLanguage } from '../../context/languageContext';
-import { getStoredLanguage, getUserLanguage, storeLanguage } from '../../util/language';
+import {
+  getStoredLanguage,
+  getUserLanguage,
+  normalizeLanguage,
+  storeLanguage,
+} from '../../util/language';
 
 import { saveCurrentUserLanguage } from '../../ducks/user.duck';
 
@@ -16,6 +21,8 @@ import { saveCurrentUserLanguage } from '../../ducks/user.duck';
  *   saved in the browser too, so that it stays when the user logs out and the server can render the
  *   pages in it.
  * - An older account that has no language gets the one that is in use.
+ * - An older account whose language is only in its public data (where it was saved before) gets it
+ *   saved to the private data, where the emails read it (see user.duck.js saveCurrentUserLanguage).
  *
  * Choosing a language is done with useChangeLanguage, which also saves it to the profile.
  *
@@ -37,6 +44,9 @@ export const LanguageSyncComponent = props => {
 
   const userId = currentUser?.id?.uuid;
   const accountLanguage = getUserLanguage(currentUser);
+  const hasPrivateLanguage = !!normalizeLanguage(
+    currentUser?.attributes?.profile?.privateData?.language
+  );
 
   useEffect(() => {
     const languageInUse = languageRef.current;
@@ -52,10 +62,13 @@ export const LanguageSyncComponent = props => {
       } else {
         storeLanguage(accountLanguage);
       }
+      if (!hasPrivateLanguage) {
+        onSaveLanguage(accountLanguage);
+      }
     } else {
       onSaveLanguage(languageInUse);
     }
-  }, [userId, accountLanguage]);
+  }, [userId, accountLanguage, hasPrivateLanguage]);
 
   return null;
 };

@@ -43,8 +43,21 @@ describe('formattedText', () => {
     expect(docToText(textToDoc(text))).toEqual(text);
   });
 
-  it('keeps plain texts with empty lines readable', () => {
-    expect(docToText(textToDoc('First line\n\nSecond line'))).toEqual('First line\nSecond line');
+  it('keeps empty lines between paragraphs, also through the editor', () => {
+    const text = 'Quote\nby someone\n\n\nFirst paragraph\n\n- one\n- two';
+    expect(parseFormattedText(text).map(b => b.type)).toEqual([
+      'paragraph',
+      'paragraph',
+      'gap',
+      'paragraph',
+      'gap',
+      'bulletList',
+    ]);
+    // Several empty lines are one gap; none at the start or the end
+    expect(parseFormattedText('\n\nA\n\n').map(b => b.type)).toEqual(['paragraph']);
+    expect(docToText(textToDoc(text))).toEqual(
+      'Quote\nby someone\n\nFirst paragraph\n\n- one\n- two'
+    );
   });
 
   it('strips marks and tells whether there is content', () => {

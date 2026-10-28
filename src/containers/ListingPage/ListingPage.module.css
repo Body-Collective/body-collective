@@ -745,11 +745,13 @@
   min-width: 0;
 }
 
+/* Dropdown titles (treatments, "Programme & schedule", "Cancellation policy"...) in the small bold
+   body font of the section headings ("About this seminar"), as Jana asked */
 .treatmentName {
-  font-family: var(--font-heading);
-  font-size: 20px;
-  font-weight: var(--fontWeightSemiBold);
-  line-height: 24px;
+  composes: p from global;
+  margin: 0;
+  padding: 0;
+  font-weight: var(--fontWeightBold);
   color: var(--colorGrey900);
 }
 
